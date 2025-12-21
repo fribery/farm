@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { telegramService } from './utils/telegram';
-import { supabaseService } from './utils/supabase';
+import { supabaseService } from './utils/supabase-s';
 import './App.css';
 
 // Конфигурация культур с таймерами
@@ -57,6 +57,14 @@ const UPGRADES_CONFIG = {
 };
 
 function App() {
+  console.log('🔄 Проверка окружения:', {
+  envUrl: import.meta.env.VITE_SUPABASE_URL,
+  envKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+  hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+  hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+  urlStartsWithHttps: import.meta.env.VITE_SUPABASE_URL?.startsWith('https://'),
+  keyStartsWithEyJ: import.meta.env.VITE_SUPABASE_ANON_KEY?.startsWith('eyJ')
+});
   const [gameData, setGameData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
