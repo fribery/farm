@@ -1,57 +1,58 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { telegramService } from './utils/telegram';
+import { supabaseService } from './utils/supabase';
 import './App.css';
 
-// Временная заглушка для Telegram
-const initTelegramApp = () => {
-  console.log('🔧 Используем временные данные Telegram');
-  return {
-    user: {
-      id: Date.now(),
-      first_name: 'Telegram',
-      last_name: 'User',
-      username: 'telegram_user'
-    }
-  };
+// Конфигурация культур с таймерами
+const CROPS_CONFIG = {
+  wheat: {
+    name: '🌾 Пшеница',
+    growTime: 30,      // 30 секунд
+    reward: 3,
+    seedPrice: 10,
+    experience: 1,
+    color: '#fbbf24'
+  },
+  carrot: {
+    name: '🥕 Морковь',
+    growTime: 60,      // 1 минута
+    reward: 6,
+    seedPrice: 20,
+    experience: 2,
+    color: '#f97316'
+  },
+  potato: {
+    name: '🥔 Картофель',
+    growTime: 90,      // 1.5 минуты
+    reward: 10,
+    seedPrice: 30,
+    experience: 3,
+    color: '#a16207'
+  }
 };
 
-// Временная заглушка для базы данных
-const userService = {
-  async getUserData(telegramId) {
-    console.log('📦 Загружаем тестовые данные');
-    return {
-      telegram_id: telegramId,
-      game_data: {
-        coins: 100,
-        level: 1,
-        experience: 0,
-        nextLevelExp: 50,
-        farm: {
-          fields: [],
-          capacity: 5,
-          autoCollect: false,
-          growthMultiplier: 1.0
-        },
-        inventory: {
-          wheatSeeds: 5,
-          carrotSeeds: 3,
-          potatoSeeds: 1
-        },
-        stats: {
-          totalCoinsEarned: 0,
-          cropsHarvested: 0,
-          playTime: 0
-        }
-      }
-    };
+// Конфигурация улучшений магазина
+const UPGRADES_CONFIG = {
+  expand: {
+    name: '📈 Расширение фермы',
+    description: '+1 слот для посадки',
+    price: 100,
+    type: 'farm',
+    icon: '📈'
   },
-  
-  updateUserData() {
-    console.log('💾 Сохранено (тестовый режим)');
-    return Promise.resolve(true);
+  autoCollect: {
+    name: '⚡ Авто-сбор',
+    description: 'Автоматически собирает урожай',
+    price: 500,
+    type: 'farm',
+    icon: '⚡'
   },
-  
-  autoSave() {
-    console.log('⏳ Автосохранение (тестовый режим)');
+  fasterGrowth: {
+    name: '🚀 Ускоренный рост',
+    description: 'Растения растут на 20% быстрее',
+    price: 300,
+    type: 'farm',
+    icon: '🚀'
   }
 };
 
@@ -60,74 +61,83 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
   const [activeTab, setActiveTab] = useState('farm');
+  const [telegramUser, setTelegramUser] = useState(null);
   const [time, setTime] = useState(Date.now());
+  const [dbStatus, setDbStatus] = useState('⏳ Проверка подключения...');
   const intervalRef = useRef(null);
+  const saveTimeoutRef = useRef(null);
 
-  // Конфигурация культур с таймерами
-  const CROPS_CONFIG = {
-    wheat: {
-      name: '🌾 Пшеница',
-      growTime: 30,      // 30 секунд
-      reward: 3,
-      seedPrice: 10,
-      experience: 1,
-      color: '#fbbf24'
-    },
-    carrot: {
-      name: '🥕 Морковь',
-      growTime: 60,      // 1 минута
-      reward: 6,
-      seedPrice: 20,
-      experience: 2,
-      color: '#f97316'
-    },
-    potato: {
-      name: '🥔 Картофель',
-      growTime: 90,      // 1.5 минуты
-      reward: 10,
-      seedPrice: 30,
-      experience: 3,
-      color: '#a16207'
-    }
-  };
-
-  // Инициализация игры
+  // Инициализация игры с Telegram и Supabase
   useEffect(() => {
-    console.log('🚀 Запуск приложения...');
-    
-    setTimeout(async () => {
-      const telegramData = initTelegramApp();
-      const userProfile = await userService.getUserData(telegramData.user.id);
+    const initGame = async () => {
+      console.log('🎮 Инициализация игры...');
+      setSaveStatus('Запуск фермы...');
       
-      if (userProfile?.game_data) {
-        // Восстанавливаем таймеры для уже посаженных культур
-        const fieldsWithTimers = userProfile.game_data.farm?.fields?.map(field => ({
-          ...field,
-          plantedAt: field.plantedAt || new Date().toISOString()
-        })) || [];
+      try {
+        // 1. Инициализируем Telegram
+        const tgUser = telegramService.getUser();
+        setTelegramUser(tgUser);
         
-        setGameData({
-          ...userProfile.game_data,
-          farm: {
-            ...userProfile.game_data.farm,
-            fields: fieldsWithTimers
-          }
-        });
-        setSaveStatus(`Добро пожаловать, ${telegramData.user.first_name}!`);
+        if (!tgUser?.id) {
+          throw new Error('Не удалось получить данные Telegram');
+        }
+        
+        console.log('✅ Telegram пользователь:', tgUser);
+        setSaveStatus(`Привет, ${telegramService.getUserName()}!`);
+        
+        // 2. Загружаем данные из Supabase
+        setDbStatus('📥 Загрузка данных из базы...');
+        const userProfile = await supabaseService.getUser(tgUser.id);
+        
+        if (userProfile?.game_data) {
+          // Восстанавливаем таймеры для уже посаженных культур
+          const fieldsWithTimers = userProfile.game_data.farm?.fields?.map(field => ({
+            ...field,
+            plantedAt: field.plantedAt || new Date().toISOString()
+          })) || [];
+          
+          setGameData({
+            ...userProfile.game_data,
+            farm: {
+              ...userProfile.game_data.farm,
+              fields: fieldsWithTimers
+            }
+          });
+          
+          setDbStatus('✅ Данные загружены из базы');
+          setSaveStatus(`Добро пожаловать на вашу ферму!`);
+          console.log('✅ Игровые данные загружены:', userProfile.game_data);
+        } else {
+          throw new Error('Не удалось загрузить игровые данные');
+        }
+        
+      } catch (error) {
+        console.error('❌ Ошибка инициализации:', error);
+        setDbStatus('⚠️ Используются локальные данные');
+        
+        // Fallback: создаем начальные данные
+        const initialData = supabaseService.getInitialGameData();
+        setGameData(initialData);
+        setSaveStatus('Создана новая ферма!');
+      } finally {
+        setLoading(false);
+        
+        // Запускаем таймер обновления каждую секунду
+        intervalRef.current = setInterval(() => {
+          setTime(Date.now());
+        }, 1000);
       }
-      
-      setLoading(false);
-    }, 500);
+    };
     
-    // Запускаем таймер обновления каждую секунду
-    intervalRef.current = setInterval(() => {
-      setTime(Date.now());
-    }, 1000);
+    initGame();
     
     // Очистка при размонтировании
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
+      }
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
       }
     };
   }, []);
@@ -142,7 +152,7 @@ function App() {
       const elapsedSeconds = (currentTime - plantedTime) / 1000;
       
       const cropConfig = CROPS_CONFIG[field.type];
-      const growTime = cropConfig ? cropConfig.growTime : 30;
+      const growTime = cropConfig ? cropConfig.growTime / (gameData.farm.growthMultiplier || 1.0) : 30;
       
       const isReady = elapsedSeconds >= growTime;
       const progress = Math.min(100, (elapsedSeconds / growTime) * 100);
@@ -200,7 +210,7 @@ function App() {
       nextExp = Math.round(nextExp * 1.5);
     }
     
-    saveGameData({
+    const updatedData = {
       coins: gameData.coins + totalCoins,
       experience: newExp,
       level: newLevel,
@@ -211,25 +221,62 @@ function App() {
         totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + totalCoins,
         cropsHarvested: (gameData.stats.cropsHarvested || 0) + readyFields.length
       }
-    });
+    };
+    
+    setGameData(updatedData);
+    
+    // Автосохранение после сбора
+    autoSave(updatedData);
     
     if (readyFields.length > 0) {
       setSaveStatus(`⚡ Авто-сбор! +${totalCoins} монет`);
     }
   }, [gameData?.farm?.fields]);
 
-  // Сохранение данных
-  const saveGameData = (newData) => {
-    if (!gameData) return;
+  // Автоматическое сохранение с дебаунсом
+  const autoSave = (data) => {
+    if (!telegramUser?.id) return;
     
-    const updatedData = {
-      ...gameData,
-      ...newData,
-      lastSave: new Date().toISOString()
-    };
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
     
-    setGameData(updatedData);
-    userService.autoSave();
+    saveTimeoutRef.current = setTimeout(async () => {
+      setDbStatus('💾 Автосохранение...');
+      await supabaseService.saveUser(telegramUser.id, data);
+      setDbStatus('✅ Данные сохранены');
+      
+      // Сбрасываем статус через 3 секунды
+      setTimeout(() => {
+        setDbStatus('');
+      }, 3000);
+    }, 3000);
+  };
+
+  // Ручное сохранение
+  const manualSave = async () => {
+    if (!telegramUser?.id || !gameData) {
+      setSaveStatus('❌ Нет данных для сохранения');
+      return;
+    }
+    
+    setSaveStatus('💾 Сохранение...');
+    setDbStatus('💾 Сохранение в базу...');
+    
+    try {
+      const result = await supabaseService.saveUser(telegramUser.id, gameData);
+      
+      if (result) {
+        setSaveStatus('✅ Игра сохранена!');
+        setDbStatus('✅ Данные сохранены в базу');
+      } else {
+        setSaveStatus('⚠️ Сохранено локально');
+        setDbStatus('⚠️ Локальное сохранение');
+      }
+    } catch (error) {
+      setSaveStatus('❌ Ошибка сохранения');
+      setDbStatus('❌ Ошибка базы данных');
+    }
   };
 
   // Посадка культуры
@@ -243,13 +290,13 @@ function App() {
     
     // Проверяем место на ферме
     if (gameData.farm.fields.length >= gameData.farm.capacity) {
-      setSaveStatus('❌ Нет свободных мест! Купите расширение.');
+      telegramService.showAlert('❌ Нет свободных мест! Купите расширение.');
       return;
     }
     
     // Проверяем семена
     if (!gameData.inventory[seedKey] || gameData.inventory[seedKey] <= 0) {
-      setSaveStatus('❌ Нет семян! Купите в магазине.');
+      telegramService.showAlert('❌ Нет семян! Купите в магазине.');
       return;
     }
     
@@ -266,7 +313,7 @@ function App() {
       timeLeft: crop.growTime
     };
     
-    saveGameData({
+    const updatedData = {
       farm: {
         ...gameData.farm,
         fields: [...gameData.farm.fields, newField]
@@ -275,9 +322,13 @@ function App() {
         ...gameData.inventory,
         [seedKey]: gameData.inventory[seedKey] - 1
       }
-    });
+    };
     
-    setSaveStatus(`🌱 Посажена ${crop.name}! Созреет через ${crop.growTime} сек.`);
+    setGameData(prev => ({ ...prev, ...updatedData }));
+    autoSave({ ...gameData, ...updatedData });
+    
+    setSaveStatus(`🌱 Посажена ${crop.name}!`);
+    telegramService.showAlert(`Посажена ${crop.name}! Созреет через ${crop.growTime} секунд.`);
   };
 
   // Сбор урожая одной культуры
@@ -285,7 +336,9 @@ function App() {
     if (!gameData) return;
     
     const field = gameData.farm.fields.find(f => f.id === fieldId);
-    if (!field || !field.isReady) {
+    if (!field) return;
+    
+    if (!field.isReady) {
       setSaveStatus('🌾 Урожай еще не созрел!');
       return;
     }
@@ -307,7 +360,7 @@ function App() {
       nextExp = Math.round(nextExp * 1.5);
     }
     
-    saveGameData({
+    const updatedData = {
       coins: gameData.coins + crop.reward,
       experience: newExp,
       level: newLevel,
@@ -318,7 +371,10 @@ function App() {
         totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + crop.reward,
         cropsHarvested: (gameData.stats.cropsHarvested || 0) + 1
       }
-    });
+    };
+    
+    setGameData(prev => ({ ...prev, ...updatedData }));
+    autoSave({ ...gameData, ...updatedData });
     
     setSaveStatus(`💰 Собрано ${crop.name}! +${crop.reward} монет`);
   };
@@ -357,7 +413,7 @@ function App() {
       nextExp = Math.round(nextExp * 1.5);
     }
     
-    saveGameData({
+    const updatedData = {
       coins: gameData.coins + totalCoins,
       experience: newExp,
       level: newLevel,
@@ -368,7 +424,10 @@ function App() {
         totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + totalCoins,
         cropsHarvested: (gameData.stats.cropsHarvested || 0) + readyFields.length
       }
-    });
+    };
+    
+    setGameData(prev => ({ ...prev, ...updatedData }));
+    autoSave({ ...gameData, ...updatedData });
     
     setSaveStatus(`🎯 Собрано всё! +${totalCoins} монет`);
   };
@@ -383,20 +442,23 @@ function App() {
     const totalCost = crop.seedPrice * amount;
     
     if (gameData.coins < totalCost) {
-      setSaveStatus(`❌ Не хватает ${totalCost - gameData.coins} монет!`);
+      telegramService.showAlert(`❌ Не хватает ${totalCost - gameData.coins} монет!`);
       return;
     }
     
     const seedKey = `${type}Seeds`;
     const currentSeeds = gameData.inventory[seedKey] || 0;
     
-    saveGameData({
+    const updatedData = {
       coins: gameData.coins - totalCost,
       inventory: {
         ...gameData.inventory,
         [seedKey]: currentSeeds + amount
       }
-    });
+    };
+    
+    setGameData(prev => ({ ...prev, ...updatedData }));
+    autoSave({ ...gameData, ...updatedData });
     
     setSaveStatus(`✅ Куплено ${amount} семян ${crop.name} за ${totalCost} монет`);
   };
@@ -405,17 +467,17 @@ function App() {
   const buyUpgrade = (upgradeType) => {
     if (!gameData) return;
     
-    const upgrades = {
-      expand: { name: '📈 Расширение фермы', price: 100, type: 'farm' },
-      autoCollect: { name: '⚡ Авто-сбор', price: 500, type: 'farm' },
-      fasterGrowth: { name: '🚀 Ускоренный рост', price: 300, type: 'farm' }
-    };
-    
-    const upgrade = upgrades[upgradeType];
+    const upgrade = UPGRADES_CONFIG[upgradeType];
     if (!upgrade) return;
     
+    // Проверяем, не куплено ли уже
+    if (upgradeType === 'autoCollect' && gameData.farm.autoCollect) {
+      telegramService.showAlert('✅ Это улучшение уже куплено!');
+      return;
+    }
+    
     if (gameData.coins < upgrade.price) {
-      setSaveStatus(`❌ Нужно ${upgrade.price} монет!`);
+      telegramService.showAlert(`❌ Нужно ${upgrade.price} монет!`);
       return;
     }
     
@@ -433,12 +495,16 @@ function App() {
         break;
     }
     
-    saveGameData({
+    const updatedData = {
       coins: gameData.coins - upgrade.price,
       ...updates
-    });
+    };
+    
+    setGameData(prev => ({ ...prev, ...updatedData }));
+    autoSave({ ...gameData, ...updatedData });
     
     setSaveStatus(`✅ Куплено: ${upgrade.name}`);
+    telegramService.showAlert(`Успешно куплено: ${upgrade.name}`);
   };
 
   // Форматирование времени
@@ -451,6 +517,13 @@ function App() {
     return `${seconds} сек`;
   };
 
+  // Закрытие игры через Telegram
+  const closeGame = () => {
+    if (window.confirm('Закрыть игру?')) {
+      telegramService.close();
+    }
+  };
+
   // Прогресс уровня
   const levelProgress = gameData ? 
     Math.min(100, (gameData.experience / gameData.nextLevelExp) * 100) : 0;
@@ -460,7 +533,8 @@ function App() {
       <div className="loading">
         <h2>🌾 Загрузка фермы...</h2>
         <div className="spinner"></div>
-        <p>Инициализация игры</p>
+        <p>{dbStatus}</p>
+        <p>Telegram Mini App</p>
       </div>
     );
   }
@@ -468,18 +542,30 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>🌾 Ферма</h1>
-        <div className="user-info">
-          <div className="user-avatar">T</div>
-          <div>
-            <strong>Telegram User</strong>
-            <small>Ур. {gameData?.level || 1}</small>
+        <h1>🌾 Ферма в Telegram</h1>
+        {telegramUser && (
+          <div className="user-info">
+            <div className="user-avatar">
+              {telegramUser.first_name?.[0]}
+              {telegramUser.last_name?.[0]}
+            </div>
+            <div className="user-details">
+              <strong>{telegramService.getUserName()}</strong>
+              <small>Ур. {gameData?.level || 1}</small>
+              {telegramUser.username && (
+                <small>@{telegramUser.username}</small>
+              )}
+            </div>
+            <button onClick={closeGame} className="close-btn" title="Закрыть">
+              ✕
+            </button>
           </div>
-        </div>
+        )}
       </header>
 
       <div className="status-bar">
         <span>{saveStatus || 'Готово к игре!'}</span>
+        {dbStatus && <span className="db-status">{dbStatus}</span>}
       </div>
 
       <div className="tabs">
@@ -487,13 +573,19 @@ function App() {
           className={`tab ${activeTab === 'farm' ? 'active' : ''}`}
           onClick={() => setActiveTab('farm')}
         >
-          Ферма
+          🏡 Ферма
         </button>
         <button 
           className={`tab ${activeTab === 'shop' ? 'active' : ''}`}
           onClick={() => setActiveTab('shop')}
         >
-          Магазин
+          🛒 Магазин
+        </button>
+        <button 
+          className={`tab ${activeTab === 'stats' ? 'active' : ''}`}
+          onClick={() => setActiveTab('stats')}
+        >
+          📊 Статистика
         </button>
       </div>
 
@@ -521,6 +613,12 @@ function App() {
               <span>🌾 Слоты</span>
               <strong>{gameData.farm.fields.length}/{gameData.farm.capacity}</strong>
             </div>
+            {gameData.farm.autoCollect && (
+              <div className="stat">
+                <span>⚡ Авто-сбор</span>
+                <strong>✅</strong>
+              </div>
+            )}
           </div>
 
           {/* Вкладка Фермы */}
@@ -623,21 +721,13 @@ function App() {
                   ))}
                 </div>
               </div>
-
-              {/* Статус авто-сбора */}
-              {gameData.farm.autoCollect && (
-                <div className="auto-collect-status">
-                  <span>⚡ Авто-сбор активен</span>
-                  <small>Готовый урожай собирается автоматически</small>
-                </div>
-              )}
             </div>
           )}
 
           {/* Вкладка Магазина */}
           {activeTab === 'shop' && (
             <div className="shop-tab">
-              <h3>🛒 Магазин</h3>
+              <h3>🛒 Магазин фермера</h3>
               
               <div className="shop-section">
                 <h4>🌾 Семена</h4>
@@ -677,54 +767,89 @@ function App() {
               <div className="shop-section">
                 <h4>⚡ Улучшения</h4>
                 <div className="shop-items">
-                  <div className="shop-item">
-                    <div className="item-info">
-                      <span>📈</span>
-                      <div>
-                        <strong>Расширение фермы</strong>
-                        <small>+1 слот для посадки</small>
+                  {Object.entries(UPGRADES_CONFIG).map(([id, upgrade]) => {
+                    const owned = id === 'autoCollect' ? gameData.farm.autoCollect : false;
+                    
+                    return (
+                      <div key={id} className={`shop-item ${owned ? 'owned' : ''}`}>
+                        <div className="item-info">
+                          <span className="item-icon">{upgrade.icon}</span>
+                          <div>
+                            <strong>{upgrade.name}</strong>
+                            <p className="description">{upgrade.description}</p>
+                            <span className="price">Цена: {upgrade.price}💰</span>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => buyUpgrade(id)}
+                          className={`buy-btn upgrade ${owned ? 'owned' : ''}`}
+                          disabled={owned}
+                        >
+                          {owned ? '✅ Куплено' : `Купить`}
+                        </button>
                       </div>
-                    </div>
-                    <button 
-                      onClick={() => buyUpgrade('expand')}
-                      className="buy-btn upgrade"
-                    >
-                      100💰
-                    </button>
-                  </div>
-                  
-                  <div className="shop-item">
-                    <div className="item-info">
-                      <span>⚡</span>
-                      <div>
-                        <strong>Авто-сбор</strong>
-                        <small>Автоматически собирает урожай</small>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Вкладка Статистики */}
+          {activeTab === 'stats' && (
+            <div className="stats-tab">
+              <h3>📊 Ваша статистика</h3>
+              
+              <div className="stats-grid">
+                <div className="stat-card">
+                  <span>Всего заработано</span>
+                  <strong>{gameData.stats.totalCoinsEarned || 0}💰</strong>
+                </div>
+                <div className="stat-card">
+                  <span>Собрано урожая</span>
+                  <strong>{gameData.stats.cropsHarvested || 0}🌾</strong>
+                </div>
+                <div className="stat-card">
+                  <span>Куплено семян</span>
+                  <strong>
+                    {Object.values(gameData.inventory).reduce((a, b) => a + b, 0)} шт
+                  </strong>
+                </div>
+                <div className="stat-card">
+                  <span>Улучшения</span>
+                  <strong>
+                    {[
+                      gameData.farm.autoCollect,
+                      gameData.farm.growthMultiplier > 1.0
+                    ].filter(Boolean).length}/2
+                  </strong>
+                </div>
+              </div>
+
+              <div className="inventory-section">
+                <h4>🎒 Инвентарь семян</h4>
+                <div className="inventory-items">
+                  {Object.entries(CROPS_CONFIG).map(([type, crop]) => {
+                    const seedCount = gameData.inventory[`${type}Seeds`] || 0;
+                    return (
+                      <div key={type} className="inventory-item">
+                        <div className="item-icon" style={{ color: crop.color }}>
+                          {crop.name.split(' ')[0]}
+                        </div>
+                        <div className="item-details">
+                          <strong>{crop.name}</strong>
+                          <span>Количество: {seedCount} шт.</span>
+                        </div>
+                        <button 
+                          onClick={() => plantCrop(type)}
+                          className="use-btn"
+                          disabled={seedCount === 0}
+                        >
+                          Посадить
+                        </button>
                       </div>
-                    </div>
-                    <button 
-                      onClick={() => buyUpgrade('autoCollect')}
-                      className="buy-btn upgrade"
-                      disabled={gameData.farm.autoCollect}
-                    >
-                      {gameData.farm.autoCollect ? '✅ Куплено' : '500💰'}
-                    </button>
-                  </div>
-                  
-                  <div className="shop-item">
-                    <div className="item-info">
-                      <span>🚀</span>
-                      <div>
-                        <strong>Ускоренный рост</strong>
-                        <small>Растения растут на 20% быстрее</small>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => buyUpgrade('fasterGrowth')}
-                      className="buy-btn upgrade"
-                    >
-                      300💰
-                    </button>
-                  </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -732,20 +857,15 @@ function App() {
 
           {/* Кнопка сохранения */}
           <div className="save-section">
-            <button 
-              onClick={() => {
-                userService.updateUserData();
-                setSaveStatus('✅ Игра сохранена!');
-              }} 
-              className="save-btn"
-            >
+            <button onClick={manualSave} className="save-btn">
               💾 Сохранить игру
             </button>
-            {gameData.lastSave && (
-              <p className="last-save">
-                Последнее сохранение: {new Date(gameData.lastSave).toLocaleTimeString()}
-              </p>
-            )}
+            <p className="hint">
+              Автосохранение каждые 3 секунды
+              {gameData.lastSave && (
+                <span> | Последнее: {new Date(gameData.lastSave).toLocaleTimeString()}</span>
+              )}
+            </p>
           </div>
         </div>
       )}
