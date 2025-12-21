@@ -233,25 +233,39 @@ function App() {
     }
   }, [gameData?.farm?.fields]);
 
-  // Автоматическое сохранение с дебаунсом
-  const autoSave = (data) => {
-    if (!telegramUser?.id) return;
+  // Мгновенное сохранение при каждом действии
+const autoSave = async (data) => {
+  if (!telegramUser?.id) return;
+  
+  // Отменяем таймер если был
+  if (saveTimeoutRef.current) {
+    clearTimeout(saveTimeoutRef.current);
+    saveTimeoutRef.current = null;
+  }
+  
+  try {
+    // Сохраняем сразу без задержки
+    setDbStatus('💾 Сохранение...');
+    const result = await supabaseService.saveUser(telegramUser.id, data);
     
-    if (saveTimeoutRef.current) {
-      clearTimeout(saveTimeoutRef.current);
+    if (result) {
+      setDbStatus('✅ Сохранено');
+      console.log('💾 Мгновенное сохранение успешно');
+    } else {
+      setDbStatus('⚠️ Локальное сохранение');
+      console.log('💾 Сохранено локально');
     }
     
-    saveTimeoutRef.current = setTimeout(async () => {
-      setDbStatus('💾 Автосохранение...');
-      await supabaseService.saveUser(telegramUser.id, data);
-      setDbStatus('✅ Данные сохранены');
-      
-      // Сбрасываем статус через 3 секунды
-      setTimeout(() => {
-        setDbStatus('');
-      }, 3000);
-    }, 3000);
-  };
+    // Сбрасываем статус через 2 секунды
+    setTimeout(() => {
+      setDbStatus('');
+    }, 2000);
+    
+  } catch (error) {
+    console.error('❌ Ошибка мгновенного сохранения:', error);
+    setDbStatus('❌ Ошибка сохранения');
+  }
+};
 
   // Ручное сохранение
   const manualSave = async () => {
