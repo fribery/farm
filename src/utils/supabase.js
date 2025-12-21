@@ -1,9 +1,13 @@
 import { createClient } from '@supabase/supabase-js';
 
+const VITE_SUPABASE_URL = 'https://sqiszyeauncebbxdsavq.supabase.co';
+const VITE_SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxaXN6eWVhdW5jZWJieGRzYXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNDAxNzAsImV4cCI6MjA4MTkxNjE3MH0.ESSYsrnx1FIPzU1Ss_w_L723MaEjk8-ADkVst9MX9KA';
+
 class SupabaseService {
   constructor() {
     this.client = null;
     this.isConnected = false;
+    console.log('🔧 Инициализация Supabase с вашими ключами');
     this.init();
   }
 
@@ -24,8 +28,8 @@ class SupabaseService {
         console.error('❌ ОШИБКА: Не настроены переменные Supabase!');
         console.log('Создайте файл .env.local в корне проекта с содержимым:');
         console.log(`
-VITE_SUPABASE_URL=https://ваш-проект.supabase.co
-VITE_SUPABASE_ANON_KEY=ваш_публичный_ключ_из_supabase
+        VITE_SUPABASE_URL=https://sqiszyeauncebbxdsavq.supabase.co
+        VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxaXN6eWVhdW5jZWJieGRzYXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNDAxNzAsImV4cCI6MjA4MTkxNjE3MH0.ESSYsrnx1FIPzU1Ss_w_L723MaEjk8-ADkVst9MX9KA
         `);
         return;
       }

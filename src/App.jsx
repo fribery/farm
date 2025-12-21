@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { telegramService } from './utils/telegram';
-import { supabaseService } from './utils/supabase-s';
+import { supabaseService } from './utils/supabase';
 import './App.css';
 
 // Конфигурация культур с таймерами
@@ -74,6 +74,11 @@ function App() {
   const [dbStatus, setDbStatus] = useState('⏳ Проверка подключения...');
   const intervalRef = useRef(null);
   const saveTimeoutRef = useRef(null);
+  // В самом начале функции App, после useState
+  console.log('=== ЗАПУСК В TELEGRAM ===');
+  console.log('Window.Telegram:', window.Telegram);
+  console.log('Window.Telegram.WebApp:', window.Telegram?.WebApp);
+  console.log('Init данные:', window.Telegram?.WebApp?.initDataUnsafe);
 
   // Инициализация игры с Telegram и Supabase
   useEffect(() => {
@@ -974,16 +979,20 @@ const manualSave = async () => {
         console.log('📊 Тестовый запрос:', { data, error });
         
         if (error) {
-          telegramService.showAlert(`❌ Ошибка Supabase: ${error.message}`);
+          // Используем alert вместо telegramService.showAlert
+          alert(`❌ Ошибка Supabase: ${error.message}`);
+          console.error('❌ Ошибка Supabase:', error);
         } else {
-          telegramService.showAlert('✅ Подключение к Supabase успешно!');
+          alert('✅ Подключение к Supabase успешно!');
+          console.log('✅ Подключение успешно');
         }
       } catch (err) {
         console.error('🔥 Ошибка теста:', err);
-        telegramService.showAlert(`🔥 Критическая ошибка: ${err.message}`);
+        alert(`🔥 Критическая ошибка: ${err.message}`);
       }
     } else {
-      telegramService.showAlert('❌ Supabase клиент не создан');
+      alert('❌ Supabase клиент не создан');
+      console.error('❌ Нет клиента Supabase');
     }
   }}
   className="test-btn"

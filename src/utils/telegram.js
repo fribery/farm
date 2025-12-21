@@ -5,58 +5,62 @@ class TelegramService {
     this.isInitialized = false;
     this.user = null;
     this.initData = null;
+    this.init();
   }
 
-  // Инициализация Telegram Mini App
-  init() {
-    try {
-      if (!this.isInitialized) {
-        // Инициализируем SDK
-        init();
-        this.isInitialized = true;
-        console.log('✅ Telegram SDK инициализирован');
-      }
-
-      // Получаем параметры запуска
-      const launchParams = retrieveLaunchParams();
-      this.initData = launchParams.initData;
-      this.user = launchParams.initDataUnsafe?.user;
-      
-      // Альтернативный способ через window.Telegram.WebApp
-      if (!this.user && window.Telegram?.WebApp) {
-        console.log('🔄 Используем window.Telegram.WebApp');
-        const webApp = window.Telegram.WebApp;
-        this.user = webApp.initDataUnsafe?.user;
-        this.initData = webApp.initData;
-        
-        // Расширяем WebApp для лучшего UX
-        webApp.expand();
-        webApp.enableClosingConfirmation();
-        webApp.setHeaderColor('#3498db');
-      }
-
-      console.log('👤 Пользователь Telegram:', this.user);
-      return this.user;
-      
-    } catch (error) {
-      console.error('❌ Ошибка инициализации Telegram:', error);
-      
-      // Для разработки вне Telegram
-      if (process.env.NODE_ENV === 'development') {
-        this.user = {
-          id: Math.floor(Math.random() * 1000000) + 100000,
-          first_name: 'Разработчик',
-          last_name: 'Тестовый',
-          username: 'dev_test',
-          language_code: 'ru'
-        };
-        console.log('🛠️ Режим разработки, тестовый пользователь:', this.user);
-        return this.user;
-      }
-      
-      return null;
+init() {
+  try {
+    // Способ 1: Через SDK
+    if (!this.isInitialized) {
+      init();
+      this.isInitialized = true;
     }
+    
+    const launchParams = retrieveLaunchParams();
+    this.user = launchParams.initDataUnsafe?.user;
+    
+    // Способ 2: Через window.Telegram.WebApp (Telegram Mini Apps)
+    if (!this.user && window.Telegram?.WebApp) {
+      console.log('📱 Используем Telegram WebApp API');
+      const webApp = window.Telegram.WebApp;
+      
+      // Инициализируем WebApp
+      webApp.ready();
+      webApp.expand();
+      
+      this.user = webApp.initDataUnsafe?.user;
+      
+      if (this.user) {
+        console.log('✅ Telegram WebApp пользователь:', this.user);
+      }
+    }
+    
+    // Способ 3: Для разработки
+    if (!this.user && process.env.NODE_ENV === 'development') {
+      console.log('🛠️ Режим разработки, тестовый пользователь');
+      this.user = {
+        id: 123456789,
+        first_name: 'Telegram',
+        last_name: 'Тест',
+        username: 'telegram_test'
+      };
+    }
+    
+    return this.user;
+    
+  } catch (error) {
+    console.error('❌ Ошибка Telegram инициализации:', error);
+    
+    // Ultimate fallback
+    this.user = {
+      id: Date.now(),
+      first_name: 'Игрок',
+      last_name: ''
+    };
+    
+    return this.user;
   }
+}
 
   // Получить данные пользователя
   getUser() {
