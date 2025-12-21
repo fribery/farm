@@ -233,6 +233,29 @@ function App() {
     }
   }, [gameData?.farm?.fields]);
 
+  // В App.jsx добавьте этот useEffect:
+useEffect(() => {
+  const handleBeforeUnload = (e) => {
+    if (telegramUser?.id && gameData) {
+      // Пытаемся синхронно сохранить
+      try {
+        localStorage.setItem(`farm_emergency_${telegramUser.id}`, JSON.stringify({
+          ...gameData,
+          emergencySave: new Date().toISOString()
+        }));
+      } catch (err) {
+        console.error('Экстренное сохранение не удалось');
+      }
+    }
+  };
+
+  window.addEventListener('beforeunload', handleBeforeUnload);
+  
+  return () => {
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+  };
+}, [telegramUser, gameData]);
+
   // Мгновенное сохранение при каждом действии
 const autoSave = async (data) => {
   if (!telegramUser?.id) return;
@@ -345,53 +368,57 @@ const autoSave = async (data) => {
     telegramService.showAlert(`Посажена ${crop.name}! Созреет через ${crop.growTime} секунд.`);
   };
 
-  // Сбор урожая одной культуры
-  const collectCrop = (fieldId) => {
-    if (!gameData) return;
-    
-    const field = gameData.farm.fields.find(f => f.id === fieldId);
-    if (!field) return;
-    
-    if (!field.isReady) {
-      setSaveStatus('🌾 Урожай еще не созрел!');
-      return;
+
+// СБОР УРОЖАЯ
+  const collectCrop = async (fieldId) => {
+  if (!gameData) return;
+  
+  const field = gameData.farm.fields.find(f => f.id === fieldId);
+  if (!field) return;
+  
+  if (!field.isReady) {
+    setSaveStatus('🌾 Урожай еще не созрел!');
+    return;
+  }
+  
+  const crop = CROPS_CONFIG[field.type];
+  if (!crop) return;
+  
+  // Удаляем поле и добавляем награду
+  const updatedFields = gameData.farm.fields.filter(f => f.id !== fieldId);
+  
+  let newExp = gameData.experience + crop.experience;
+  let newLevel = gameData.level;
+  let nextExp = gameData.nextLevelExp;
+  
+  // Проверка уровня
+  if (newExp >= nextExp) {
+    newLevel++;
+    newExp = newExp - nextExp;
+    nextExp = Math.round(nextExp * 1.5);
+  }
+  
+  const updatedData = {
+    ...gameData,
+    coins: gameData.coins + crop.reward,
+    experience: newExp,
+    level: newLevel,
+    nextLevelExp: nextExp,
+    farm: { ...gameData.farm, fields: updatedFields },
+    stats: {
+      ...gameData.stats,
+      totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + crop.reward,
+      cropsHarvested: (gameData.stats.cropsHarvested || 0) + 1
     }
-    
-    const crop = CROPS_CONFIG[field.type];
-    if (!crop) return;
-    
-    // Удаляем поле и добавляем награду
-    const updatedFields = gameData.farm.fields.filter(f => f.id !== fieldId);
-    
-    let newExp = gameData.experience + crop.experience;
-    let newLevel = gameData.level;
-    let nextExp = gameData.nextLevelExp;
-    
-    // Проверка уровня
-    if (newExp >= nextExp) {
-      newLevel++;
-      newExp = newExp - nextExp;
-      nextExp = Math.round(nextExp * 1.5);
-    }
-    
-    const updatedData = {
-      coins: gameData.coins + crop.reward,
-      experience: newExp,
-      level: newLevel,
-      nextLevelExp: nextExp,
-      farm: { ...gameData.farm, fields: updatedFields },
-      stats: {
-        ...gameData.stats,
-        totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + crop.reward,
-        cropsHarvested: (gameData.stats.cropsHarvested || 0) + 1
-      }
-    };
-    
-    setGameData(prev => ({ ...prev, ...updatedData }));
-    autoSave({ ...gameData, ...updatedData });
-    
-    setSaveStatus(`💰 Собрано ${crop.name}! +${crop.reward} монет`);
   };
+  
+  // 1. Обновляем интерфейс
+  setGameData(updatedData);
+  setSaveStatus(`💰 Собрано ${crop.name}! +${crop.reward} монет`);
+  
+  // 2. Мгновенно сохраняем
+  await autoSave(updatedData);
+};
 
   // Сбор всего урожая
   const harvestAll = () => {
@@ -447,35 +474,38 @@ const autoSave = async (data) => {
   };
 
   // Покупка семян
-  const buySeeds = (type, amount = 1) => {
-    if (!gameData) return;
-    
-    const crop = CROPS_CONFIG[type];
-    if (!crop) return;
-    
-    const totalCost = crop.seedPrice * amount;
-    
-    if (gameData.coins < totalCost) {
-      telegramService.showAlert(`❌ Не хватает ${totalCost - gameData.coins} монет!`);
-      return;
+  const buySeeds = async (type, amount = 1) => {
+  if (!gameData) return;
+  
+  const crop = CROPS_CONFIG[type];
+  if (!crop) return;
+  
+  const totalCost = crop.seedPrice * amount;
+  
+  if (gameData.coins < totalCost) {
+    telegramService.showAlert(`❌ Не хватает ${totalCost - gameData.coins} монет!`);
+    return;
+  }
+  
+  const seedKey = `${type}Seeds`;
+  const currentSeeds = gameData.inventory[seedKey] || 0;
+  
+  const updatedData = {
+    ...gameData,
+    coins: gameData.coins - totalCost,
+    inventory: {
+      ...gameData.inventory,
+      [seedKey]: currentSeeds + amount
     }
-    
-    const seedKey = `${type}Seeds`;
-    const currentSeeds = gameData.inventory[seedKey] || 0;
-    
-    const updatedData = {
-      coins: gameData.coins - totalCost,
-      inventory: {
-        ...gameData.inventory,
-        [seedKey]: currentSeeds + amount
-      }
-    };
-    
-    setGameData(prev => ({ ...prev, ...updatedData }));
-    autoSave({ ...gameData, ...updatedData });
-    
-    setSaveStatus(`✅ Куплено ${amount} семян ${crop.name} за ${totalCost} монет`);
   };
+  
+  // 1. Обновляем интерфейс
+  setGameData(updatedData);
+  setSaveStatus(`✅ Куплено ${amount} семян ${crop.name} за ${totalCost} монет`);
+  
+  // 2. Мгновенно сохраняем
+  await autoSave(updatedData);
+};
 
   // Покупка улучшений
   const buyUpgrade = (upgradeType) => {

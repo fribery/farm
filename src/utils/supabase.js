@@ -130,48 +130,77 @@ class SupabaseService {
   }
 
   // Сохранить данные пользователя
-  async saveUser(telegramId, gameData) {
-    if (!this.isConnected || !this.client) {
-      console.log('⚠️ Supabase не подключен, сохраняем локально');
-      this.saveLocalUser(telegramId, gameData);
-      return null;
-    }
+  // Обновите существующий метод saveUser:
+async saveUser(telegramId, gameData) {
+  return await this.saveUserInstant(telegramId, gameData);
+}
 
-    try {
-      console.log('💾 Сохраняем данные для:', telegramId);
-      
-      const updateData = {
-        telegram_id: telegramId,
-        game_data: {
-          ...gameData,
-          lastSave: new Date().toISOString()
-        },
-        updated_at: new Date().toISOString()
-      };
+  // Добавьте этот метод в класс SupabaseService:
 
-      const { data, error } = await this.client
-        .from('user_profiles')
-        .upsert(updateData, {
-          onConflict: 'telegram_id'
-        })
-        .select()
-        .single();
-
-      if (error) {
-        console.error('❌ Ошибка сохранения:', error);
-        this.saveLocalUser(telegramId, gameData);
-        return null;
-      }
-
-      console.log('✅ Данные сохранены в базу');
-      return this.normalizeUserData(data);
-      
-    } catch (error) {
-      console.error('❌ Ошибка при сохранении:', error);
-      this.saveLocalUser(telegramId, gameData);
-      return null;
-    }
+// Мгновенное сохранение без кеширования
+async saveUserInstant(telegramId, gameData) {
+  if (!this.isConnected || !this.client) {
+    console.log('⚠️ Supabase не подключен, сохраняем локально');
+    this.saveLocalUser(telegramId, gameData);
+    return null;
   }
+
+  try {
+    // Создаем оптимизированный объект для сохранения
+    const saveData = {
+      telegram_id: telegramId,
+      game_data: {
+        coins: gameData.coins,
+        level: gameData.level,
+        experience: gameData.experience,
+        nextLevelExp: gameData.nextLevelExp,
+        farm: {
+          fields: gameData.farm?.fields || [],
+          capacity: gameData.farm?.capacity || 5,
+          autoCollect: gameData.farm?.autoCollect || false,
+          growthMultiplier: gameData.farm?.growthMultiplier || 1.0
+        },
+        inventory: gameData.inventory || {
+          wheatSeeds: 5,
+          carrotSeeds: 3,
+          potatoSeeds: 1
+        },
+        stats: gameData.stats || {
+          totalCoinsEarned: 0,
+          cropsHarvested: 0,
+          playTime: 0
+        },
+        lastSave: new Date().toISOString()
+      },
+      updated_at: new Date().toISOString()
+    };
+
+    // Быстрый запрос без ожидания ответа (fire and forget)
+    this.client
+      .from('user_profiles')
+      .upsert(saveData, {
+        onConflict: 'telegram_id'
+      })
+      .then(() => {
+        console.log('✅ Фоновая запись в базу');
+      })
+      .catch(error => {
+        console.error('❌ Фоновая ошибка сохранения:', error);
+        // Fallback: сохраняем локально
+        this.saveLocalUser(telegramId, gameData);
+      });
+
+    // Всегда сохраняем локально как бэкап
+    this.saveLocalUser(telegramId, gameData);
+    
+    return { success: true, instant: true };
+    
+  } catch (error) {
+    console.error('❌ Критическая ошибка:', error);
+    this.saveLocalUser(telegramId, gameData);
+    return null;
+  }
+}
 
   // Нормализовать данные пользователя
   normalizeUserData(userData) {
