@@ -139,21 +139,26 @@ async saveUser(telegramId, gameData) {
 
 // Мгновенное сохранение без кеширования
 async saveUserInstant(telegramId, gameData) {
+  console.log('🚀 Мгновенное сохранение для:', telegramId);
+  
   if (!this.isConnected || !this.client) {
-    console.log('⚠️ Supabase не подключен, сохраняем локально');
+    console.log('⚠️ Supabase не подключен, сохраняем только локально');
     this.saveLocalUser(telegramId, gameData);
-    return null;
+    return { success: false, reason: 'no_connection' };
   }
 
   try {
-    // Создаем оптимизированный объект для сохранения
+    // 1. Сначала сохраняем локально как бэкап
+    this.saveLocalUser(telegramId, gameData);
+    
+    // 2. Готовим данные для Supabase
     const saveData = {
       telegram_id: telegramId,
       game_data: {
-        coins: gameData.coins,
-        level: gameData.level,
-        experience: gameData.experience,
-        nextLevelExp: gameData.nextLevelExp,
+        coins: gameData.coins || 100,
+        level: gameData.level || 1,
+        experience: gameData.experience || 0,
+        nextLevelExp: gameData.nextLevelExp || 50,
         farm: {
           fields: gameData.farm?.fields || [],
           capacity: gameData.farm?.capacity || 5,
@@ -175,30 +180,104 @@ async saveUserInstant(telegramId, gameData) {
       updated_at: new Date().toISOString()
     };
 
-    // Быстрый запрос без ожидания ответа (fire and forget)
-    this.client
+    console.log('📤 Отправляем данные в Supabase:', {
+      coins: saveData.game_data.coins,
+      fields: saveData.game_data.farm.fields.length
+    });
+
+    // 3. Используем upsert с правильным синтаксисом
+    const { data, error } = await this.client
       .from('user_profiles')
       .upsert(saveData, {
         onConflict: 'telegram_id'
       })
-      .then(() => {
-        console.log('✅ Фоновая запись в базу');
-      })
-      .catch(error => {
-        console.error('❌ Фоновая ошибка сохранения:', error);
-        // Fallback: сохраняем локально
-        this.saveLocalUser(telegramId, gameData);
-      });
+      .select();
 
-    // Всегда сохраняем локально как бэкап
-    this.saveLocalUser(telegramId, gameData);
-    
-    return { success: true, instant: true };
+    if (error) {
+      console.error('❌ Ошибка Supabase при сохранении:', error);
+      console.error('Детали ошибки:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
+      
+      // Пробуем альтернативный метод: insert + update
+      return await this.alternativeSave(telegramId, gameData);
+    }
+
+    console.log('✅ Успешно сохранено в Supabase:', data);
+    return { 
+      success: true, 
+      data: data,
+      timestamp: new Date().toISOString()
+    };
     
   } catch (error) {
-    console.error('❌ Критическая ошибка:', error);
-    this.saveLocalUser(telegramId, gameData);
-    return null;
+    console.error('❌ Критическая ошибка сохранения:', error);
+    return { 
+      success: false, 
+      reason: 'exception',
+      error: error.message 
+    };
+  }
+}
+
+// Альтернативный метод сохранения
+async alternativeSave(telegramId, gameData) {
+  try {
+    console.log('🔄 Пробуем альтернативный метод сохранения...');
+    
+    // Сначала проверяем, существует ли пользователь
+    const { data: existingUser, error: checkError } = await this.client
+      .from('user_profiles')
+      .select('telegram_id')
+      .eq('telegram_id', telegramId)
+      .maybeSingle();
+
+    if (checkError) {
+      console.error('❌ Ошибка проверки пользователя:', checkError);
+      return { success: false, reason: 'check_failed' };
+    }
+
+    const saveData = {
+      telegram_id: telegramId,
+      game_data: gameData,
+      updated_at: new Date().toISOString()
+    };
+
+    let result;
+    
+    if (existingUser) {
+      // Обновляем существующего пользователя
+      const { data, error } = await this.client
+        .from('user_profiles')
+        .update(saveData)
+        .eq('telegram_id', telegramId)
+        .select();
+      
+      if (error) throw error;
+      result = data;
+    } else {
+      // Создаем нового пользователя
+      const { data, error } = await this.client
+        .from('user_profiles')
+        .insert([{
+          ...saveData,
+          created_at: new Date().toISOString()
+        }])
+        .select();
+      
+      if (error) throw error;
+      result = data;
+    }
+
+    console.log('✅ Альтернативное сохранение успешно');
+    return { success: true, data: result };
+    
+  } catch (error) {
+    console.error('❌ Альтернативное сохранение не удалось:', error);
+    return { success: false, reason: 'alternative_failed' };
   }
 }
 

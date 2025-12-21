@@ -290,31 +290,65 @@ const autoSave = async (data) => {
   }
 };
 
-  // Ручное сохранение
-  const manualSave = async () => {
-    if (!telegramUser?.id || !gameData) {
-      setSaveStatus('❌ Нет данных для сохранения');
-      return;
-    }
+// Ручное сохранение с детальной отладкой
+const manualSave = async () => {
+  if (!telegramUser?.id || !gameData) {
+    setSaveStatus('❌ Нет данных для сохранения');
+    telegramService.showAlert('Ошибка: нет данных пользователя');
+    return;
+  }
+  
+  console.log('🔄 Ручное сохранение:', {
+    userId: telegramUser.id,
+    coins: gameData.coins,
+    fields: gameData.farm?.fields?.length
+  });
+  
+  setSaveStatus('💾 Сохранение...');
+  setDbStatus('💾 Отправка в базу данных...');
+  
+  try {
+    // 1. Сначала сохраняем в состоянии
+    const dataToSave = {
+      ...gameData,
+      lastManualSave: new Date().toISOString()
+    };
     
-    setSaveStatus('💾 Сохранение...');
-    setDbStatus('💾 Сохранение в базу...');
+    // 2. Пытаемся сохранить в Supabase
+    const result = await supabaseService.saveUser(telegramUser.id, dataToSave);
     
-    try {
-      const result = await supabaseService.saveUser(telegramUser.id, gameData);
+    console.log('📊 Результат сохранения:', result);
+    
+    if (result?.success) {
+      setSaveStatus('✅ Игра сохранена в базу!');
+      setDbStatus('✅ Данные в Supabase обновлены');
       
-      if (result) {
-        setSaveStatus('✅ Игра сохранена!');
-        setDbStatus('✅ Данные сохранены в базу');
-      } else {
-        setSaveStatus('⚠️ Сохранено локально');
-        setDbStatus('⚠️ Локальное сохранение');
-      }
-    } catch (error) {
-      setSaveStatus('❌ Ошибка сохранения');
-      setDbStatus('❌ Ошибка базы данных');
+      // Показываем уведомление в Telegram
+      telegramService.showAlert('Игра успешно сохранена в облако!');
+      
+      // Показываем время сохранения
+      setTimeout(() => {
+        setSaveStatus('✅ Сохранено ' + new Date().toLocaleTimeString());
+      }, 2000);
+      
+    } else {
+      setSaveStatus('⚠️ Сохранено только локально');
+      setDbStatus('⚠️ База данных недоступна');
+      
+      telegramService.showAlert('Сохранено локально. База данных временно недоступна.');
+      
+      // Показываем причину в консоли
+      console.warn('Причина сохранения только локально:', result?.reason);
     }
-  };
+    
+  } catch (error) {
+    console.error('❌ Неожиданная ошибка при сохранении:', error);
+    setSaveStatus('❌ Ошибка сохранения');
+    setDbStatus('❌ Критическая ошибка');
+    
+    telegramService.showAlert('Произошла ошибка при сохранении. Проверьте консоль.');
+  }
+};
 
   // Посадка культуры
   const plantCrop = (type) => {
@@ -916,5 +950,63 @@ const autoSave = async (data) => {
     </div>
   );
 }
+
+
+{/* Отладочная информация (только для разработки) */}
+{process.env.NODE_ENV === 'development' && (
+  <div className="debug-info">
+    <details>
+      <summary>🔧 Отладка базы данных</summary>
+      <div className="debug-content">
+        <p><strong>Telegram ID:</strong> {telegramUser?.id || 'не найден'}</p>
+        <p><strong>Имя в Telegram:</strong> {telegramUser?.first_name || 'неизвестно'}</p>
+        <p><strong>Подключение к Supabase:</strong> 
+          {supabaseService.isConnected ? ' ✅' : ' ❌'}
+        </p>
+        <p><strong>Локальное сохранение:</strong> 
+          {localStorage.getItem(`farm_user_${telegramUser?.id}`) ? ' ✅' : ' ❌'}
+        </p>
+        <button 
+          onClick={async () => {
+            console.log('🔍 Проверка Supabase...');
+            const test = await supabaseService.testConnection();
+            console.log('Результат теста:', test);
+            telegramService.showAlert('Проверка завершена, смотрите консоль');
+          }}
+          className="debug-btn"
+        >
+          🔍 Тест подключения
+        </button>
+        <button 
+          onClick={() => {
+            console.log('📊 Текущие данные:', gameData);
+            console.log('🗄️ Supabase клиент:', supabaseService.client);
+          }}
+          className="debug-btn"
+        >
+          📊 Лог данных
+        </button>
+        <button 
+          onClick={async () => {
+            if (!telegramUser?.id) return;
+            setDbStatus('🔍 Проверка записи в базе...');
+            const { data } = await supabaseService.client
+              .from('user_profiles')
+              .select('*')
+              .eq('telegram_id', telegramUser.id)
+              .maybeSingle();
+            
+            console.log('Запись в базе:', data);
+            setDbStatus('✅ Проверка завершена');
+          }}
+          className="debug-btn"
+        >
+          🗄️ Проверить запись
+        </button>
+      </div>
+    </details>
+  </div>
+)}
+
 
 export default App;
