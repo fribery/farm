@@ -938,6 +938,50 @@ const manualSave = async () => {
             <button onClick={manualSave} className="save-btn">
               💾 Сохранить игру
             </button>
+            // После кнопки сохранения добавьте:
+<button 
+  onClick={async () => {
+    console.log('🧪 Тест подключения к Supabase...');
+    
+    // Проверяем переменные окружения
+    console.log('🔑 Переменные окружения:', {
+      hasUrl: !!import.meta.env.VITE_SUPABASE_URL,
+      hasKey: !!import.meta.env.VITE_SUPABASE_ANON_KEY,
+      url: import.meta.env.VITE_SUPABASE_URL?.substring(0, 30) + '...',
+      key: import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 20) + '...'
+    });
+    
+    // Проверяем клиент Supabase
+    console.log('🔌 Supabase клиент:', supabaseService.client);
+    console.log('📡 Подключение:', supabaseService.isConnected);
+    
+    // Тестовый запрос
+    if (supabaseService.client) {
+      try {
+        const { data, error } = await supabaseService.client
+          .from('user_profiles')
+          .select('count')
+          .limit(1);
+        
+        console.log('📊 Тестовый запрос:', { data, error });
+        
+        if (error) {
+          telegramService.showAlert(`❌ Ошибка Supabase: ${error.message}`);
+        } else {
+          telegramService.showAlert('✅ Подключение к Supabase успешно!');
+        }
+      } catch (err) {
+        console.error('🔥 Ошибка теста:', err);
+        telegramService.showAlert(`🔥 Критическая ошибка: ${err.message}`);
+      }
+    } else {
+      telegramService.showAlert('❌ Supabase клиент не создан');
+    }
+  }}
+  className="test-btn"
+>
+  🧪 Тест подключения
+</button>
             <p className="hint">
               Автосохранение каждые 3 секунды
               {gameData.lastSave && (

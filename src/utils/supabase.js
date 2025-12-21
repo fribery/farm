@@ -7,20 +7,44 @@ class SupabaseService {
     this.init();
   }
 
-  // Инициализация клиента
   init() {
     try {
+      // Получаем переменные окружения
       const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
       const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      
+      console.log('🔧 Инициализация Supabase:', {
+        url: supabaseUrl,
+        hasKey: !!supabaseKey,
+        keyLength: supabaseKey?.length
+      });
 
+      // Проверяем наличие переменных
       if (!supabaseUrl || !supabaseKey) {
-        console.error('❌ Не настроены переменные Supabase');
-        console.log('Создайте файл .env.local с переменными:');
-        console.log('VITE_SUPABASE_URL=https://ваш-проект.supabase.co');
-        console.log('VITE_SUPABASE_ANON_KEY=ваш_публичный_ключ');
+        console.error('❌ ОШИБКА: Не настроены переменные Supabase!');
+        console.log('Создайте файл .env.local в корне проекта с содержимым:');
+        console.log(`
+VITE_SUPABASE_URL=https://ваш-проект.supabase.co
+VITE_SUPABASE_ANON_KEY=ваш_публичный_ключ_из_supabase
+        `);
         return;
       }
 
+      // Проверяем формат URL
+      if (!supabaseUrl.startsWith('https://') || !supabaseUrl.includes('.supabase.co')) {
+        console.error('❌ ОШИБКА: Неверный формат URL Supabase!');
+        console.log('URL должен быть: https://ваш-проект.supabase.co');
+        return;
+      }
+
+      // Проверяем формат ключа
+      if (!supabaseKey.startsWith('eyJ')) {
+        console.error('❌ ОШИБКА: Неверный формат ключа Supabase!');
+        console.log('Ключ должен начинаться с eyJ...');
+        return;
+      }
+
+      // Создаем клиент
       this.client = createClient(supabaseUrl, supabaseKey, {
         auth: {
           persistSession: false,
@@ -28,10 +52,10 @@ class SupabaseService {
         }
       });
 
+      console.log('✅ Supabase клиент создан');
       this.isConnected = true;
-      console.log('✅ Supabase клиент инициализирован');
-      
-      // Тестовое подключение
+
+      // Тестовый запрос
       this.testConnection();
       
     } catch (error) {
@@ -39,65 +63,188 @@ class SupabaseService {
     }
   }
 
-  // Тестовое подключение
   async testConnection() {
+    if (!this.client) {
+      console.error('❌ Нет клиента Supabase');
+      return false;
+    }
+
     try {
+      console.log('🔍 Тестируем подключение к Supabase...');
+      
       const { data, error } = await this.client
         .from('user_profiles')
-        .select('count')
+        .select('count', { count: 'exact', head: true })
         .limit(1);
-      
+
       if (error) {
         console.error('❌ Ошибка подключения к Supabase:', error);
+        console.error('Код ошибки:', error.code);
+        console.error('Сообщение:', error.message);
+        console.error('Детали:', error.details);
         this.isConnected = false;
-      } else {
-        console.log('✅ Подключение к Supabase успешно');
-        this.isConnected = true;
+        return false;
       }
+
+      console.log('✅ Подключение к Supabase успешно!');
+      this.isConnected = true;
+      return true;
+      
     } catch (error) {
-      console.error('❌ Ошибка тестирования подключения:', error);
+      console.error('❌ Неожиданная ошибка тестирования:', error);
       this.isConnected = false;
+      return false;
     }
   }
 
-  // Получить или создать пользователя
-  async getUser(telegramId) {
+  // Простое сохранение
+  async saveUser(telegramId, gameData) {
+    console.log('💾 Сохранение для пользователя:', telegramId);
+    
+    // Всегда сохраняем локально
+    this.saveLocalUser(telegramId, gameData);
+    
+    // Проверяем подключение к Supabase
     if (!this.isConnected || !this.client) {
-      console.log('⚠️ Supabase не подключен, используем локальные данные');
-      return this.getLocalUser(telegramId);
+      console.log('⚠️ Supabase недоступен, сохраняем только локально');
+      return { success: false, reason: 'no_connection' };
     }
 
     try {
-      console.log('🔍 Ищем пользователя:', telegramId);
-      
-      // Пробуем найти пользователя
+      // Готовим данные
+      const userData = {
+        telegram_id: telegramId,
+        game_data: gameData,
+        updated_at: new Date().toISOString()
+      };
+
+      console.log('📤 Отправка данных в Supabase...', {
+        coins: gameData.coins,
+        fields: gameData.farm?.fields?.length || 0
+      });
+
+      // Пробуем upsert
       const { data, error } = await this.client
         .from('user_profiles')
-        .select('*')
-        .eq('telegram_id', telegramId)
+        .upsert(userData, { onConflict: 'telegram_id' })
+        .select()
         .single();
 
-      // Если пользователь не найден - создаем
-      if (error && error.code === 'PGRST116') {
-        console.log('👤 Пользователь не найден, создаем...');
-        return await this.createUser(telegramId);
-      }
-
       if (error) {
-        console.error('❌ Ошибка Supabase:', error);
-        throw error;
+        console.error('❌ Ошибка сохранения в Supabase:', error);
+        
+        // Пробуем альтернативный метод: проверяем и создаем/обновляем
+        return await this.alternativeSave(telegramId, gameData);
       }
 
-      console.log('✅ Пользователь найден в базе');
-      return this.normalizeUserData(data);
+      console.log('✅ Успешно сохранено в Supabase:', data);
+      return { success: true, data: data };
       
     } catch (error) {
-      console.error('❌ Ошибка получения пользователя:', error);
-      return this.getLocalUser(telegramId);
+      console.error('❌ Критическая ошибка:', error);
+      return { success: false, reason: 'exception', error: error.message };
     }
   }
 
-  // Создать нового пользователя
+  async alternativeSave(telegramId, gameData) {
+    try {
+      console.log('🔄 Пробуем альтернативный метод...');
+      
+      // Проверяем существование пользователя
+      const { data: existing, error: checkError } = await this.client
+        .from('user_profiles')
+        .select('telegram_id')
+        .eq('telegram_id', telegramId)
+        .maybeSingle();
+
+      if (checkError) {
+        console.error('❌ Ошибка проверки:', checkError);
+        return { success: false, reason: 'check_failed' };
+      }
+
+      const userData = {
+        telegram_id: telegramId,
+        game_data: gameData,
+        updated_at: new Date().toISOString()
+      };
+
+      let result;
+      
+      if (existing) {
+        // Обновляем существующего
+        const { data, error } = await this.client
+          .from('user_profiles')
+          .update(userData)
+          .eq('telegram_id', telegramId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      } else {
+        // Создаем нового
+        const { data, error } = await this.client
+          .from('user_profiles')
+          .insert([{
+            ...userData,
+            created_at: new Date().toISOString()
+          }])
+          .select()
+          .single();
+
+        if (error) throw error;
+        result = data;
+      }
+
+      console.log('✅ Альтернативное сохранение успешно');
+      return { success: true, data: result };
+      
+    } catch (error) {
+      console.error('❌ Альтернативное сохранение не удалось:', error);
+      return { success: false, reason: 'alternative_failed' };
+    }
+  }
+
+  // Получение пользователя
+  async getUser(telegramId) {
+    console.log('🔍 Поиск пользователя:', telegramId);
+    
+    // Сначала проверяем локальное хранилище
+    const localUser = this.getLocalUser(telegramId);
+    
+    // Если Supabase доступен, пробуем загрузить оттуда
+    if (this.isConnected && this.client) {
+      try {
+        const { data, error } = await this.client
+          .from('user_profiles')
+          .select('*')
+          .eq('telegram_id', telegramId)
+          .single();
+
+        if (error && error.code === 'PGRST116') {
+          // Пользователь не найден, создаем нового
+          console.log('👤 Пользователь не найден, создаем нового');
+          return await this.createUser(telegramId);
+        }
+
+        if (error) {
+          console.error('❌ Ошибка загрузки из Supabase:', error);
+          return localUser;
+        }
+
+        console.log('✅ Пользователь загружен из Supabase');
+        return this.normalizeUserData(data);
+        
+      } catch (error) {
+        console.error('❌ Ошибка при загрузке:', error);
+        return localUser;
+      }
+    }
+    
+    console.log('⚠️ Supabase недоступен, используем локальные данные');
+    return localUser;
+  }
+
   async createUser(telegramId) {
     const initialData = this.getInitialGameData();
     
@@ -108,216 +255,74 @@ class SupabaseService {
       updated_at: new Date().toISOString()
     };
 
-    try {
-      const { data, error } = await this.client
-        .from('user_profiles')
-        .insert([userData])
-        .select()
-        .single();
+    // Сохраняем локально
+    this.saveLocalUser(telegramId, initialData);
+    
+    // Пытаемся сохранить в Supabase
+    if (this.isConnected && this.client) {
+      try {
+        const { data, error } = await this.client
+          .from('user_profiles')
+          .insert([userData])
+          .select()
+          .single();
 
-      if (error) {
-        console.error('❌ Ошибка создания пользователя:', error);
+        if (error) {
+          console.error('❌ Ошибка создания в Supabase:', error);
+          return userData;
+        }
+
+        console.log('✅ Пользователь создан в Supabase');
+        return data;
+        
+      } catch (error) {
+        console.error('❌ Ошибка при создании:', error);
         return userData;
       }
-
-      console.log('✅ Пользователь создан в базе');
-      return this.normalizeUserData(data);
-      
-    } catch (error) {
-      console.error('❌ Не удалось создать пользователя:', error);
-      return userData;
     }
+    
+    return userData;
   }
 
-  // Сохранить данные пользователя
-  // Обновите существующий метод saveUser:
-async saveUser(telegramId, gameData) {
-  return await this.saveUserInstant(telegramId, gameData);
-}
-
-  // Добавьте этот метод в класс SupabaseService:
-
-// Мгновенное сохранение без кеширования
-async saveUserInstant(telegramId, gameData) {
-  console.log('🚀 Мгновенное сохранение для:', telegramId);
-  
-  if (!this.isConnected || !this.client) {
-    console.log('⚠️ Supabase не подключен, сохраняем только локально');
-    this.saveLocalUser(telegramId, gameData);
-    return { success: false, reason: 'no_connection' };
+  // Локальное сохранение
+  saveLocalUser(telegramId, gameData) {
+    const key = `farm_user_${telegramId}`;
+    const dataToSave = {
+      ...gameData,
+      lastLocalSave: new Date().toISOString()
+    };
+    
+    localStorage.setItem(key, JSON.stringify(dataToSave));
+    console.log('💾 Локальное сохранение:', { key, coins: gameData.coins });
   }
 
-  try {
-    // 1. Сначала сохраняем локально как бэкап
-    this.saveLocalUser(telegramId, gameData);
+  // Локальная загрузка
+  getLocalUser(telegramId) {
+    const key = `farm_user_${telegramId}`;
+    const saved = localStorage.getItem(key);
     
-    // 2. Готовим данные для Supabase
-    const saveData = {
-      telegram_id: telegramId,
-      game_data: {
-        coins: gameData.coins || 100,
-        level: gameData.level || 1,
-        experience: gameData.experience || 0,
-        nextLevelExp: gameData.nextLevelExp || 50,
-        farm: {
-          fields: gameData.farm?.fields || [],
-          capacity: gameData.farm?.capacity || 5,
-          autoCollect: gameData.farm?.autoCollect || false,
-          growthMultiplier: gameData.farm?.growthMultiplier || 1.0
-        },
-        inventory: gameData.inventory || {
-          wheatSeeds: 5,
-          carrotSeeds: 3,
-          potatoSeeds: 1
-        },
-        stats: gameData.stats || {
-          totalCoinsEarned: 0,
-          cropsHarvested: 0,
-          playTime: 0
-        },
-        lastSave: new Date().toISOString()
-      },
-      updated_at: new Date().toISOString()
-    };
-
-    console.log('📤 Отправляем данные в Supabase:', {
-      coins: saveData.game_data.coins,
-      fields: saveData.game_data.farm.fields.length
-    });
-
-    // 3. Используем upsert с правильным синтаксисом
-    const { data, error } = await this.client
-      .from('user_profiles')
-      .upsert(saveData, {
-        onConflict: 'telegram_id'
-      })
-      .select();
-
-    if (error) {
-      console.error('❌ Ошибка Supabase при сохранении:', error);
-      console.error('Детали ошибки:', {
-        message: error.message,
-        code: error.code,
-        details: error.details,
-        hint: error.hint
-      });
-      
-      // Пробуем альтернативный метод: insert + update
-      return await this.alternativeSave(telegramId, gameData);
-    }
-
-    console.log('✅ Успешно сохранено в Supabase:', data);
-    return { 
-      success: true, 
-      data: data,
-      timestamp: new Date().toISOString()
-    };
-    
-  } catch (error) {
-    console.error('❌ Критическая ошибка сохранения:', error);
-    return { 
-      success: false, 
-      reason: 'exception',
-      error: error.message 
-    };
-  }
-}
-
-// Альтернативный метод сохранения
-async alternativeSave(telegramId, gameData) {
-  try {
-    console.log('🔄 Пробуем альтернативный метод сохранения...');
-    
-    // Сначала проверяем, существует ли пользователь
-    const { data: existingUser, error: checkError } = await this.client
-      .from('user_profiles')
-      .select('telegram_id')
-      .eq('telegram_id', telegramId)
-      .maybeSingle();
-
-    if (checkError) {
-      console.error('❌ Ошибка проверки пользователя:', checkError);
-      return { success: false, reason: 'check_failed' };
-    }
-
-    const saveData = {
-      telegram_id: telegramId,
-      game_data: gameData,
-      updated_at: new Date().toISOString()
-    };
-
-    let result;
-    
-    if (existingUser) {
-      // Обновляем существующего пользователя
-      const { data, error } = await this.client
-        .from('user_profiles')
-        .update(saveData)
-        .eq('telegram_id', telegramId)
-        .select();
-      
-      if (error) throw error;
-      result = data;
-    } else {
-      // Создаем нового пользователя
-      const { data, error } = await this.client
-        .from('user_profiles')
-        .insert([{
-          ...saveData,
-          created_at: new Date().toISOString()
-        }])
-        .select();
-      
-      if (error) throw error;
-      result = data;
-    }
-
-    console.log('✅ Альтернативное сохранение успешно');
-    return { success: true, data: result };
-    
-  } catch (error) {
-    console.error('❌ Альтернативное сохранение не удалось:', error);
-    return { success: false, reason: 'alternative_failed' };
-  }
-}
-
-  // Нормализовать данные пользователя
-  normalizeUserData(userData) {
-    const initialData = this.getInitialGameData();
-    
-    if (!userData.game_data) {
+    if (saved) {
+      console.log('📂 Загружены локальные данные');
+      const gameData = JSON.parse(saved);
       return {
-        ...userData,
-        game_data: initialData
+        telegram_id: telegramId,
+        game_data: gameData,
+        created_at: gameData.created_at || new Date().toISOString(),
+        updated_at: gameData.lastLocalSave || new Date().toISOString()
       };
     }
 
-    // Гарантируем наличие всех полей
-    const normalizedGameData = {
-      ...initialData,
-      ...userData.game_data,
-      farm: {
-        ...initialData.farm,
-        ...(userData.game_data.farm || {}),
-        fields: userData.game_data.farm?.fields || []
-      },
-      inventory: {
-        ...initialData.inventory,
-        ...(userData.game_data.inventory || {})
-      },
-      stats: {
-        ...initialData.stats,
-        ...(userData.game_data.stats || {})
-      }
-    };
-
+    console.log('🆕 Созданы новые локальные данные');
+    const initialData = this.getInitialGameData();
     return {
-      ...userData,
-      game_data: normalizedGameData
+      telegram_id: telegramId,
+      game_data: initialData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
     };
   }
 
-  // Начальные данные игры
+  // Начальные данные
   getInitialGameData() {
     return {
       coins: 100,
@@ -344,40 +349,39 @@ async alternativeSave(telegramId, gameData) {
     };
   }
 
-  // Локальное сохранение (fallback)
-  saveLocalUser(telegramId, gameData) {
-    const key = `farm_user_${telegramId}`;
-    localStorage.setItem(key, JSON.stringify({
-      ...gameData,
-      lastLocalSave: new Date().toISOString()
-    }));
-  }
-
-  // Локальная загрузка (fallback)
-  getLocalUser(telegramId) {
-    const key = `farm_user_${telegramId}`;
-    const saved = localStorage.getItem(key);
+  // Нормализация данных
+  normalizeUserData(userData) {
+    const initialData = this.getInitialGameData();
     
-    if (saved) {
-      console.log('📂 Загружены локальные данные');
-      const gameData = JSON.parse(saved);
+    if (!userData.game_data) {
       return {
-        telegram_id: telegramId,
-        game_data: gameData,
-        created_at: gameData.created_at || new Date().toISOString(),
-        updated_at: gameData.lastLocalSave || new Date().toISOString()
+        ...userData,
+        game_data: initialData
       };
     }
 
-    console.log('🆕 Созданы новые локальные данные');
     return {
-      telegram_id: telegramId,
-      game_data: this.getInitialGameData(),
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      ...userData,
+      game_data: {
+        ...initialData,
+        ...userData.game_data,
+        farm: {
+          ...initialData.farm,
+          ...(userData.game_data.farm || {}),
+          fields: userData.game_data.farm?.fields || []
+        },
+        inventory: {
+          ...initialData.inventory,
+          ...(userData.game_data.inventory || {})
+        },
+        stats: {
+          ...initialData.stats,
+          ...(userData.game_data.stats || {})
+        }
+      }
     };
   }
 }
 
-// Экспортируем singleton как именованный экспорт
+// Экспортируем singleton
 export const supabaseService = new SupabaseService();
