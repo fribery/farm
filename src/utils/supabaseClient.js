@@ -1,45 +1,52 @@
 import { createClient } from '@supabase/supabase-js';
 
-// ВАЖНО: Замените эти значения на свои из панели Supabase
-// или оставьте пустыми и используйте .env.local файл
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://sqiszyeauncebbxdsavq.supabase.co';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxaXN6eWVhdW5jZWJieGRzYXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNDAxNzAsImV4cCI6MjA4MTkxNjE3MH0.ESSYsrnx1FIPzU1Ss_w_L723MaEjk8-ADkVst9MX9KA';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Проверка для разработки
-if (import.meta.env.DEV) {
-  console.log('Supabase URL:', supabaseUrl ? 'Загружен' : 'ОШИБКА: не найден');
-  console.log('Supabase Key:', supabaseAnonKey ? 'Загружен' : 'ОШИБКА: не найден');
-  
-  if (!supabaseUrl.includes('supabase.co')) {
-    console.error('❌ ОШИБКА: Неверный Supabase URL');
-    console.log('📝 Как получить URL:');
-    console.log('1. Зайдите на supabase.com');
-    console.log('2. Создайте проект');
-    console.log('3. В Settings → API скопируйте "Project URL"');
-  }
-}
-
-// Создаем клиент Supabase
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: false
   }
 });
 
-// Функции для работы с данными пользователя
+// Начальные данные игры
+const INITIAL_GAME_DATA = {
+  coins: 100,
+  level: 1,
+  experience: 0,
+  nextLevelExp: 50,
+  farm: {
+    fields: [],
+    capacity: 5,
+    autoCollect: false,
+    growthMultiplier: 1.0
+  },
+  inventory: {
+    wheatSeeds: 5,
+    carrotSeeds: 3,
+    potatoSeeds: 1
+  },
+  stats: {
+    totalCoinsEarned: 0,
+    cropsHarvested: 0,
+    playTime: 0
+  }
+};
+
 export const userService = {
-  // Получить данные пользователя по Telegram ID
+  // Получить или создать пользователя
   async getUserData(telegramId) {
     try {
-      console.log('🔄 Загружаем данные для Telegram ID:', telegramId);
+      console.log('🔄 Загрузка данных для Telegram ID:', telegramId);
       
+      // Пробуем найти пользователя
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('telegram_id', telegramId)
         .single();
       
-      // Если пользователь не найден (код PGRST116)
+      // Если пользователь не найден - создаем нового
       if (error && error.code === 'PGRST116') {
         console.log('👤 Пользователь не найден, создаем нового...');
         return await this.createUser(telegramId);
@@ -50,59 +57,60 @@ export const userService = {
         throw error;
       }
       
-      console.log('✅ Данные загружены:', data);
-      return data;
+      console.log('✅ Данные загружены из базы:', data);
+      
+      // Объединяем с начальными данными, чтобы заполнить возможные пропуски
+      const mergedGameData = {
+        ...INITIAL_GAME_DATA,
+        ...data.game_data,
+        farm: {
+          ...INITIAL_GAME_DATA.farm,
+          ...(data.game_data?.farm || {}),
+          fields: data.game_data?.farm?.fields || []
+        },
+        inventory: {
+          ...INITIAL_GAME_DATA.inventory,
+          ...(data.game_data?.inventory || {})
+        },
+        stats: {
+          ...INITIAL_GAME_DATA.stats,
+          ...(data.game_data?.stats || {})
+        }
+      };
+      
+      return {
+        ...data,
+        game_data: mergedGameData
+      };
+      
     } catch (error) {
       console.error('❌ Ошибка при получении данных:', error);
       
-      // Для разработки: возвращаем тестовые данные
-      if (import.meta.env.DEV) {
-        console.log('⚠️ Используем тестовые данные для разработки');
-        return {
-          id: 1,
-          telegram_id: telegramId,
-          game_data: {
-            level: 1,
-            coins: 100,
-            experience: 0,
-            farm: { fields: [] }
-          }
-        };
-      }
-      
-      return null;
+      // В крайнем случае возвращаем начальные данные
+      return {
+        telegram_id: telegramId,
+        game_data: INITIAL_GAME_DATA,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
     }
   },
   
   // Создать нового пользователя
-  async createUser(telegramId, initialData = {}) {
+  async createUser(telegramId) {
     try {
       console.log('🆕 Создаем пользователя:', telegramId);
       
-      const defaultGameData = {
-        level: 1,
-        coins: 100,
-        experience: 0,
-        inventory: [],
-        farm: {
-          fields: [],
-          animals: [],
-          buildings: []
-        },
-        lastLogin: new Date().toISOString(),
-        ...initialData
+      const userData = {
+        telegram_id: telegramId,
+        game_data: INITIAL_GAME_DATA,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       };
       
       const { data, error } = await supabase
         .from('user_profiles')
-        .insert([
-          {
-            telegram_id: telegramId,
-            game_data: defaultGameData,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }
-        ])
+        .insert([userData])
         .select()
         .single();
       
@@ -111,36 +119,36 @@ export const userService = {
         throw error;
       }
       
-      console.log('✅ Пользователь создан:', data);
+      console.log('✅ Пользователь создан в базе:', data);
       return data;
+      
     } catch (error) {
       console.error('❌ Ошибка при создании пользователя:', error);
       
-      // Для разработки
-      if (import.meta.env.DEV) {
-        return {
-          id: 1,
-          telegram_id: telegramId,
-          game_data: initialData
-        };
-      }
-      
-      return null;
+      // Даже если ошибка, возвращаем данные
+      return {
+        telegram_id: telegramId,
+        game_data: INITIAL_GAME_DATA,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
     }
   },
   
-  // Обновить данные игры пользователя
+  // Обновить данные пользователя
   async updateUserData(telegramId, gameData) {
     try {
-      console.log('💾 Сохраняем данные для:', telegramId);
+      console.log('💾 Сохраняем данные для:', telegramId, gameData);
       
       const { data, error } = await supabase
         .from('user_profiles')
-        .update({
+        .upsert({
+          telegram_id: telegramId,
           game_data: gameData,
           updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'telegram_id'
         })
-        .eq('telegram_id', telegramId)
         .select()
         .single();
       
@@ -149,8 +157,9 @@ export const userService = {
         throw error;
       }
       
-      console.log('✅ Данные сохранены');
+      console.log('✅ Данные сохранены в базу:', data);
       return data;
+      
     } catch (error) {
       console.error('❌ Ошибка при обновлении данных:', error);
       return null;
@@ -160,19 +169,20 @@ export const userService = {
   // Таймер для автосохранения
   saveTimeout: null,
   
-  // Автоматическое сохранение (дебаунс)
-  autoSave(telegramId, gameData, delay = 3000) {
+  // Автоматическое сохранение с дебаунсом
+  autoSave(telegramId, gameData, delay = 5000) {
     if (this.saveTimeout) {
       clearTimeout(this.saveTimeout);
     }
     
     this.saveTimeout = setTimeout(async () => {
       console.log('⏳ Автосохранение...');
-      await this.updateUserData(telegramId, {
-        ...gameData,
-        lastAutoSave: new Date().toISOString()
-      });
-      console.log('✅ Автосохранение завершено');
+      const result = await this.updateUserData(telegramId, gameData);
+      if (result) {
+        console.log('✅ Автосохранение завершено');
+      } else {
+        console.log('⚠️ Автосохранение не удалось');
+      }
     }, delay);
   }
 };

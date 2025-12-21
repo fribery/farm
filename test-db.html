@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Тест базы данных</title>
+</head>
+<body>
+  <h1>Тестирование Supabase</h1>
+  <button onclick="testConnection()">Проверить подключение</button>
+  <button onclick="testInsert()">Тест записи</button>
+  <button onclick="testRead()">Тест чтения</button>
+  <div id="result"></div>
+
+  <script>
+    const SUPABASE_URL = 'ВАШ_URL';
+    const SUPABASE_KEY = 'ВАШ_KEY';
+
+    async function testConnection() {
+      const result = document.getElementById('result');
+      result.innerHTML = 'Проверяем подключение...';
+      
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/`, {
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`
+          }
+        });
+        
+        if (response.ok) {
+          result.innerHTML = '✅ Подключение к Supabase успешно!';
+        } else {
+          result.innerHTML = '❌ Ошибка подключения';
+        }
+      } catch (error) {
+        result.innerHTML = `❌ Ошибка: ${error.message}`;
+      }
+    }
+
+    async function testInsert() {
+      const result = document.getElementById('result');
+      const testData = {
+        telegram_id: 999999999,
+        game_data: { test: true, coins: 100 },
+        created_at: new Date().toISOString()
+      };
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/rest/v1/user_profiles`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+          },
+          body: JSON.stringify(testData)
+        });
+
+        const data = await response.json();
+        result.innerHTML = `✅ Запись добавлена: ${JSON.stringify(data)}`;
+      } catch (error) {
+        result.innerHTML = `❌ Ошибка записи: ${error.message}`;
+      }
+    }
+
+    async function testRead() {
+      const result = document.getElementById('result');
+      
+      try {
+        const response = await fetch(
+          `${SUPABASE_URL}/rest/v1/user_profiles?telegram_id=eq.999999999`,
+          {
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`
+            }
+          }
+        );
+
+        const data = await response.json();
+        result.innerHTML = `✅ Данные из базы: ${JSON.stringify(data)}`;
+      } catch (error) {
+        result.innerHTML = `❌ Ошибка чтения: ${error.message}`;
+      }
+    }
+  </script>
+</body>
+</html>

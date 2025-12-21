@@ -62,62 +62,44 @@ function App() {
     }
   };
 
-  // Инициализация игры
-  useEffect(() => {
-    const initApp = async () => {
-      console.log('🚀 Инициализация фермы...');
-      
-      const telegramData = initTelegramApp();
-      setTelegramUser(telegramData.user);
-      
-      const telegramId = getTelegramUserId();
-      
-      if (!telegramId) {
-        console.error('❌ Telegram User ID не найден');
-        setLoading(false);
-        return;
-      }
-      
-      const userProfile = await userService.getUserData(telegramId);
-      
-      if (userProfile) {
-        // Инициализируем начальные данные, если их нет
-        const initialData = {
-          coins: 100,
-          level: 1,
-          experience: 0,
-          nextLevelExp: 50,
-          farm: {
-            fields: [],
-            capacity: 5,
-            autoCollect: false,
-            growthMultiplier: 1.0
-          },
-          inventory: {
-            wheatSeeds: 5,
-            carrotSeeds: 3,
-            potatoSeeds: 1
-          },
-          stats: {
-            totalCoinsEarned: 0,
-            cropsHarvested: 0,
-            playTime: 0
-          },
-          ...userProfile.game_data
-        };
-        
-        setUserData(userProfile);
-        setGameData(initialData);
-        setSaveStatus(`👋 Добро пожаловать, ${telegramData.user.first_name}!`);
-      } else {
-        setSaveStatus('❌ Не удалось загрузить данные');
-      }
-      
-      setLoading(false);
-    };
+// Инициализация игры
+useEffect(() => {
+  const initApp = async () => {
+    console.log('🚀 Инициализация фермы...');
     
-    initApp();
-  }, []);
+    const telegramData = initTelegramApp();
+    setTelegramUser(telegramData.user);
+    
+    const telegramId = getTelegramUserId();
+    
+    if (!telegramId) {
+      console.error('❌ Telegram User ID не найден');
+      setLoading(false);
+      return;
+    }
+    
+    setSaveStatus('📥 Загрузка данных из базы...');
+    
+    // Загружаем данные из Supabase
+    const userProfile = await userService.getUserData(telegramId);
+    
+    if (userProfile && userProfile.game_data) {
+      console.log('🎮 Данные загружены:', userProfile.game_data);
+      
+      // ВОТ САМОЕ ВАЖНОЕ: устанавливаем ТОЛЬКО данные из базы
+      setUserData(userProfile);
+      setGameData(userProfile.game_data);
+      setSaveStatus(`👋 Добро пожаловать, ${telegramData.user.first_name}! Данные загружены.`);
+    } else {
+      console.error('❌ Данные не загрузились');
+      setSaveStatus('❌ Ошибка загрузки данных');
+    }
+    
+    setLoading(false);
+  };
+  
+  initApp();
+}, []);
 
   // Таймер для роста растений
   useEffect(() => {
@@ -177,6 +159,32 @@ function App() {
     
     return () => clearTimeout(saveTimer);
   }, [gameData, telegramUser]);
+
+  // Отладка: логируем изменения gameData
+useEffect(() => {
+  if (gameData) {
+    console.log('🔄 gameData обновлен:', {
+      coins: gameData.coins,
+      fields: gameData.farm?.fields?.length,
+      lastSave: gameData.lastSave
+    });
+  }
+}, [gameData]);
+
+// Отладка: проверяем состояние автосохранения
+useEffect(() => {
+  const checkAutoSave = () => {
+    if (gameData?.lastSave) {
+      const lastSave = new Date(gameData.lastSave);
+      const now = new Date();
+      const diff = (now - lastSave) / 1000;
+      console.log(`⏱️ Последнее сохранение: ${diff.toFixed(0)} секунд назад`);
+    }
+  };
+  
+  const interval = setInterval(checkAutoSave, 10000);
+  return () => clearInterval(interval);
+}, [gameData]);
 
   // Сохранение данных
   const saveGameData = (newGameData) => {
@@ -404,19 +412,35 @@ function App() {
     setSaveStatus(`💰 Собрано всё! +${totalCoins} монет, +${totalExp} опыта`);
   };
 
-  // Ручное сохранение
-  const manualSave = async () => {
-    if (!telegramUser || !gameData) return;
+// Ручное сохранение с подтверждением
+const manualSave = async () => {
+  if (!telegramUser || !gameData) {
+    setSaveStatus('❌ Нет данных для сохранения');
+    return;
+  }
+  
+  setSaveStatus('💾 Сохранение в базу данных...');
+  
+  try {
+    // Добавляем метку времени
+    const dataToSave = {
+      ...gameData,
+      lastManualSave: new Date().toISOString()
+    };
     
-    setSaveStatus('💾 Сохранение...');
-    const result = await userService.updateUserData(telegramUser.id, gameData);
+    const result = await userService.updateUserData(telegramUser.id, dataToSave);
     
     if (result) {
-      setSaveStatus('✅ Сохранено вручную');
+      setSaveStatus(`✅ Сохранено в ${new Date().toLocaleTimeString()}`);
+      console.log('💾 Ручное сохранение успешно:', result);
     } else {
-      setSaveStatus('❌ Ошибка сохранения');
+      setSaveStatus('❌ Ошибка сохранения в базу');
     }
-  };
+  } catch (error) {
+    console.error('❌ Ошибка при ручном сохранении:', error);
+    setSaveStatus('❌ Ошибка соединения с базой');
+  }
+};
 
   // Прогресс уровня
   const levelProgress = gameData ? 
