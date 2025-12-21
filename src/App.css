@@ -391,3 +391,397 @@ body {
     grid-template-columns: repeat(2, 1fr);
   }
 }
+
+/* Навигация */
+.tabs {
+  display: flex;
+  background: white;
+  border-bottom: 2px solid var(--border);
+  padding: 0 10px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--dark);
+  cursor: pointer;
+  transition: all 0.3s;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-btn:hover {
+  background: var(--light);
+}
+
+.tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+}
+
+/* Прогресс уровня */
+.exp-bar {
+  width: 100%;
+  height: 20px;
+  background: var(--border);
+  border-radius: 10px;
+  margin-top: 5px;
+  overflow: hidden;
+  position: relative;
+}
+
+.exp-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: 10px;
+  transition: width 0.5s;
+}
+
+.exp-bar span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Поля на ферме */
+.fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.field {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  border: 2px solid var(--border);
+  transition: all 0.3s;
+}
+
+.field.ready {
+  border-color: var(--success);
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.2); }
+  50% { box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+}
+
+.field-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.field-icon {
+  font-size: 32px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light);
+  border-radius: 10px;
+}
+
+.field-info {
+  flex: 1;
+}
+
+.field-info strong {
+  display: block;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.field-info span {
+  font-size: 14px;
+  color: var(--success);
+  font-weight: 600;
+}
+
+.collect-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.collect-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+/* Прогресс роста */
+.growth-progress {
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 10px;
+  background: var(--border);
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 1s linear;
+}
+
+.time-left {
+  font-size: 12px;
+  color: var(--dark);
+  font-weight: 600;
+  display: block;
+  text-align: center;
+}
+
+/* Посадка культур */
+.seed-buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.seed-option {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.seed-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 15px;
+  color: white !important;
+}
+
+.seed-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.seed-details {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--dark);
+}
+
+/* Магазин */
+.shop-items, .inventory-items {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.shop-item, .inventory-item {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  border: 2px solid var(--border);
+}
+
+.shop-item.owned {
+  border-color: var(--success);
+  background: var(--light);
+}
+
+.item-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.item-icon {
+  font-size: 32px;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--light);
+  border-radius: 12px;
+}
+
+.item-info {
+  flex: 1;
+}
+
+.item-info strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 5px 0;
+}
+
+.price {
+  font-size: 16px;
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.item-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.buy-btn {
+  flex: 1;
+  padding: 12px;
+}
+
+.buy-btn.bulk {
+  background: linear-gradient(135deg, var(--primary-dark), #4c1d95);
+}
+
+.upgrade-btn {
+  width: 100%;
+  padding: 12px;
+}
+
+.upgrade-btn.owned {
+  background: var(--success);
+  cursor: default;
+}
+
+/* Инвентарь */
+.inventory-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.use-btn {
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.use-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  border: 2px solid var(--border);
+}
+
+.stat-card span {
+  display: block;
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.stat-card strong {
+  font-size: 24px;
+  color: var(--primary);
+}
+
+/* Кнопка сбора всего */
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.harvest-btn {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.harvest-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .tabs {
+    flex-direction: column;
+  }
+  
+  .tab-btn {
+    padding: 12px;
+    text-align: center;
+  }
+  
+  .item-actions {
+    flex-direction: column;
+  }
+  
+  .seed-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .field-header {
+    flex-wrap: wrap;
+  }
+  
+  .collect-btn {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
