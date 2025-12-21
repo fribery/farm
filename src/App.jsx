@@ -1,159 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { initTelegramApp, getTelegramUserId } from './utils/telegramInit';
-import { userService } from './utils/supabaseClient';
 import './App.css';
 
+// Временная заглушка для Telegram
+const initTelegramApp = () => {
+  console.log('🔧 Используем временные данные Telegram');
+  return {
+    user: {
+      id: Date.now(),
+      first_name: 'Telegram',
+      last_name: 'User',
+      username: 'telegram_user'
+    }
+  };
+};
+
+// Временная заглушка для базы данных
+const userService = {
+  async getUserData(telegramId) {
+    console.log('📦 Загружаем тестовые данные');
+    return {
+      telegram_id: telegramId,
+      game_data: {
+        coins: 100,
+        level: 1,
+        experience: 0,
+        nextLevelExp: 50,
+        farm: {
+          fields: [],
+          capacity: 5,
+          autoCollect: false,
+          growthMultiplier: 1.0
+        },
+        inventory: {
+          wheatSeeds: 5,
+          carrotSeeds: 3,
+          potatoSeeds: 1
+        },
+        stats: {
+          totalCoinsEarned: 0,
+          cropsHarvested: 0,
+          playTime: 0
+        }
+      }
+    };
+  },
+  
+  updateUserData() {
+    console.log('💾 Сохранено (тестовый режим)');
+    return Promise.resolve(true);
+  },
+  
+  autoSave() {
+    console.log('⏳ Автосохранение (тестовый режим)');
+  }
+};
+
 function App() {
-  const [userData, setUserData] = useState(null);
   const [gameData, setGameData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [telegramUser, setTelegramUser] = useState(null);
   const [saveStatus, setSaveStatus] = useState('');
   const [activeTab, setActiveTab] = useState('farm');
 
-  // Конфигурация культур
-  const CROPS_CONFIG = {
-    wheat: {
-      name: '🌾 Пшеница',
-      growTime: 30,     // секунд
-      reward: 3,
-      seedPrice: 10,
-      experience: 1,
-      color: '#fbbf24'
-    },
-    carrot: {
-      name: '🥕 Морковь',
-      growTime: 60,
-      reward: 6,
-      seedPrice: 20,
-      experience: 2,
-      color: '#f97316'
-    },
-    potato: {
-      name: '🥔 Картофель',
-      growTime: 90,
-      reward: 10,
-      seedPrice: 30,
-      experience: 3,
-      color: '#a16207'
-    }
-  };
-
-  // Инициализация игры - УПРОЩЕННАЯ ВЕРСИЯ
+  // Простая инициализация
   useEffect(() => {
-    const initApp = async () => {
-      console.log('🚀 Запуск игры...');
-      
-      // Инициализируем Telegram
+    console.log('🚀 Запуск приложения...');
+    
+    setTimeout(async () => {
       const telegramData = initTelegramApp();
-      setTelegramUser(telegramData.user);
+      const userProfile = await userService.getUserData(telegramData.user.id);
       
-      const telegramId = telegramData.user?.id || 123456789;
-      
-      // Загружаем данные
-      const userProfile = await userService.getUserData(telegramId);
-      
-      if (userProfile && userProfile.game_data) {
-        // Проверяем и исправляем структуру данных
-        const safeGameData = {
-          coins: userProfile.game_data.coins || 100,
-          level: userProfile.game_data.level || 1,
-          experience: userProfile.game_data.experience || 0,
-          nextLevelExp: userProfile.game_data.nextLevelExp || 50,
-          farm: {
-            fields: userProfile.game_data.farm?.fields || [],
-            capacity: userProfile.game_data.farm?.capacity || 5,
-            autoCollect: userProfile.game_data.farm?.autoCollect || false,
-            growthMultiplier: userProfile.game_data.farm?.growthMultiplier || 1.0
-          },
-          inventory: {
-            wheatSeeds: userProfile.game_data.inventory?.wheatSeeds || 5,
-            carrotSeeds: userProfile.game_data.inventory?.carrotSeeds || 3,
-            potatoSeeds: userProfile.game_data.inventory?.potatoSeeds || 1
-          },
-          stats: userProfile.game_data.stats || {
-            totalCoinsEarned: 0,
-            cropsHarvested: 0,
-            playTime: 0
-          }
-        };
-        
-        setUserData(userProfile);
-        setGameData(safeGameData);
+      if (userProfile?.game_data) {
+        setGameData(userProfile.game_data);
         setSaveStatus(`Добро пожаловать, ${telegramData.user.first_name}!`);
-      } else {
-        // Создаем новые данные
-        const newGameData = {
-          coins: 100,
-          level: 1,
-          experience: 0,
-          nextLevelExp: 50,
-          farm: {
-            fields: [],
-            capacity: 5,
-            autoCollect: false,
-            growthMultiplier: 1.0
-          },
-          inventory: {
-            wheatSeeds: 5,
-            carrotSeeds: 3,
-            potatoSeeds: 1
-          },
-          stats: {
-            totalCoinsEarned: 0,
-            cropsHarvested: 0,
-            playTime: 0
-          }
-        };
-        
-        setGameData(newGameData);
-        setSaveStatus('Создана новая ферма!');
       }
       
       setLoading(false);
-    };
-    
-    initApp();
+    }, 500);
   }, []);
 
-  // Таймер роста растений - УПРОЩЕННЫЙ
-  useEffect(() => {
-    if (!gameData?.farm?.fields) return;
-    
-    const interval = setInterval(() => {
-      setGameData(prev => {
-        if (!prev) return prev;
-        
-        const now = new Date();
-        const updatedFields = prev.farm.fields.map(field => {
-          if (field.isReady) return field;
-          
-          const plantedTime = new Date(field.plantedAt);
-          const elapsedSeconds = (now - plantedTime) / 1000;
-          const growTime = field.growTime || CROPS_CONFIG[field.type]?.growTime || 30;
-          const isReady = elapsedSeconds >= growTime;
-          
-          return {
-            ...field,
-            isReady,
-            progress: Math.min(100, (elapsedSeconds / growTime) * 100),
-            timeLeft: Math.max(0, Math.ceil(growTime - elapsedSeconds))
-          };
-        });
-        
-        return {
-          ...prev,
-          farm: { ...prev.farm, fields: updatedFields }
-        };
-      });
-    }, 1000);
-    
-    return () => clearInterval(interval);
-  }, [gameData]);
-
-  // Простая функция сохранения
+  // Сохранение данных
   const saveGameData = (newData) => {
-    if (!gameData || !telegramUser) return;
+    if (!gameData) return;
     
     const updatedData = {
       ...gameData,
@@ -161,69 +88,41 @@ function App() {
     };
     
     setGameData(updatedData);
-    
-    // Сохраняем в Supabase
-    if (telegramUser.id) {
-      userService.autoSave(telegramUser.id, updatedData);
-    }
-  };
-
-  // Покупка семян
-  const buySeeds = (cropType, amount = 1) => {
-    if (!gameData) return;
-    
-    const crop = CROPS_CONFIG[cropType];
-    const totalCost = crop.seedPrice * amount;
-    
-    if (gameData.coins < totalCost) {
-      setSaveStatus(`Не хватает ${totalCost - gameData.coins} монет!`);
-      return;
-    }
-    
-    const seedKey = `${cropType}Seeds`;
-    const currentSeeds = gameData.inventory[seedKey] || 0;
-    
-    saveGameData({
-      coins: gameData.coins - totalCost,
-      inventory: {
-        ...gameData.inventory,
-        [seedKey]: currentSeeds + amount
-      }
-    });
-    
-    setSaveStatus(`Куплено ${amount} семян ${crop.name}`);
+    userService.autoSave();
+    setSaveStatus('Игра сохранена');
   };
 
   // Посадка культуры
-  const plantCrop = (cropType) => {
+  const plantCrop = (type) => {
     if (!gameData) return;
     
-    // Проверяем место
-    if (gameData.farm.fields.length >= gameData.farm.capacity) {
-      setSaveStatus('Нет свободных мест! Купите расширение.');
-      return;
-    }
+    const crops = {
+      wheat: { name: '🌾 Пшеница', reward: 3, time: 5, color: '#fbbf24' },
+      carrot: { name: '🥕 Морковь', reward: 6, time: 10, color: '#f97316' },
+      potato: { name: '🥔 Картофель', reward: 10, time: 15, color: '#a16207' }
+    };
+    
+    const crop = crops[type];
+    const seedKey = `${type}Seeds`;
     
     // Проверяем семена
-    const seedKey = `${cropType}Seeds`;
     if (!gameData.inventory[seedKey] || gameData.inventory[seedKey] <= 0) {
-      setSaveStatus('Нет семян! Купите в магазине.');
+      setSaveStatus('Нет семян!');
       return;
     }
     
-    const crop = CROPS_CONFIG[cropType];
+    // Создаем поле
     const newField = {
       id: Date.now(),
-      type: cropType,
+      type,
       name: crop.name,
       plantedAt: new Date().toISOString(),
-      growTime: crop.growTime,
+      growTime: crop.time,
       reward: crop.reward,
       isReady: false,
       progress: 0
     };
     
-    // Обновляем
     saveGameData({
       farm: {
         ...gameData.farm,
@@ -243,98 +142,30 @@ function App() {
     if (!gameData) return;
     
     const field = gameData.farm.fields.find(f => f.id === fieldId);
-    if (!field || !field.isReady) return;
+    if (!field) return;
     
-    const crop = CROPS_CONFIG[field.type];
-    
-    // Удаляем поле и добавляем награду
-    const updatedFields = gameData.farm.fields.filter(f => f.id !== fieldId);
-    
-    let newExp = gameData.experience + crop.experience;
-    let newLevel = gameData.level;
-    let nextExp = gameData.nextLevelExp;
-    
-    // Проверка уровня
-    if (newExp >= nextExp) {
-      newLevel++;
-      newExp = newExp - nextExp;
-      nextExp = Math.round(nextExp * 1.5);
-    }
-    
-    saveGameData({
-      coins: gameData.coins + crop.reward,
-      experience: newExp,
-      level: newLevel,
-      nextLevelExp: nextExp,
-      farm: { ...gameData.farm, fields: updatedFields },
-      stats: {
-        ...gameData.stats,
-        totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + crop.reward,
-        cropsHarvested: (gameData.stats.cropsHarvested || 0) + 1
-      }
-    });
-    
-    setSaveStatus(`Собрано ${crop.name}! +${crop.reward} монет`);
-  };
-
-  // Сбор всего урожая
-  const harvestAll = () => {
-    if (!gameData) return;
-    
-    const readyFields = gameData.farm.fields.filter(f => f.isReady);
-    if (readyFields.length === 0) {
-      setSaveStatus('Нет готового урожая');
-      return;
-    }
-    
-    let totalCoins = 0;
-    let totalExp = 0;
-    
-    readyFields.forEach(field => {
-      const crop = CROPS_CONFIG[field.type];
-      totalCoins += crop.reward;
-      totalExp += crop.experience;
-    });
-    
-    const updatedFields = gameData.farm.fields.filter(f => !f.isReady);
-    
-    let newExp = gameData.experience + totalExp;
-    let newLevel = gameData.level;
-    let nextExp = gameData.nextLevelExp;
-    
-    // Проверка уровня
-    while (newExp >= nextExp) {
-      newLevel++;
-      newExp = newExp - nextExp;
-      nextExp = Math.round(nextExp * 1.5);
-    }
-    
-    saveGameData({
-      coins: gameData.coins + totalCoins,
-      experience: newExp,
-      level: newLevel,
-      nextLevelExp: nextExp,
-      farm: { ...gameData.farm, fields: updatedFields },
-      stats: {
-        ...gameData.stats,
-        totalCoinsEarned: (gameData.stats.totalCoinsEarned || 0) + totalCoins,
-        cropsHarvested: (gameData.stats.cropsHarvested || 0) + readyFields.length
-      }
-    });
-    
-    setSaveStatus(`Собрано всё! +${totalCoins} монет`);
-  };
-
-  // Покупка улучшений
-  const buyUpgrade = (type) => {
-    if (!gameData) return;
-    
-    const prices = {
-      expand: 100,
-      autoCollect: 500,
-      fasterGrowth: 300
+    const crops = {
+      wheat: { reward: 3 },
+      carrot: { reward: 6 },
+      potato: { reward: 10 }
     };
     
+    const reward = crops[field.type]?.reward || 3;
+    const updatedFields = gameData.farm.fields.filter(f => f.id !== fieldId);
+    
+    saveGameData({
+      coins: gameData.coins + reward,
+      farm: { ...gameData.farm, fields: updatedFields }
+    });
+    
+    setSaveStatus(`Собрано +${reward} монет!`);
+  };
+
+  // Покупка семян
+  const buySeeds = (type) => {
+    if (!gameData) return;
+    
+    const prices = { wheat: 10, carrot: 20, potato: 30 };
     const price = prices[type];
     
     if (gameData.coins < price) {
@@ -342,51 +173,25 @@ function App() {
       return;
     }
     
-    let updates = {};
-    
-    switch (type) {
-      case 'expand':
-        updates = { farm: { ...gameData.farm, capacity: gameData.farm.capacity + 1 } };
-        break;
-      case 'autoCollect':
-        updates = { farm: { ...gameData.farm, autoCollect: true } };
-        break;
-      case 'fasterGrowth':
-        updates = { farm: { ...gameData.farm, growthMultiplier: 1.2 } };
-        break;
-    }
+    const seedKey = `${type}Seeds`;
     
     saveGameData({
       coins: gameData.coins - price,
-      ...updates
+      inventory: {
+        ...gameData.inventory,
+        [seedKey]: (gameData.inventory[seedKey] || 0) + 1
+      }
     });
     
-    setSaveStatus(`Улучшение куплено!`);
+    setSaveStatus(`Куплены семена за ${price} монет`);
   };
-
-  // Ручное сохранение
-  const manualSave = async () => {
-    if (!telegramUser || !gameData) return;
-    
-    setSaveStatus('Сохранение...');
-    const result = await userService.updateUserData(telegramUser.id, gameData);
-    
-    if (result) {
-      setSaveStatus('Сохранено!');
-    } else {
-      setSaveStatus('Ошибка сохранения');
-    }
-  };
-
-  // Прогресс уровня
-  const levelProgress = gameData ? 
-    Math.min(100, (gameData.experience / gameData.nextLevelExp) * 100) : 0;
 
   if (loading) {
     return (
       <div className="loading">
-        <h2>Загрузка игры...</h2>
+        <h2>🌾 Загрузка фермы...</h2>
         <div className="spinner"></div>
+        <p>Инициализация игры</p>
       </div>
     );
   }
@@ -395,24 +200,19 @@ function App() {
     <div className="app">
       <header className="header">
         <h1>🌾 Ферма</h1>
-        {telegramUser && (
-          <div className="user-info">
-            <div className="user-avatar">
-              {telegramUser.first_name?.[0]}
-            </div>
-            <div>
-              <strong>{telegramUser.first_name}</strong>
-              <small>Ур. {gameData?.level || 1}</small>
-            </div>
+        <div className="user-info">
+          <div className="user-avatar">T</div>
+          <div>
+            <strong>Telegram User</strong>
+            <small>Ур. {gameData?.level || 1}</small>
           </div>
-        )}
+        </div>
       </header>
 
       <div className="status-bar">
-        <span>{saveStatus || 'Готово'}</span>
+        <span>{saveStatus || 'Готово к игре!'}</span>
       </div>
 
-      {/* Навигация */}
       <div className="tabs">
         <button 
           className={`tab ${activeTab === 'farm' ? 'active' : ''}`}
@@ -433,20 +233,15 @@ function App() {
           {/* Статистика */}
           <div className="stats">
             <div className="stat">
-              <span>💰</span>
+              <span>💰 Монеты</span>
               <strong>{gameData.coins}</strong>
             </div>
             <div className="stat">
-              <span>📊 {gameData.level}</span>
-              <div className="exp-bar">
-                <div 
-                  className="exp-fill" 
-                  style={{ width: `${levelProgress}%` }}
-                ></div>
-              </div>
+              <span>📊 Уровень</span>
+              <strong>{gameData.level}</strong>
             </div>
             <div className="stat">
-              <span>🌾</span>
+              <span>🌾 Слоты</span>
               <strong>{gameData.farm.fields.length}/{gameData.farm.capacity}</strong>
             </div>
           </div>
@@ -454,81 +249,77 @@ function App() {
           {/* Вкладка Фермы */}
           {activeTab === 'farm' && (
             <div className="farm-tab">
-              <div className="section">
-                <h3>Ваша ферма</h3>
-                <button 
-                  onClick={harvestAll}
-                  className="btn harvest-btn"
-                  disabled={!gameData.farm.fields.some(f => f.isReady)}
-                >
-                  Собрать всё ({gameData.farm.fields.filter(f => f.isReady).length})
-                </button>
-              </div>
-
+              <h3>🌿 Ваша ферма</h3>
+              
               {gameData.farm.fields.length > 0 ? (
                 <div className="fields">
-                  {gameData.farm.fields.map(field => {
-                    const crop = CROPS_CONFIG[field.type];
-                    return (
-                      <div 
-                        key={field.id} 
-                        className={`field ${field.isReady ? 'ready' : ''}`}
-                      >
-                        <div className="field-top">
-                          <span className="field-icon">
-                            {crop.name.split(' ')[0]}
-                          </span>
-                          <div>
-                            <strong>{crop.name}</strong>
-                            <small>+{field.reward} монет</small>
-                          </div>
-                          {field.isReady && (
-                            <button 
-                              onClick={() => collectCrop(field.id)}
-                              className="collect-btn"
-                            >
-                              Собрать
-                            </button>
-                          )}
+                  {gameData.farm.fields.map(field => (
+                    <div key={field.id} className="field">
+                      <div className="field-top">
+                        <span className="field-icon">
+                          {field.type === 'wheat' && '🌾'}
+                          {field.type === 'carrot' && '🥕'}
+                          {field.type === 'potato' && '🥔'}
+                        </span>
+                        <div>
+                          <strong>{field.name}</strong>
+                          <small>+{field.reward} монет</small>
                         </div>
-                        
-                        {!field.isReady && (
-                          <div className="progress">
-                            <div className="progress-bar">
-                              <div 
-                                className="progress-fill"
-                                style={{ width: `${field.progress}%` }}
-                              ></div>
-                            </div>
-                            <span>{field.timeLeft || 0}с</span>
-                          </div>
-                        )}
+                        <button 
+                          onClick={() => collectCrop(field.id)}
+                          className="collect-btn"
+                        >
+                          Собрать
+                        </button>
                       </div>
-                    );
-                  })}
+                      <div className="progress">
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-fill"
+                            style={{ width: `${field.progress || 0}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="empty">
                   <p>🌱 Ферма пуста</p>
-                  <p>Купите семена и посадите их!</p>
+                  <p>Купите семена в магазине!</p>
                 </div>
               )}
 
               <div className="plant-section">
-                <h3>Посадить</h3>
+                <h3>🌱 Посадить</h3>
                 <div className="seed-buttons">
-                  {Object.entries(CROPS_CONFIG).map(([type, crop]) => (
-                    <button
-                      key={type}
-                      onClick={() => plantCrop(type)}
-                      className="seed-btn"
-                      disabled={!gameData.inventory[`${type}Seeds`]}
-                      style={{ background: crop.color }}
-                    >
-                      <span>{crop.name}</span>
-                      <small>{gameData.inventory[`${type}Seeds`] || 0} шт</small>
-                    </button>
-                  ))}
+                  <button
+                    onClick={() => plantCrop('wheat')}
+                    className="seed-btn"
+                    style={{ background: '#fbbf24' }}
+                    disabled={!gameData.inventory.wheatSeeds}
+                  >
+                    <span>🌾 Пшеница</span>
+                    <small>{gameData.inventory.wheatSeeds} шт</small>
+                  </button>
+                  <button
+                    onClick={() => plantCrop('carrot')}
+                    className="seed-btn"
+                    style={{ background: '#f97316' }}
+                    disabled={!gameData.inventory.carrotSeeds}
+                  >
+                    <span>🥕 Морковь</span>
+                    <small>{gameData.inventory.carrotSeeds} шт</small>
+                  </button>
+                  <button
+                    onClick={() => plantCrop('potato')}
+                    className="seed-btn"
+                    style={{ background: '#a16207' }}
+                    disabled={!gameData.inventory.potatoSeeds}
+                  >
+                    <span>🥔 Картофель</span>
+                    <small>{gameData.inventory.potatoSeeds} шт</small>
+                  </button>
                 </div>
               </div>
             </div>
@@ -537,28 +328,58 @@ function App() {
           {/* Вкладка Магазина */}
           {activeTab === 'shop' && (
             <div className="shop-tab">
-              <h3>Магазин</h3>
+              <h3>🛒 Магазин</h3>
               
               <div className="shop-section">
                 <h4>Семена</h4>
                 <div className="shop-items">
-                  {Object.entries(CROPS_CONFIG).map(([type, crop]) => (
-                    <div key={type} className="shop-item">
-                      <div className="item-info">
-                        <span className="item-icon">{crop.name.split(' ')[0]}</span>
-                        <div>
-                          <strong>{crop.name}</strong>
-                          <small>Растет: {crop.growTime}с</small>
-                        </div>
+                  <div className="shop-item">
+                    <div className="item-info">
+                      <span>🌾</span>
+                      <div>
+                        <strong>Семена пшеницы</strong>
+                        <small>Растет: 5 сек</small>
                       </div>
-                      <button 
-                        onClick={() => buySeeds(type, 1)}
-                        className="buy-btn"
-                      >
-                        {crop.seedPrice}💰
-                      </button>
                     </div>
-                  ))}
+                    <button 
+                      onClick={() => buySeeds('wheat')}
+                      className="buy-btn"
+                    >
+                      10💰
+                    </button>
+                  </div>
+                  
+                  <div className="shop-item">
+                    <div className="item-info">
+                      <span>🥕</span>
+                      <div>
+                        <strong>Семена моркови</strong>
+                        <small>Растет: 10 сек</small>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => buySeeds('carrot')}
+                      className="buy-btn"
+                    >
+                      20💰
+                    </button>
+                  </div>
+                  
+                  <div className="shop-item">
+                    <div className="item-info">
+                      <span>🥔</span>
+                      <div>
+                        <strong>Семена картофеля</strong>
+                        <small>Растет: 15 сек</small>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => buySeeds('potato')}
+                      className="buy-btn"
+                    >
+                      30💰
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -573,28 +394,8 @@ function App() {
                         <small>+1 слот для растений</small>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => buyUpgrade('expand')}
-                      className="buy-btn"
-                    >
+                    <button className="buy-btn">
                       100💰
-                    </button>
-                  </div>
-                  
-                  <div className="shop-item">
-                    <div className="item-info">
-                      <span>⚡</span>
-                      <div>
-                        <strong>Авто-сбор</strong>
-                        <small>Автоматически собирает урожай</small>
-                      </div>
-                    </div>
-                    <button 
-                      onClick={() => buyUpgrade('autoCollect')}
-                      className="buy-btn"
-                      disabled={gameData.farm.autoCollect}
-                    >
-                      {gameData.farm.autoCollect ? 'Куплено' : '500💰'}
                     </button>
                   </div>
                 </div>
@@ -604,8 +405,14 @@ function App() {
 
           {/* Кнопка сохранения */}
           <div className="save-section">
-            <button onClick={manualSave} className="save-btn">
-              💾 Сохранить
+            <button 
+              onClick={() => {
+                userService.updateUserData();
+                setSaveStatus('✅ Игра сохранена!');
+              }} 
+              className="save-btn"
+            >
+              💾 Сохранить игру
             </button>
           </div>
         </div>
