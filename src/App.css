@@ -891,3 +891,55 @@ h4 {
     width: 100%;
   }
 }
+
+/* Стили для отладочной информации */
+.debug-info {
+  background: #f8f9fa;
+  border: 2px dashed #6c757d;
+  border-radius: 10px;
+  padding: 10px;
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+.debug-info summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #6c757d;
+  padding: 5px;
+  outline: none;
+}
+
+.debug-info summary:hover {
+  color: #343a40;
+}
+
+.debug-content {
+  margin-top: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 5px;
+  border: 1px solid #dee2e6;
+}
+
+.debug-content p {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.debug-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin: 5px;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.debug-btn:hover {
+  background: #5a6268;
+}
