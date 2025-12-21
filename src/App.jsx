@@ -39,85 +39,82 @@ function App() {
     }
   };
 
- // Инициализация игры
-useEffect(() => {
-  const initApp = async () => {
-    console.log('🎮 Запуск игры...');
-    
-    // Инициализируем Telegram
-    const telegramData = initTelegramApp();
-    console.log('📱 Telegram данные:', telegramData.user);
-    setTelegramUser(telegramData.user);
-    
-    // Получаем реальный Telegram ID
-    let telegramId = telegramData.user?.id;
-    if (!telegramId) {
-      telegramId = getTelegramUserId();
-      console.log('🆔 Telegram ID из функции:', telegramId);
-    }
-    
-    console.log('🔑 Итоговый Telegram ID:', telegramId);
-    
-    if (!telegramId) {
-      console.error('❌ Не удалось получить Telegram ID');
-      setSaveStatus('Ошибка: не удалось определить пользователя');
-      setLoading(false);
-      return;
-    }
-    
-    setSaveStatus('Загрузка вашей фермы...');
-    
-    try {
-      // Загружаем данные из базы
+  // Инициализация игры - УПРОЩЕННАЯ ВЕРСИЯ
+  useEffect(() => {
+    const initApp = async () => {
+      console.log('🚀 Запуск игры...');
+      
+      // Инициализируем Telegram
+      const telegramData = initTelegramApp();
+      setTelegramUser(telegramData.user);
+      
+      const telegramId = telegramData.user?.id || 123456789;
+      
+      // Загружаем данные
       const userProfile = await userService.getUserData(telegramId);
-      console.log('📦 Данные из базы:', userProfile);
       
       if (userProfile && userProfile.game_data) {
-        setUserData(userProfile);
-        setGameData(userProfile.game_data);
+        // Проверяем и исправляем структуру данных
+        const safeGameData = {
+          coins: userProfile.game_data.coins || 100,
+          level: userProfile.game_data.level || 1,
+          experience: userProfile.game_data.experience || 0,
+          nextLevelExp: userProfile.game_data.nextLevelExp || 50,
+          farm: {
+            fields: userProfile.game_data.farm?.fields || [],
+            capacity: userProfile.game_data.farm?.capacity || 5,
+            autoCollect: userProfile.game_data.farm?.autoCollect || false,
+            growthMultiplier: userProfile.game_data.farm?.growthMultiplier || 1.0
+          },
+          inventory: {
+            wheatSeeds: userProfile.game_data.inventory?.wheatSeeds || 5,
+            carrotSeeds: userProfile.game_data.inventory?.carrotSeeds || 3,
+            potatoSeeds: userProfile.game_data.inventory?.potatoSeeds || 1
+          },
+          stats: userProfile.game_data.stats || {
+            totalCoinsEarned: 0,
+            cropsHarvested: 0,
+            playTime: 0
+          }
+        };
         
-        // Показываем реальное имя пользователя
-        const userName = telegramData.user?.first_name || 'Игрок';
-        setSaveStatus(`Добро пожаловать, ${userName}! Ферма загружена.`);
+        setUserData(userProfile);
+        setGameData(safeGameData);
+        setSaveStatus(`Добро пожаловать, ${telegramData.user.first_name}!`);
       } else {
-        console.error('❌ Нет данных в ответе');
-        setSaveStatus('Ошибка загрузки данных');
+        // Создаем новые данные
+        const newGameData = {
+          coins: 100,
+          level: 1,
+          experience: 0,
+          nextLevelExp: 50,
+          farm: {
+            fields: [],
+            capacity: 5,
+            autoCollect: false,
+            growthMultiplier: 1.0
+          },
+          inventory: {
+            wheatSeeds: 5,
+            carrotSeeds: 3,
+            potatoSeeds: 1
+          },
+          stats: {
+            totalCoinsEarned: 0,
+            cropsHarvested: 0,
+            playTime: 0
+          }
+        };
+        
+        setGameData(newGameData);
+        setSaveStatus('Создана новая ферма!');
       }
       
-    } catch (error) {
-      console.error('❌ Ошибка инициализации:', error);
-      setSaveStatus('Ошибка подключения к базе');
-    }
+      setLoading(false);
+    };
     
-    setLoading(false);
-  };
-  
-  // Запускаем с небольшой задержкой для инициализации Telegram
-  setTimeout(initApp, 500);
-}, []);
-
-// Принудительно перезагрузить данные из базы
-const reloadFromDatabase = async () => {
-  if (!telegramUser) return;
-  
-  setSaveStatus('🔄 Перезагрузка данных...');
-  setLoading(true);
-  
-  try {
-    const userProfile = await userService.getUserData(telegramUser.id);
-    
-    if (userProfile && userProfile.game_data) {
-      setGameData(userProfile.game_data);
-      setSaveStatus('✅ Данные перезагружены из базы');
-    } else {
-      setSaveStatus('❌ Нет данных в базе');
-    }
-  } catch (error) {
-    setSaveStatus('❌ Ошибка перезагрузки');
-  }
-  
-  setLoading(false);
-};
+    initApp();
+  }, []);
 
   // Таймер роста растений - УПРОЩЕННЫЙ
   useEffect(() => {
