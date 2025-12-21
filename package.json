@@ -10,7 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@telegram-apps/sdk": "^3.11.8",
+    "@supabase/supabase-js": "^2.89.0",
+    "@telegram-apps/sdk": "^2.11.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },

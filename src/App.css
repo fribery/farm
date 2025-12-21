@@ -1,98 +1,393 @@
-body {
-  font-family: 'Arial', sans-serif;
-  background-color: #f0f0f0;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+:root {
+  --primary: #667eea;
+  --primary-dark: #5a67d8;
+  --secondary: #764ba2;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --light: #f9fafb;
+  --dark: #1f2937;
+  --border: #e5e7eb;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  min-height: 100vh;
+  color: var(--dark);
+}
+
+.app {
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: white;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Загрузка */
+.loading {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  background: linear-gradient(to right, #ffecd2 0%, #fcb69f 100%);
-}
-
-.App {
-  text-align: center;
-  position: relative;
-}
-
-h1 {
-  font-size: 2.5rem;
-  margin-bottom: 5px;
-  color: #333;
-}
-
-.deck {
-  display: grid;
-  grid-template-columns: repeat(3, 100px);
-  grid-gap: 10px;
   justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.loading h2 {
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 5px solid rgba(255, 255, 255, 0.3);
+  border-top: 5px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
   margin-bottom: 20px;
 }
 
-.card {
-  width: 100px;
-  height: 100px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: transform 0.3s ease;
-  position: relative;
-  overflow: hidden;
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-.card.flipped {
-  transform: rotateY(180deg);
-}
-
-.card.show {
-  background-color: var(--card-color);
-}
-
-.info {
+/* Шапка */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
-  font-size: 1.2rem;
-}
-
-.game-over {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
   padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 2;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: white;
+  border-bottom: 3px solid var(--primary-dark);
 }
 
-.game-over h2 {
-  margin: 0 0 10px 0;
+.header h1 {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.game-over button {
-  background-color: #ff6347;
-  color: #fff;
-  border: none;
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px 15px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: white;
+  color: var(--primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-details strong {
+  font-size: 16px;
+}
+
+.user-details span {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Статус бар */
+.status-bar {
+  background: var(--light);
   padding: 10px 20px;
-  border-radius: 5px;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+  color: var(--dark);
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Игровой контейнер */
+.game-container {
+  padding: 20px;
+}
+
+/* Статистика */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stat {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  border: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+  box-shadow: var(--shadow);
+}
+
+.stat:hover {
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
+
+.stat span {
+  font-size: 14px;
+  color: #6b7280;
+  text-align: center;
+}
+
+.stat strong {
+  font-size: 32px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.stat small {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* Действия */
+.actions {
+  background: var(--light);
+  padding: 25px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  box-shadow: var(--shadow);
+}
+
+.actions h3 {
+  margin-bottom: 20px;
+  color: var(--dark);
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.plant-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.save-section {
+  text-align: center;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.hint {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 8px;
+}
+
+/* Кнопки */
+.btn {
+  padding: 16px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow);
 }
 
-.game-over button:hover {
-  background-color: #ff4500;
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
 }
 
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1;
+.coin-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+}
+
+.exp-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  color: white;
+}
+
+.plant-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  margin: 0 auto;
+  padding: 12px 30px;
+}
+
+/* Ферма */
+.farm-view {
+  background: white;
+  padding: 25px;
+  border-radius: 16px;
+  border: 2px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.farm-view h3 {
+  margin-bottom: 20px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.field {
+  background: linear-gradient(135deg, #d9f99d 0%, #a7f3d0 100%);
+  padding: 15px;
+  border-radius: 12px;
+  border: 2px solid #86efac;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s;
+}
+
+.field:hover {
+  transform: scale(1.05);
+  border-color: var(--success);
+}
+
+.field-icon {
+  font-size: 40px;
+}
+
+.field-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.empty-farm {
+  text-align: center;
+  padding: 40px 20px;
+  color: #6b7280;
+}
+
+.empty-farm p:first-child {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+/* Ошибка */
+.error {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.error h2 {
+  color: var(--danger);
+  margin-bottom: 15px;
+}
+
+.error p {
+  margin-bottom: 25px;
+  color: #6b7280;
+}
+
+/* Футер */
+.footer {
+  text-align: center;
+  padding: 20px;
+  color: #6b7280;
+  font-size: 14px;
+  border-top: 1px solid var(--border);
+  background: var(--light);
+}
+
+.footer p {
+  margin: 5px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 640px) {
+  .header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+    padding: 15px;
+  }
+  
+  .user-info {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .stats {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  .action-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .plant-buttons {
+    grid-template-columns: 1fr;
+  }
+  
+  .fields {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
