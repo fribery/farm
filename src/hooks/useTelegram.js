@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { supabase, verifyTelegramData } from '../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 export function useTelegram() {
   const [user, setUser] = useState(null)
@@ -17,13 +17,9 @@ export function useTelegram() {
         tg.expand()
         tg.ready()
 
-        // Проверяем данные Telegram
-        const initData = tg.initData
-        const isValid = await verifyTelegramData(initData)
+        const userData = tg.initDataUnsafe?.user
         
-        if (isValid) {
-          const userData = tg.initDataUnsafe.user
-          
+        if (userData) {
           // Сохраняем/получаем пользователя из БД
           const { data: profile, error } = await supabase
             .from('profiles')
@@ -42,13 +38,20 @@ export function useTelegram() {
             .select()
             .single()
 
-          if (error) throw error
-
-          setUser({
-            ...userData,
-            profile,
-            game_data: profile?.game_data || {}
-          })
+          if (error) {
+            console.error('Ошибка базы данных:', error)
+            // Продолжаем с локальными данными
+            setUser({
+              ...userData,
+              game_data: { money: 100, level: 1, experience: 0, inventory: [], farm: [] }
+            })
+          } else {
+            setUser({
+              ...userData,
+              profile,
+              game_data: profile?.game_data || { money: 100, level: 1, experience: 0, inventory: [], farm: [] }
+            })
+          }
         }
       } else {
         console.log('Не в Telegram Mini App - тестовый режим')
@@ -64,25 +67,38 @@ export function useTelegram() {
       }
     } catch (error) {
       console.error('Ошибка инициализации Telegram:', error)
+      // В случае ошибки создаем тестового пользователя
+      const testUser = {
+        id: Date.now(),
+        first_name: 'Test',
+        last_name: 'User',
+        username: 'testuser',
+        game_data: { money: 100, level: 1, experience: 0, inventory: [], farm: [] }
+      }
+      setUser(testUser)
     } finally {
       setLoading(false)
     }
   }
 
   const updateGameData = async (newGameData) => {
-    if (!user?.telegram_id) return
+    if (!user?.id) return
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ 
-          game_data: newGameData,
-          updated_at: new Date().toISOString()
-        })
-        .eq('telegram_id', user.telegram_id)
+      // Если в Telegram, сохраняем в БД
+      if (window.Telegram?.WebApp && user.id !== 123456789) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ 
+            game_data: newGameData,
+            updated_at: new Date().toISOString()
+          })
+          .eq('telegram_id', user.id)
 
-      if (error) throw error
+        if (error) console.error('Ошибка сохранения:', error)
+      }
       
+      // Обновляем локальное состояние
       setUser(prev => ({
         ...prev,
         game_data: newGameData

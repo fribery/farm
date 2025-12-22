@@ -1,5 +1,5 @@
+import { useState, useEffect } from 'react'
 import { useTelegram } from './hooks/useTelegram'
-import { supabase } from './lib/supabase'
 import './App.css'
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
         <h1>🌾 Ферма</h1>
         {user && (
           <div style={{ marginTop: 10, fontSize: '0.9em' }}>
-            <div>{user.first_name} {user.last_name}</div>
+            <div>{user.first_name} {user.last_name || ''}</div>
             <div>Уровень: {user.game_data?.level || 1}</div>
           </div>
         )}
@@ -46,7 +46,6 @@ function App() {
       <main style={{ padding: 20 }}>
         {user ? (
           <>
-            {/* Игровой интерфейс */}
             <div style={{ 
               background: '#f5f5f5', 
               padding: 20, 
@@ -86,7 +85,6 @@ function App() {
               </button>
             </div>
 
-            {/* Здесь будут компоненты игры */}
             <div style={{ 
               minHeight: 300,
               border: '2px dashed #ddd',
@@ -102,15 +100,6 @@ function App() {
           <div style={{ textAlign: 'center', padding: 40 }}>
             <h2>Запустите игру в Telegram</h2>
             <p>Откройте эту игру через Telegram Mini App для сохранения прогресса</p>
-            <div style={{ 
-              marginTop: 20,
-              padding: 20,
-              background: '#f0f0f0',
-              borderRadius: 10,
-              display: 'inline-block'
-            }}>
-              Для теста: установите расширение Telegram Web App в браузере
-            </div>
           </div>
         )}
       </main>
