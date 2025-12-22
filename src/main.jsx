@@ -31,13 +31,6 @@ const initializeTelegramSDK = async () => {
   }
 };
 
-
-// Монтируем главную кнопку
-    if (mainButton.mount.isAvailable()) {
-      mainButton.mount(); // Убедимся, что кнопка установлена
-      console.log('Главная кнопка установлена');
-    }
-
     // Настраиваем свойства главной кнопки
     if (mainButton.setParams.isAvailable()) {
       mainButton.setParams({

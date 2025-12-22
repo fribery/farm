@@ -77,6 +77,8 @@ useEffect(() => {
 }, [])
 
 const updateGameData = (newGameData) => {
+  console.log('🔔🔔🔔 UPDATE GAME DATA ВЫЗВАНА!', newGameData)
+  console.trace() // Покажет, откуда вызвана функция
   console.log('🔄 updateGameData вызван:', newGameData)
   
   // 1. Обновляем состояние React
