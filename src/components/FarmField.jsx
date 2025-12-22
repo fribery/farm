@@ -190,7 +190,7 @@ export default function FarmField({ user, updateGameData }) {
 </div>
     </div>
   )
-
+}
       {/* Поля фермы */}
       <div className="fields-container">
         <h3 className="section-title">
@@ -393,4 +393,4 @@ export default function FarmField({ user, updateGameData }) {
   </div>
 )
 }
-}
+
