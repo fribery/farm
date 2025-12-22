@@ -1,7 +1,7 @@
 import { GAME_CONFIG } from '../../game/config'
 import './Screens.css'
 
-export default function ShopScreen({ user, updateGameData }) {
+function ShopScreen({ user, updateGameData }) {
   const buySeeds = (plant) => {
   if (user.game_data.money < plant.price) {
     alert('Недостаточно денег!')
