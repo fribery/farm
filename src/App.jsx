@@ -22,31 +22,30 @@ function App() {
 
   // Инициализация Telegram WebApp и отключение нативной панели
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp
-      tg.ready()
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp
+    tg.ready()
+    
+    setTimeout(() => {
+      tg.expand()
+      tg.disableVerticalSwipes()
+      tg.setHeaderColor('#4CAF50')
+      tg.MainButton.hide()
+      tg.BackButton.hide()
       
-      // Небольшая задержка перед expand, чтобы интерфейс успел загрузиться
+      console.log('Telegram WebApp инициализирован')
+      
+      // Фикс для навигации
       setTimeout(() => {
-        tg.expand()
-        tg.disableVerticalSwipes() // Ключевая команда для отключения нативной панели
-        tg.setHeaderColor('#4CAF50')
-        tg.MainButton.hide()
-        tg.BackButton.hide()
-        
-        console.log('Telegram WebApp инициализирован, нативная панель отключена')
-        
-        // Дополнительно: принудительно корректируем размер контейнера
-        setTimeout(() => {
-          const appContainer = document.querySelector('.app')
-          if (appContainer) {
-            appContainer.style.minHeight = '100vh'
-            appContainer.style.paddingBottom = '70px' // Место для навигации
-          }
-        }, 100)
-      }, 50)
-    }
-  }, [])
+        const nav = document.querySelector('.nav-container')
+        if (nav) {
+          nav.style.position = 'fixed'
+          nav.style.bottom = '0'
+        }
+      }, 200)
+    }, 100)
+  }
+}, [])
 
   const updateGameData = (newGameData) => {
     setUser(prev => ({

@@ -1073,3 +1073,102 @@
     padding: 8px 12px;
   }
 }
+
+/* ===== НОВЫЕ СТИЛИ ДЛЯ НАВИГАЦИИ (ПРИОРИТЕТНЫЕ) ===== */
+
+/* Контейнер навигации */
+.app .nav-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, #ffffff, #f8f9fa);
+  border-top: 2px solid #4CAF50;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* Кнопки навигации */
+.app .nav-btn {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 15px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2c3e50;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 80px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Эмодзи в кнопках */
+.app .nav-btn::before {
+  font-size: 1.4rem;
+  margin-bottom: 2px;
+}
+
+/* Кнопка "Ферма" */
+.app .nav-btn:nth-child(1)::before {
+  content: "🌾";
+}
+
+/* Кнопка "Магазин" */
+.app .nav-btn:nth-child(2)::before {
+  content: "🛒";
+}
+
+/* Кнопка "Профиль" */
+.app .nav-btn:nth-child(3)::before {
+  content: "👤";
+}
+
+/* Активная кнопка */
+.app .nav-btn.active {
+  background: linear-gradient(135deg, #4CAF50, #66BB6A);
+  color: white;
+  border-color: #4CAF50;
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+}
+
+/* Ховер эффект */
+.app .nav-btn:hover:not(.active) {
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Основной контент - чтобы не скрывался под навигацией */
+.app .main-content {
+  padding-bottom: 90px;
+  min-height: calc(100vh - 150px);
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .app .nav-container {
+    padding: 10px 15px;
+  }
+  
+  .app .nav-btn {
+    padding: 10px 15px;
+    font-size: 0.85rem;
+    min-width: 70px;
+    border-radius: 12px;
+  }
+  
+  .app .nav-btn::before {
+    font-size: 1.2rem;
+  }
+}
