@@ -21,7 +21,23 @@ function App() {
   })
 
 useEffect(() => {
-  console.log('🔍 Проверяем наличие Telegram WebApp...')
+  console.log('🔍 Инициализация приложения...')
+  
+  // Fallback функция для загрузки из localStorage
+  const loadFromLocalStorage = () => {
+    const savedData = localStorage.getItem('farm_game_data')
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData)
+        console.log('📂 Загружены данные из localStorage:', parsedData)
+        setUser(prev => ({ ...prev, game_data: parsedData }))
+        return true
+      } catch (e) {
+        console.error('Ошибка загрузки из localStorage:', e)
+      }
+    }
+    return false
+  }
   
   // Функция для инициализации Telegram
   const initTelegram = () => {
@@ -38,19 +54,39 @@ useEffect(() => {
       tg.MainButton.hide()
       tg.BackButton.hide()
       
-      // Загружаем сохранённые данные
+      // Загружаем сохранённые данные из CloudStorage
       if (tg.CloudStorage) {
+        console.log('📥 Запрашиваем данные из CloudStorage...')
+        
         tg.CloudStorage.getItem('user_game_data', (error, savedData) => {
-          if (!error && savedData) {
+          console.log('📦 CloudStorage getItem результат:', { error, savedData })
+          
+          if (!error && savedData && savedData !== 'null' && savedData !== 'undefined') {
             try {
               const parsedData = JSON.parse(savedData)
-              console.log('📂 Загружены данные из Telegram Cloud:', parsedData)
+              console.log('✅ Загружены данные из CloudStorage:', parsedData)
               setUser(prev => ({ ...prev, game_data: parsedData }))
             } catch (e) {
-              console.error('Ошибка парсинга данных:', e)
+              console.error('❌ Ошибка парсинга данных CloudStorage:', e)
+              // Fallback на localStorage если CloudStorage данные битые
+              loadFromLocalStorage()
             }
+          } else {
+            console.log('ℹ️ CloudStorage пуст или ошибка:', error)
+            // CloudStorage пустой - грузим из localStorage
+            loadFromLocalStorage()
           }
         })
+        
+        // Альтернативный метод: проверяем какие ключи есть
+        setTimeout(() => {
+          tg.CloudStorage.getKeys((error, keys) => {
+            console.log('🗝️ Ключи в CloudStorage:', keys, 'Ошибка:', error)
+          })
+        }, 1000)
+      } else {
+        console.log('⚠️ CloudStorage недоступен')
+        loadFromLocalStorage()
       }
       
       console.log('🎮 Telegram инициализирован')
@@ -59,13 +95,16 @@ useEffect(() => {
     return false
   }
   
-  // Пробуем сразу
+  // Пробуем сразу инициализировать Telegram
   if (initTelegram()) {
     return
   }
   
   // Если Telegram не найден сразу, ждём загрузки скрипта
   console.log('⏳ Telegram WebApp не найден, ждём загрузки скрипта...')
+  
+  // Сначала пробуем загрузить из localStorage (режим разработки)
+  loadFromLocalStorage()
   
   const checkInterval = setInterval(() => {
     if (initTelegram()) {
@@ -83,34 +122,65 @@ useEffect(() => {
 }, [])
 
 const updateGameData = (newGameData) => {
-  console.log('🔄 Обновляем данные:', newGameData)
+  console.log('🔄 updateGameData вызван:', newGameData)
   
-  // 1. Обновляем состояние
-  const updatedData = { ...user.game_data, ...newGameData }
+  // Создаём полный объект данных
+  const updatedData = { 
+    ...user.game_data, 
+    ...newGameData,
+    // Добавляем timestamp для отслеживания
+    _lastUpdated: Date.now()
+  }
+  
+  console.log('💾 Полные данные для сохранения:', updatedData)
+  
+  // 1. Обновляем React состояние
   setUser(prev => ({
     ...prev,
     game_data: updatedData
   }))
   
-  // 2. Сохраняем в Telegram CloudStorage (если доступен)
+  // 2. Сохраняем в Telegram CloudStorage
   if (window.Telegram?.WebApp?.CloudStorage) {
-    window.Telegram.WebApp.CloudStorage.setItem(
-      'user_game_data',
-      JSON.stringify(updatedData),
-      (error) => {
+    const tg = window.Telegram.WebApp
+    
+    // Пробуем сохранить разными способами
+    const saveToTelegram = () => {
+      tg.CloudStorage.setItem('user_game_data', JSON.stringify(updatedData), (error) => {
         if (error) {
-          console.warn('⚠️ Не удалось сохранить в Telegram Cloud:', error)
-          // Fallback на localStorage
-          localStorage.setItem('farm_game_data', JSON.stringify(updatedData))
+          console.error('❌ Ошибка CloudStorage.setItem:', error)
+          
+          // Альтернативный метод: setItems
+          tg.CloudStorage.setItems({ 'user_game_data': JSON.stringify(updatedData) }, (err) => {
+            if (err) {
+              console.error('❌ Ошибка CloudStorage.setItems:', err)
+              saveToLocalStorage() // Fallback
+            } else {
+              console.log('✅ Сохранено через CloudStorage.setItems')
+            }
+          })
         } else {
-          console.log('✅ Сохранено в Telegram Cloud')
+          console.log('✅ Сохранено в CloudStorage')
         }
-      }
-    )
+      })
+    }
+    
+    saveToTelegram()
   } else {
-    // 3. Fallback: сохраняем в localStorage (для разработки)
-    console.log('💾 Сохраняем в localStorage (режим разработки)')
-    localStorage.setItem('farm_game_data', JSON.stringify(updatedData))
+    console.log('📱 Telegram CloudStorage недоступен')
+  }
+  
+  // 3. Всегда сохраняем в localStorage (для надёжности)
+  saveToLocalStorage()
+  
+  // Вспомогательная функция
+  function saveToLocalStorage() {
+    try {
+      localStorage.setItem('farm_game_data', JSON.stringify(updatedData))
+      console.log('💿 Сохранено в localStorage')
+    } catch (e) {
+      console.error('❌ Ошибка localStorage:', e)
+    }
   }
 }
 
