@@ -66,6 +66,7 @@ export default function ShopScreen({ user, updateGameData }) {
       inventory: newInventory
     }
 
+    console.log('🛒 ПОКУПКА В МАГАЗИНЕ:', plant.name)
     updateGameData(newGameData)
     console.log('Обновлённый инвентарь:', newInventory)
     alert(`Куплены семена: ${plant.name}`)

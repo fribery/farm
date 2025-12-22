@@ -20,102 +20,41 @@ function App() {
     }
   })
 
-useEffect(() => {
-  console.log('🔍 Инициализация приложения...')
+const updateGameData = (newGameData) => {
+  console.log('💾 СОХРАНЕНИЕ ДАННЫХ:', newGameData)
   
-  // 1. ВСЕГДА сначала грузим из localStorage (самое надёжное)
-  const savedData = localStorage.getItem('farm_game_data')
-  if (savedData && savedData !== 'null' && savedData !== 'undefined') {
+  // Обновляем состояние
+  setUser(prev => {
+    const updated = { ...prev.game_data, ...newGameData }
+    
+    // Сохраняем в localStorage СРАЗУ
     try {
-      const parsedData = JSON.parse(savedData)
-      console.log('📂 Загружены данные из localStorage:', parsedData)
-      setUser(prev => ({ ...prev, game_data: parsedData }))
+      localStorage.setItem('farm_game_data', JSON.stringify(updated))
+      console.log('✅ Успешно сохранено в localStorage')
     } catch (e) {
-      console.error('❌ Ошибка парсинга localStorage:', e)
+      console.error('❌ Ошибка сохранения в localStorage:', e)
     }
-  } else {
-    console.log('ℹ️ localStorage пуст, используем начальные данные')
-  }
-  
-  // 2. Инициализируем Telegram (только для интерфейса)
-  const initTelegram = () => {
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp
-      console.log('✅ Telegram WebApp найден, версия:', tg.version)
-      
-      tg.ready()
+    
+    return { game_data: updated }
+  })
+}
+
+// Упрощенный useEffect только для Telegram
+useEffect(() => {
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp
+    
+    tg.ready()
+    setTimeout(() => {
       tg.expand()
       tg.disableVerticalSwipes()
       tg.setHeaderColor('#4CAF50')
       tg.MainButton.hide()
       tg.BackButton.hide()
-      
-      console.log('🎮 Telegram инициализирован')
-      return true
-    }
-    return false
+      console.log('🎮 Telegram настроен')
+    }, 100)
   }
-  
-  // Пробуем инициализировать сразу
-  if (initTelegram()) {
-    return
-  }
-  
-  // Ждём загрузки скрипта Telegram
-  const checkInterval = setInterval(() => {
-    if (initTelegram()) {
-      clearInterval(checkInterval)
-    }
-  }, 100)
-  
-  setTimeout(() => {
-    clearInterval(checkInterval)
-    console.log('🌐 Работаем без Telegram (режим разработки)')
-  }, 3000)
-  
-  return () => clearInterval(checkInterval)
 }, [])
-
-const updateGameData = (newGameData) => {
-  console.log('🔔🔔🔔 UPDATE GAME DATA ВЫЗВАНА!', newGameData)
-  console.trace() // Покажет, откуда вызвана функция
-  console.log('🔄 updateGameData вызван:', newGameData)
-  
-  // 1. Обновляем состояние React
-  const updatedData = { 
-    ...user.game_data, 
-    ...newGameData,
-    _lastUpdated: Date.now()
-  }
-  
-  setUser(prev => ({
-    ...prev,
-    game_data: updatedData
-  }))
-  
-  // 2. Сохраняем В localStorage (это точно работает)
-  console.log('💾 Сохраняем в localStorage:', updatedData)
-  try {
-    localStorage.setItem('farm_game_data', JSON.stringify(updatedData))
-    console.log('✅ Успешно сохранено в localStorage')
-  } catch (e) {
-    console.error('❌ Ошибка localStorage:', e)
-  }
-  
-  // 3. Пробуем сохранить в Telegram CloudStorage (если доступен)
-  if (window.Telegram?.WebApp?.CloudStorage) {
-    const tg = window.Telegram.WebApp
-    
-    // Пробуем сохранить - но не рассчитываем на успех
-    tg.CloudStorage.setItem('user_game_data', JSON.stringify(updatedData), (error) => {
-      if (error) {
-        console.warn('⚠️ CloudStorage не доступен (тестовый режим?)')
-      } else {
-        console.log('🎉 Успешно сохранено в Telegram CloudStorage!')
-      }
-    })
-  }
-}
 
   return (
     <div className="app">
