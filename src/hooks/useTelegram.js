@@ -40,74 +40,155 @@ export function useTelegram() {
     }
   }
 
-  const loadOrCreateUser = async () => {
-    try {
-      let userData = {}
+const loadOrCreateUser = async () => {
+  try {
+    let userData = {}
+    let telegramId
+    
+    // Проверяем, запущено ли в Telegram
+    if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+      const tgUser = window.Telegram.WebApp.initDataUnsafe.user
+      telegramId = tgUser.id
+      userData = {
+        telegram_id: telegramId,
+        first_name: tgUser.first_name,
+        last_name: tgUser.last_name,
+        username: tgUser.username || null,
+        language_code: tgUser.language_code,
+        email: `${telegramId}@telegram.miniapp`
+      }
+      console.log('👤 Пользователь Telegram:', userData)
+    } else {
+      // Тестовый пользователь
+      telegramId = 123456789
+      userData = {
+        telegram_id: telegramId,
+        first_name: 'Тест',
+        last_name: 'Пользователь',
+        username: 'testuser',
+        email: 'test@example.com'
+      }
+      console.log('🧪 Тестовый пользователь')
+    }
+
+    // ПРОВЕРЯЕМ существующего пользователя с правильным запросом
+    console.log(`🔍 Ищем пользователя с telegram_id: ${telegramId}`)
+    
+    const { data: existingUser, error: fetchError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('telegram_id', telegramId)
+      .maybeSingle() // Возвращает null если нет записи
+
+    if (fetchError) {
+      console.error('❌ Ошибка поиска пользователя:', fetchError)
+      throw fetchError
+    }
+
+    if (existingUser) {
+      // Пользователь СУЩЕСТВУЕТ - обновляем информацию
+      console.log('📂 Пользователь найден в БД:', existingUser.id)
       
-      // Проверяем, запущено ли в Telegram
-      if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
-        const tgUser = window.Telegram.WebApp.initDataUnsafe.user
-        userData = {
-          telegram_id: tgUser.id,
-          first_name: tgUser.first_name,
-          last_name: tgUser.last_name,
-          username: tgUser.username,
-          language_code: tgUser.language_code,
-          email: `${tgUser.id}@telegram.miniapp`
-        }
-        console.log('👤 Пользователь Telegram:', userData)
-      } else {
-        // Тестовый пользователь
-        userData = {
-          telegram_id: 123456789,
-          first_name: 'Тест',
-          last_name: 'Пользователь',
-          username: 'testuser',
-          email: 'test@example.com'
-        }
-        console.log('🧪 Тестовый пользователь')
+      // Обновляем данные профиля если нужно
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ 
+          first_name: userData.first_name,
+          last_name: userData.last_name,
+          username: userData.username,
+          updated_at: new Date().toISOString()
+        })
+        .eq('telegram_id', telegramId)
+
+      if (updateError) {
+        console.error('❌ Ошибка обновления:', updateError)
       }
 
-      // Проверяем, есть ли пользователь в БД
-      const { data: existingUser, error: fetchError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('telegram_id', userData.telegram_id)
-        .maybeSingle() // Возвращает null если нет записи
-
-      if (fetchError) throw fetchError
-
-      if (existingUser) {
-        // Пользователь существует
-        console.log('📂 Пользователь найден в БД:', existingUser)
-        setUser({
-          ...userData,
-          game_data: existingUser.game_data || { money: 100, level: 1, experience: 0, inventory: [], farm: [] }
-        })
-      } else {
-        // Создаем нового пользователя
-        console.log('➕ Создаем нового пользователя в БД')
-        const newUser = {
-          ...userData,
-          game_data: { money: 100, level: 1, experience: 0, inventory: [], farm: [] }
+      setUser({
+        ...userData,
+        game_data: existingUser.game_data || { 
+          money: 100, 
+          level: 1, 
+          experience: 0, 
+          inventory: [], 
+          farm: [] 
         }
-        
-        const { data: createdUser, error: createError } = await supabase
-          .from('profiles')
-          .insert([newUser])
-          .select()
-          .single()
+      })
+      console.log('✅ Загружены данные из существующей записи')
+    } else {
+      // Создаем НОВОГО пользователя
+      console.log('➕ Создаем нового пользователя в БД')
+      const newUser = {
+        ...userData,
+        game_data: { 
+          money: 100, 
+          level: 1, 
+          experience: 0, 
+          inventory: [], 
+          farm: [] 
+        }
+      }
+      
+      const { data: createdUser, error: createError } = await supabase
+        .from('profiles')
+        .insert([newUser])
+        .select()
+        .single()
 
-        if (createError) throw createError
-        
-        console.log('✅ Пользователь создан в БД:', createdUser)
+      if (createError) {
+        // Если всё равно ошибка уникальности, значит запись появилась параллельно
+        console.log('⚠️ Запись уже существует, пробуем загрузить')
+        const { data: retryUser } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('telegram_id', telegramId)
+          .single()
+          
+        if (retryUser) {
+          setUser({
+            ...userData,
+            game_data: retryUser.game_data || { money: 100, level: 1, experience: 0, inventory: [], farm: [] }
+          })
+        } else {
+          throw createError
+        }
+      } else {
+        console.log('✅ Пользователь создан в БД:', createdUser.id)
         setUser(newUser)
       }
-    } catch (error) {
-      console.error('❌ Ошибка загрузки/создания пользователя:', error)
-      loadFromLocalStorage()
     }
+  } catch (error) {
+    console.error('❌ Ошибка загрузки/создания пользователя:', error.message)
+    
+    // Всегда загружаем из БД при ошибке
+    try {
+      const telegramId = window.Telegram?.WebApp?.initDataUnsafe?.user?.id || 123456789
+      const { data: userFromDb } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('telegram_id', telegramId)
+        .single()
+        
+      if (userFromDb) {
+        console.log('🔄 Загружаем из БД после ошибки')
+        const userData = {
+          telegram_id: userFromDb.telegram_id,
+          first_name: userFromDb.first_name,
+          last_name: userFromDb.last_name,
+          username: userFromDb.username,
+          game_data: userFromDb.game_data
+        }
+        setUser(userData)
+        return
+      }
+    } catch (dbError) {
+      console.error('Не удалось загрузить из БД:', dbError)
+    }
+    
+    // Только если совсем не получается - localStorage
+    loadFromLocalStorage()
   }
+}
 
   const loadFromLocalStorage = () => {
     console.log('📱 Загружаем из localStorage')
@@ -134,42 +215,55 @@ export function useTelegram() {
     }
   }
 
-  const updateGameData = async (newGameData) => {
-    if (!user?.telegram_id) return
+const updateGameData = async (newGameData) => {
+  if (!user?.telegram_id) return
 
-    console.log('💾 Сохраняем данные...')
+  console.log(`💾 Сохраняем данные для пользователя ${user.telegram_id}...`)
+  
+  try {
+    // 1. Обновляем локальное состояние
+    const updatedUser = { ...user, game_data: newGameData }
+    setUser(updatedUser)
     
-    try {
-      // Сохраняем локально
-      const updatedUser = { ...user, game_data: newGameData }
-      setUser(updatedUser)
-      
-      // Сохраняем в localStorage
-      localStorage.setItem('farm_user_data', JSON.stringify(updatedUser))
-      
-      // Пробуем сохранить в Supabase если подключено
-      if (usingSupabase && user.telegram_id) {
-        console.log('☁️ Отправляем в Supabase...')
-        const { error } = await supabase
-          .from('profiles')
-          .update({ 
-            game_data: newGameData,
-            updated_at: new Date().toISOString()
-          })
-          .eq('telegram_id', user.telegram_id)
+    // 2. Сохраняем в localStorage как резервную копию
+    localStorage.setItem(`farm_user_${user.telegram_id}`, JSON.stringify(newGameData))
+    
+    // 3. Сохраняем в Supabase
+    console.log('☁️ Отправляем в Supabase...')
+    const { error } = await supabase
+      .from('profiles')
+      .update({ 
+        game_data: newGameData,
+        updated_at: new Date().toISOString()
+      })
+      .eq('telegram_id', user.telegram_id)
 
-        if (error) {
-          console.error('❌ Ошибка сохранения в Supabase:', error)
-        } else {
-          console.log('✅ Данные сохранены в Supabase!')
-        }
+    if (error) {
+      console.error('❌ Ошибка Supabase:', error)
+      
+      // Пробуем upsert если update не сработал
+      const { error: upsertError } = await supabase
+        .from('profiles')
+        .upsert({
+          telegram_id: user.telegram_id,
+          game_data: newGameData,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'telegram_id'
+        })
+        
+      if (upsertError) {
+        console.error('❌ Upsert тоже не сработал:', upsertError)
       } else {
-        console.log('📱 Supabase не подключен, сохраняем только локально')
+        console.log('✅ Сохранено через upsert')
       }
-    } catch (error) {
-      console.error('⚠️ Ошибка сохранения:', error)
+    } else {
+      console.log('✅ Данные успешно сохранены в Supabase!')
     }
+  } catch (error) {
+    console.error('⚠️ Общая ошибка сохранения:', error)
   }
+}
 
   return { user, loading, updateGameData, usingSupabase }
 }
