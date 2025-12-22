@@ -93,52 +93,6 @@ function App() {
     }
   }
 
-return (
-  <div className="app">
-    {/* ЗЕЛЁНАЯ ШАПКА ПРИЛОЖЕНИЯ */}
-    <div className="header-compact-vertical">
-      <div className="header-top-row">
-        <div className="header-logo-small">
-          <span className="logo-emoji-small">🚜</span>
-          <h1 className="app-title-small">FARM</h1>
-        </div>
-      </div>
-      
-      <div className="stats-row">
-        <div className="stat-compact-horizontal">
-          <span className="stat-icon">💰</span>
-          <div className="stat-text">
-            <span className="stat-label">Деньги</span>
-            <span className="stat-value">{user.game_data?.money || 0}</span>
-          </div>
-        </div>
-        
-        <div className="stat-compact-horizontal">
-          <span className="stat-icon">🌱</span>
-          <div className="stat-text">
-            <span className="stat-label">Уровень</span>
-            <span className="stat-value">{user.game_data?.level || 1}</span>
-          </div>
-        </div>
-        
-        <div className="stat-compact-horizontal">
-          <span className="stat-icon">⭐</span>
-          <div className="stat-text">
-            <span className="stat-label">Опыт</span>
-            <span className="stat-value">{user.game_data?.xp || 0}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {/* Навигация */}
-    <div className="nav-container">
-      ...
-    </div>
-    ...
-  </div>
-);
-
   return (
     <div className="App">
     <div className="header-compact-vertical">
