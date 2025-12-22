@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react'
 import FarmField from './components/FarmField'
-import ShopScreen from './components/Screens/ShopScreen'
-import ProfileScreen from './components/Screens/ProfileScreen'
+import { 
+  FarmScreen, 
+  ShopScreen, 
+  StatsScreen, 
+  ProfileScreen 
+} from '/src/components/screens/index.js'
 import './App.css'
 
 function App() {
