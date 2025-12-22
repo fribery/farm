@@ -8,24 +8,46 @@ export default function ShopScreen({ user, updateGameData }) {
       alert('Ошибка загрузки данных пользователя')
       return
     }
+    
     if (user.game_data.money < plant.price) {
       alert('Недостаточно денег!')
       return
     }
 
+    // ДЕБАГ: выводим информацию о покупке
+    console.log('Покупаем растение:', plant)
+    console.log('ID растения:', plant.id)
+    console.log('Текущий инвентарь:', user.game_data.inventory)
+
     // Ищем уже существующие семена этого типа
-    const existingIndex = user.game_data.inventory?.findIndex(
-      item => item.type === 'seed' && item.plantId === plant.id
-    ) || -1
+    // Более надёжный поиск: сравниваем и ID, и имя
+    const existingIndex = user.game_data.inventory?.findIndex(item => {
+      if (item.type !== 'seed') return false
+      
+      // Проверяем совпадение plantId
+      if (item.plantId === plant.id) return true
+      
+      // Дополнительная проверка по имени (на всякий случай)
+      if (item.name && plant.name && 
+          item.name.toLowerCase() === plant.name.toLowerCase()) {
+        return true
+      }
+      
+      return false
+    }) || -1
+
+    console.log('Найден существующий элемент по индексу:', existingIndex)
 
     let newInventory = [...(user.game_data.inventory || [])]
     
     if (existingIndex >= 0) {
       // Увеличиваем количество в существующей записи
+      const currentCount = newInventory[existingIndex].count || 1
       newInventory[existingIndex] = {
         ...newInventory[existingIndex],
-        count: (newInventory[existingIndex].count || 1) + 1
+        count: currentCount + 1
       }
+      console.log('Увеличен счётчик. Теперь:', newInventory[existingIndex].count)
     } else {
       // Добавляем новую запись
       newInventory.push({
@@ -35,6 +57,7 @@ export default function ShopScreen({ user, updateGameData }) {
         price: plant.price,
         count: 1
       })
+      console.log('Добавлена новая запись')
     }
 
     const newGameData = {
@@ -44,6 +67,7 @@ export default function ShopScreen({ user, updateGameData }) {
     }
 
     updateGameData(newGameData)
+    console.log('Обновлённый инвентарь:', newInventory)
     alert(`Куплены семена: ${plant.name}`)
   }
 
