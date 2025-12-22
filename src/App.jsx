@@ -144,36 +144,64 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <header className="app-header">
-        <h1>🌾 Ферма</h1>
-        <div className="header-user-info">
-          <div className="user-name">
-            👤 {user.first_name} {user.last_name || ''}
-          </div>
-          <div className="header-stats">
-            <div className="stat-item">
-              <span className="emoji">💰</span>
-              <span>{user.game_data?.money || 0}</span>
-            </div>
-            <div className="stat-item">
-              <span className="emoji">⭐</span>
-              <span>{user.game_data?.experience || 0}</span>
-            </div>
-            <div className="stat-item">
-              <span className="emoji">📈</span>
-              <span>Ур. {user.game_data?.level || 1}</span>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="app-main">
-        {renderScreen()}
-      </main>
-
-      <Navigation activeScreen={activeScreen} setActiveScreen={setActiveScreen} />
+<div className="app">
+  {/* КОМПАКТНЫЙ HEADER В ОДНУ СТРОКУ */}
+  <div className="header-compact">
+    <div className="header-left">
+      <h1 className="app-title">🚜 FARM</h1>
     </div>
+    
+    <div className="header-stats">
+      <div className="stat-compact">
+        <span className="stat-icon">💰</span>
+        <span className="stat-value">{user.game_data?.money || 0}</span>
+      </div>
+      <div className="stat-compact">
+        <span className="stat-icon">🌱</span>
+        <span className="stat-value">Ур. {user.game_data?.level || 1}</span>
+      </div>
+      <div className="stat-compact">
+        <span className="stat-icon">⭐</span>
+        <span className="stat-value">{user.game_data?.xp || 0} опыта</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Навигация */}
+  <div className="nav-container">
+    <button
+      className={`nav-btn ${activeScreen === 'farm' ? 'active' : ''}`}
+      onClick={() => setActiveScreen('farm')}
+    >
+      🌾 Ферма
+    </button>
+    <button
+      className={`nav-btn ${activeScreen === 'shop' ? 'active' : ''}`}
+      onClick={() => setActiveScreen('shop')}
+    >
+      🛒 Магазин
+    </button>
+    <button
+      className={`nav-btn ${activeScreen === 'profile' ? 'active' : ''}`}
+      onClick={() => setActiveScreen('profile')}
+    >
+      👤 Профиль
+    </button>
+  </div>
+
+  {/* Основной контент */}
+  <main className="main-content">
+    {activeScreen === 'farm' && (
+      <FarmField user={user} updateGameData={updateGameData} />
+    )}
+    {activeScreen === 'shop' && (
+      <ShopScreen user={user} updateGameData={updateGameData} />
+    )}
+    {activeScreen === 'profile' && (
+      <ProfileScreen user={user} updateGameData={updateGameData} />
+    )}
+  </main>
+</div>
   )
 }
 
