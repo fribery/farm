@@ -8,57 +8,50 @@ class SupabaseService {
     this.init();
   }
 
-  init() {
-    try {
-      // Используем переменные окружения из .env.local
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-      
-      console.log('🔗 Проверка переменных окружения:', {
-        hasUrl: !!supabaseUrl,
-        hasKey: !!supabaseKey,
-        url: supabaseUrl?.substring(0, 30) + '...',
-        key: supabaseKey?.substring(0, 20) + '...'
-      });
+init() {
+  try {
+    // Используем переменные окружения из .env.local
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    
+    console.log('🔗 Проверка переменных окружения:', {
+      hasUrl: !!supabaseUrl,
+      hasKey: !!supabaseKey,
+      url: supabaseUrl?.substring(0, 30) + '...',
+      key: supabaseKey?.substring(0, 20) + '...'
+    });
 
-      if (!supabaseUrl || !supabaseKey) {
-        console.error('❌ ОШИБКА: Не найдены переменные окружения!');
-        console.log('Убедитесь, что файл .env.local существует и содержит:');
-        console.log(`
-VITE_SUPABASE_URL=https://sqiszyeauncebbxdsavq.supabase.co
-VITE_SUPABASE_ANON_KEY=ваш_полный_ключ
-        `);
-        return;
-      }
-
-      // Проверяем формат URL
-      if (!supabaseUrl.startsWith('https://')) {
-        console.error('❌ ОШИБКА: URL должен начинаться с https://');
-        return;
-      }
-
-      // Проверяем формат ключа
-      if (!supabaseKey.startsWith('eyJ')) {
-        console.warn('⚠️ Внимание: ключ должен начинаться с eyJ...');
-      }
-
-      this.client = createClient(supabaseUrl, supabaseKey, {
-        auth: {
-          persistSession: false,
-          autoRefreshToken: false
-        }
-      });
-      
-      console.log('✅ Supabase клиент создан успешно!');
-      this.isConnected = true;
-      
-      // Быстрый тест подключения
-      this.testConnection();
-      
-    } catch (error) {
-      console.error('❌ Ошибка создания Supabase клиента:', error);
+    if (!supabaseUrl || !supabaseKey) {
+      console.log('⚠️ Переменные окружения не найдены. Проверь:');
+      console.log('1. Файл .env.local в корне проекта');
+      console.log('2. Настройки Vercel Environment Variables');
+      console.log('3. Пока работаем без базы данных');
+      return;
     }
+
+    // Проверяем формат URL
+    if (!supabaseUrl.startsWith('https://')) {
+      console.error('❌ ОШИБКА: URL должен начинаться с https://');
+      return;
+    }
+
+    this.client = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    });
+    
+    console.log('✅ Supabase клиент создан!');
+    this.isConnected = true;
+    
+    // Быстрый тест подключения
+    this.testConnection();
+    
+  } catch (error) {
+    console.error('❌ Ошибка создания Supabase клиента:', error);
   }
+}
 
   async testConnection() {
     if (!this.client) {

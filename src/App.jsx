@@ -57,6 +57,12 @@ const UPGRADES_CONFIG = {
 };
 
 function App() {
+  // В начале функции App
+console.log('=== ПРОВЕРКА ПЕРЕМЕННЫХ В APP ===');
+console.log('VITE_SUPABASE_URL из import.meta.env:', import.meta.env.VITE_SUPABASE_URL);
+console.log('VITE_SUPABASE_ANON_KEY первые 20 символов:', 
+  import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 20) + '...');
+console.log('Все env переменные:', import.meta.env);
   console.log('🔄 Проверка окружения:', {
   envUrl: import.meta.env.VITE_SUPABASE_URL,
   envKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
