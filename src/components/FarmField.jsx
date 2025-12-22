@@ -157,7 +157,98 @@ export default function FarmField({ user, updateGameData }) {
 
   return (
   <div className="farm-section">
-    <h2>🌾 Ваши поля</h2>
+
+    {/* Сгруппированные семена для посадки */}
+    {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
+      <div className="seeds-container">
+        <h3 className="section-title">
+          <span className="title-icon">🌱</span>
+          Семена для посадки ({fields.filter(f => !f.harvested).length}/5)
+        </h3>
+        
+        {/* Сообщение если слотов нет */}
+        {fields.filter(f => !f.harvested).length >= 5 && (
+          <div className="slots-full-message">
+            <span className="warning-icon">⚠️</span>
+            <span>Все слоты заняты! Освободите место или купите дополнительные слоты в магазине.</span>
+          </div>
+        )}
+        
+        <div className="seeds-grid-square">
+          {(() => {
+            // Группируем семена по типу
+            const seedGroups = {}
+            user.game_data.inventory
+              .filter(item => item.type === 'seed' && (item.count || 0) > 0)
+              .forEach(item => {
+                const key = item.plantId
+                if (!seedGroups[key]) {
+                  seedGroups[key] = {
+                    plantId: item.plantId,
+                    name: item.name,
+                    count: 0,
+                    price: item.price,
+                    items: []
+                  }
+                }
+                seedGroups[key].count += (item.count || 1)
+                seedGroups[key].items.push(item)
+              })
+
+            return Object.values(seedGroups).map((group, index) => {
+              const plant = GAME_CONFIG.plants.find(p => p.id === group.plantId)
+              const canPlant = fields.filter(f => !f.harvested).length < 5
+              
+              return (
+                <div 
+                  key={index} 
+                  className={`seed-card-square ${!canPlant ? 'disabled' : ''}`}
+                  title={!canPlant ? 'Нет свободных слотов' : `Посадить ${group.name}`}
+                >
+                  <div className="seed-square-top">
+                    <div className="seed-square-emoji">
+                      {plant?.name?.split(' ')[0] || '🌱'}
+                    </div>
+                    {group.count > 1 && (
+                      <div className="seed-count-badge">
+                        ×{group.count}
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="seed-square-info">
+                    <div className="seed-square-name">{group.name}</div>
+                    <div className="seed-square-details">
+                      <div className="seed-detail">
+                        <span className="detail-icon">⏱️</span>
+                        <span>{plant?.growthTime || 30}с</span>
+                      </div>
+                      <div className="seed-detail">
+                        <span className="detail-icon">💰</span>
+                        <span>+{plant?.yield || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (canPlant) {
+                        plantSeed(group.plantId, group.name)
+                      }
+                    }}
+                    disabled={!canPlant}
+                    className={`plant-btn-square ${canPlant ? '' : 'disabled'}`}
+                  >
+                    {canPlant ? 'Посадить' : 'Нет места'}
+                  </button>
+                </div>
+              )
+            })
+          })()}
+        </div>
+      </div>
+    )}
+
 
     {/* Поля фермы */}
     <div className="fields-container">
@@ -269,97 +360,6 @@ export default function FarmField({ user, updateGameData }) {
         </div>
       )}
     </div>
-
-    {/* Сгруппированные семена для посадки */}
-    {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
-      <div className="seeds-container">
-        <h3 className="section-title">
-          <span className="title-icon">🌱</span>
-          Семена для посадки ({fields.filter(f => !f.harvested).length}/5)
-        </h3>
-        
-        {/* Сообщение если слотов нет */}
-        {fields.filter(f => !f.harvested).length >= 5 && (
-          <div className="slots-full-message">
-            <span className="warning-icon">⚠️</span>
-            <span>Все слоты заняты! Освободите место или купите дополнительные слоты в магазине.</span>
-          </div>
-        )}
-        
-        <div className="seeds-grid-square">
-          {(() => {
-            // Группируем семена по типу
-            const seedGroups = {}
-            user.game_data.inventory
-              .filter(item => item.type === 'seed' && (item.count || 0) > 0)
-              .forEach(item => {
-                const key = item.plantId
-                if (!seedGroups[key]) {
-                  seedGroups[key] = {
-                    plantId: item.plantId,
-                    name: item.name,
-                    count: 0,
-                    price: item.price,
-                    items: []
-                  }
-                }
-                seedGroups[key].count += (item.count || 1)
-                seedGroups[key].items.push(item)
-              })
-
-            return Object.values(seedGroups).map((group, index) => {
-              const plant = GAME_CONFIG.plants.find(p => p.id === group.plantId)
-              const canPlant = fields.filter(f => !f.harvested).length < 5
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`seed-card-square ${!canPlant ? 'disabled' : ''}`}
-                  title={!canPlant ? 'Нет свободных слотов' : `Посадить ${group.name}`}
-                >
-                  <div className="seed-square-top">
-                    <div className="seed-square-emoji">
-                      {plant?.name?.split(' ')[0] || '🌱'}
-                    </div>
-                    {group.count > 1 && (
-                      <div className="seed-count-badge">
-                        ×{group.count}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="seed-square-info">
-                    <div className="seed-square-name">{group.name}</div>
-                    <div className="seed-square-details">
-                      <div className="seed-detail">
-                        <span className="detail-icon">⏱️</span>
-                        <span>{plant?.growthTime || 30}с</span>
-                      </div>
-                      <div className="seed-detail">
-                        <span className="detail-icon">💰</span>
-                        <span>+{plant?.yield || 0}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={() => {
-                      if (canPlant) {
-                        plantSeed(group.plantId, group.name)
-                      }
-                    }}
-                    disabled={!canPlant}
-                    className={`plant-btn-square ${canPlant ? '' : 'disabled'}`}
-                  >
-                    {canPlant ? 'Посадить' : 'Нет места'}
-                  </button>
-                </div>
-              )
-            })
-          })()}
-        </div>
-      </div>
-    )}
   </div> // <-- Этот закрывающий div должен быть ТОЛЬКО ОДИН!
 );
 }
