@@ -10,7 +10,7 @@ import {
   ShopScreen, 
   StatsScreen, 
   ProfileScreen 
-} from '/src/components/Screens/index.js'
+} from '/src/components/screens/index.js'
 import './App.css'
 
 
