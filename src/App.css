@@ -800,24 +800,110 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .header-compact {
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-  }
-  
-  .header-stats {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: linear-gradient(135deg, #2E7D32, #4CAF50);
+  color: white;
+  border-radius: 0 0 15px 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+  min-height: 50px;
+  flex-wrap: nowrap; /* Важно: запрещаем перенос */
+  gap: 10px; /* Отступ между элементами */
+}
+
+.header-left {
+  flex-shrink: 0; /* Не даем сжаться логотипу */
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.4rem; /* Уменьшили размер */
+  font-weight: 800;
+  white-space: nowrap; /* Запрещаем перенос текста */
+}
+
+/* Контейнер для статистики */
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Уменьшили отступ */
+  flex: 1;
+  justify-content: center;
+  min-width: 0; /* Разрешаем сжатие */
+  flex-wrap: nowrap; /* Запрещаем перенос */
+  overflow-x: auto; /* Добавляем прокрутку если не влезает */
+  padding: 0 5px;
+  -webkit-overflow-scrolling: touch; /* Плавная прокрутка на iOS */
+}
+
+/* Скрываем полосу прокрутки */
+.header-stats::-webkit-scrollbar {
+  display: none;
+}
+
+/* Каждый элемент статистики */
+.stat-compact {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Уменьшили отступ */
+  background: rgba(255, 255, 255, 0.15);
+  padding: 6px 10px; /* Уменьшили паддинг */
+  border-radius: 15px;
+  backdrop-filter: blur(5px);
+  transition: all 0.2s ease;
+  flex-shrink: 0; /* Не даем сжаться элементам */
+  white-space: nowrap; /* Запрещаем перенос текста */
+  font-size: 0.85rem; /* Уменьшили текст */
+}
+
+.stat-compact:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.stat-icon {
+  font-size: 1rem; /* Уменьшили иконки */
+}
+
+.stat-value {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Для очень маленьких экранов можно скрыть часть текста */
+@media (max-width: 480px) {
+  .app-title {
+    font-size: 1.2rem;
   }
   
   .stat-compact {
-    flex: 1;
-    justify-content: center;
-    padding: 8px 10px;
+    padding: 5px 8px;
+    font-size: 0.8rem;
   }
   
-  .inventory-grid-square {
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  .stat-value {
+    font-size: 0.8rem;
   }
+  
+  /* Скрываем слово "опыта" на очень маленьких экранах */
+  .stat-compact:nth-child(3) .stat-value::after {
+    content: "";
+  }
+  .stat-compact:nth-child(3) .stat-value {
+    font-size: 0.75rem;
+  }
+}
+
+/* Если все равно не влезает - делаем горизонтальную прокрутку внутри статистики */
+@media (max-width: 360px) {
+  .header-stats {
+    justify-content: flex-start;
+  }
+  
+  .app-title {
+    font-size: 1.1rem;
+  }
+}
 }
