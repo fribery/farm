@@ -907,3 +907,131 @@
   }
 }
 }
+
+/* ===== HEADER С ЛОГОТИПОМ СВЕРХУ И СТАТИСТИКОЙ ПОД НИМ ===== */
+.header-compact-vertical {
+  background: linear-gradient(135deg, #2E7D32, #4CAF50);
+  color: white;
+  border-radius: 0 0 15px 15px;
+  margin-bottom: 15px;
+  padding: 12px 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Верхняя строка с логотипом */
+.header-top-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.header-logo-small {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logo-emoji-small {
+  font-size: 1.8rem;
+}
+
+.app-title-small {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: white;
+}
+
+/* Строка со статистикой */
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+/* Каждый элемент статистики */
+.stat-compact-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(5px);
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-icon {
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
+.stat-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  opacity: 0.9;
+  white-space: nowrap;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-weight: 700;
+  font-size: 1rem;
+  white-space: nowrap;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .header-compact-vertical {
+    padding: 10px;
+  }
+  
+  .app-title-small {
+    font-size: 1.2rem;
+  }
+  
+  .logo-emoji-small {
+    font-size: 1.5rem;
+  }
+  
+  .stat-compact-horizontal {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+  
+  .stat-icon {
+    font-size: 1.1rem;
+  }
+  
+  .stat-label {
+    font-size: 0.7rem;
+  }
+  
+  .stat-value {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .stats-row {
+    gap: 5px;
+  }
+  
+  .stat-compact-horizontal {
+    padding: 5px;
+  }
+  
+  .stat-label {
+    font-size: 0.65rem;
+  }
+  
+  .stat-value {
+    font-size: 0.85rem;
+  }
+}
