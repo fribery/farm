@@ -1035,3 +1035,18 @@
     font-size: 0.85rem;
   }
 }
+
+/* Скрываем нативную панель Telegram */
+.tg-header,
+div[style*="background-color: var(--tg-theme-secondary-bg-color)"],
+div[class*="header"],
+div[style*="background: blue"],
+div[style*="background-color: blue"] {
+  display: none !important;
+}
+
+/* Убираем отступы, которые создавала панель */
+body, #root, .app {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}
