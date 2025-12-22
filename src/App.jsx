@@ -2,13 +2,24 @@ import { useTelegram } from './hooks/useTelegram'
 import './App.css'
 
 function App() {
-  const { user, loading, updateGameData } = useTelegram()
+  const { user, loading, updateGameData, usingSupabase } = useTelegram()
 
   console.log('App: состояние', { user, loading })
 
   const addMoney = async (amount) => {
     if (!user) return
-    
+    {user && (
+    <div style={{ marginTop: 10, fontSize: '0.9em' }}>
+      <div>{user.first_name} {user.last_name || ''}</div>
+      <div style={{ display: 'flex', gap: '15px', marginTop: '5px' }}>
+        <span>Уровень: {user.game_data?.level || 1}</span>
+        <span>💰 {user.game_data?.money || 0}</span>
+        <span>
+          {usingSupabase ? '☁️ Supabase' : '📱 LocalStorage'}
+        </span>
+      </div>
+    </div>
+    )}
     const newGameData = {
       ...user.game_data,
       money: (user.game_data.money || 0) + amount
