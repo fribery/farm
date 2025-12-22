@@ -1036,15 +1036,3 @@
   }
 }
 
-/* Скрываем элементы с текстом "Ваша ферма" */
-div[class*="header"]:has(h2),
-div:has(> h2) {
-  display: none !important;
-}
-
-/* Явно показываем НАШУ зелёную шапку */
-.header-compact-vertical {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
