@@ -156,241 +156,240 @@ export default function FarmField({ user, updateGameData }) {
   }
 
   return (
-    <div className="farm-section">
-      <h2>🌾 Ваши поля</h2>
-      
-      {/* Статистика */}
-<div className="stats-grid-compact">
-  <div className="stat-item-compact">
-    <span className="stat-icon">💰</span>
-    <div className="stat-content">
-      <div className="stat-label-small">Баланс</div>
-      <div className="stat-value">{user.game_data?.money || 0}</div>
-    </div>
-  </div>
-  <div className="stat-item-compact">
-    <span className="stat-icon">🌱</span>
-    <div className="stat-content">
-      <div className="stat-label-small">Слоты</div>
-      <div className="stat-value">
-        {fields.filter(f => !f.harvested).length}/5
-        {fields.filter(f => !f.harvested).length >= 5 && (
-          <span style={{ fontSize: '0.7rem', color: '#f44336', marginLeft: '5px' }}>заполнено</span>
-        )}
+  <div className="farm-section">
+    <h2>🌾 Ваши поля</h2>
+    
+    {/* Статистика */}
+    <div className="stats-grid-compact">
+      <div className="stat-item-compact">
+        <span className="stat-icon">💰</span>
+        <div className="stat-content">
+          <div className="stat-label-small">Баланс</div>
+          <div className="stat-value">{user.game_data?.money || 0}</div>
+        </div>
+      </div>
+      <div className="stat-item-compact">
+        <span className="stat-icon">🌱</span>
+        <div className="stat-content">
+          <div className="stat-label-small">Слоты</div>
+          <div className="stat-value">
+            {fields.filter(f => !f.harvested).length}/5
+            {fields.filter(f => !f.harvested).length >= 5 && (
+              <span style={{ fontSize: '0.7rem', color: '#f44336', marginLeft: '5px' }}>заполнено</span>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="stat-item-compact">
+        <span className="stat-icon">⭐</span>
+        <div className="stat-content">
+          <div className="stat-label-small">Уровень</div>
+          <div className="stat-value">{user.game_data?.level || 1}</div>
+        </div>
       </div>
     </div>
-  </div>
-  <div className="stat-item-compact">
-    <span className="stat-icon">⭐</span>
-    <div className="stat-content">
-      <div className="stat-label-small">Уровень</div>
-      <div className="stat-value">{user.game_data?.level || 1}</div>
+
+    {/* Поля фермы */}
+    <div className="fields-container">
+      <h3 className="section-title">
+        <span className="title-icon">🏞️</span>
+        Активные поля: {fields.filter(f => !f.harvested).length}
+      </h3>
+      
+      {fields.length === 0 ? (
+        <div className="empty-state">
+          <div className="empty-icon">🌱</div>
+          <p className="empty-title">Пока нет растений</p>
+          <p className="empty-subtitle">Купите семена в магазине</p>
+        </div>
+      ) : (
+        <div className="fields-grid-compact">
+          {fields.map(field => {
+            const plant = GAME_CONFIG.plants.find(p => p.id === field.plantId)
+            const progress = field.progress || 0
+            const secondsLeft = timeLeft[field.id] || 0
+            const isReady = field.isReady
+            
+            return (
+              <div 
+                key={field.id} 
+                className={`field-card-compact ${isReady ? 'ready' : 'growing'}`}
+              >
+                {/* Заголовок карточки */}
+                <div className="field-header-compact">
+                  <div className="field-emoji-compact">
+                    {plant?.name?.split(' ')[0] || '🌱'}
+                  </div>
+                  <div className="field-info-compact">
+                    <h4 className="field-name">{plant?.name || field.name}</h4>
+                    <div className="field-stats">
+                      <span className="field-stat">
+                        <span className="stat-icon-small">💰</span>
+                        {plant?.price || 0}
+                      </span>
+                      <span className="field-stat">
+                        <span className="stat-icon-small">⏱️</span>
+                        {plant?.growthTime || 30}с
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Прогресс */}
+                <div className="field-progress-section">
+                  <div className="progress-header">
+                    <span className="stage-icon">{getStageIcon(progress)}</span>
+                    <span className="stage-name">{getStageName(progress)}</span>
+                    <span className="progress-percent">{Math.round(progress)}%</span>
+                  </div>
+                  
+                  {/* Таймер */}
+                  <div className="timer-display">
+                    {isReady ? (
+                      <span className="timer-ready">Готово!</span>
+                    ) : (
+                      <>
+                        <span className="timer-icon">⏱️</span>
+                        <span className="timer-value">{secondsLeft} сек</span>
+                      </>
+                    )}
+                  </div>
+                  
+                  {/* Прогресс-бар */}
+                  {!isReady && (
+                    <div className="progress-bar-simple">
+                      <div 
+                        className="progress-fill-simple"
+                        style={{ width: `${progress}%` }}
+                      >
+                        <div className="progress-glow"></div>
+                      </div>
+                      <div className="progress-dots">
+                        {[25, 50, 75, 100].map(dot => (
+                          <div 
+                            key={dot}
+                            className={`progress-dot-simple ${progress >= dot ? 'active' : ''}`}
+                            style={{ left: `${dot}%` }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {/* Кнопка сбора */}
+                {isReady && !field.harvested && (
+                  <button
+                    onClick={() => harvestField(field.id)}
+                    className="harvest-btn-simple"
+                  >
+                    <span className="harvest-icon">🔄</span>
+                    Собрать +{plant?.yield || 0}💰
+                  </button>
+                )}
+                
+                {field.harvested && (
+                  <div className="harvested-badge">
+                    <span>✅ Собрано</span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
-  </div>
-</div>
-    </div>
-  )
-}
-      {/* Поля фермы */}
-      <div className="fields-container">
+
+    {/* Сгруппированные семена для посадки */}
+    {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
+      <div className="seeds-container">
         <h3 className="section-title">
-          <span className="title-icon">🏞️</span>
-          Активные поля: {fields.filter(f => !f.harvested).length}
+          <span className="title-icon">🌱</span>
+          Семена для посадки ({fields.filter(f => !f.harvested).length}/5)
         </h3>
         
-        {fields.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-icon">🌱</div>
-            <p className="empty-title">Пока нет растений</p>
-            <p className="empty-subtitle">Купите семена в магазине</p>
+        {/* Сообщение если слотов нет */}
+        {fields.filter(f => !f.harvested).length >= 5 && (
+          <div className="slots-full-message">
+            <span className="warning-icon">⚠️</span>
+            <span>Все слоты заняты! Освободите место или купите дополнительные слоты в магазине.</span>
           </div>
-        ) : (
-          <div className="fields-grid-compact">
-            {fields.map(field => {
-              const plant = GAME_CONFIG.plants.find(p => p.id === field.plantId)
-              const progress = field.progress || 0
-              const secondsLeft = timeLeft[field.id] || 0
-              const isReady = field.isReady
+        )}
+        
+        <div className="seeds-grid-square">
+          {(() => {
+            // Группируем семена по типу
+            const seedGroups = {}
+            user.game_data.inventory
+              .filter(item => item.type === 'seed' && (item.count || 0) > 0)
+              .forEach(item => {
+                const key = item.plantId
+                if (!seedGroups[key]) {
+                  seedGroups[key] = {
+                    plantId: item.plantId,
+                    name: item.name,
+                    count: 0,
+                    price: item.price,
+                    items: []
+                  }
+                }
+                seedGroups[key].count += (item.count || 1)
+                seedGroups[key].items.push(item)
+              })
+
+            return Object.values(seedGroups).map((group, index) => {
+              const plant = GAME_CONFIG.plants.find(p => p.id === group.plantId)
+              const canPlant = fields.filter(f => !f.harvested).length < 5
               
               return (
                 <div 
-                  key={field.id} 
-                  className={`field-card-compact ${isReady ? 'ready' : 'growing'}`}
+                  key={index} 
+                  className={`seed-card-square ${!canPlant ? 'disabled' : ''}`}
+                  title={!canPlant ? 'Нет свободных слотов' : `Посадить ${group.name}`}
                 >
-                  {/* Заголовок карточки */}
-                  <div className="field-header-compact">
-                    <div className="field-emoji-compact">
+                  <div className="seed-square-top">
+                    <div className="seed-square-emoji">
                       {plant?.name?.split(' ')[0] || '🌱'}
                     </div>
-                    <div className="field-info-compact">
-                      <h4 className="field-name">{plant?.name || field.name}</h4>
-                      <div className="field-stats">
-                        <span className="field-stat">
-                          <span className="stat-icon-small">💰</span>
-                          {plant?.price || 0}
-                        </span>
-                        <span className="field-stat">
-                          <span className="stat-icon-small">⏱️</span>
-                          {plant?.growthTime || 30}с
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Прогресс */}
-                  <div className="field-progress-section">
-                    <div className="progress-header">
-                      <span className="stage-icon">{getStageIcon(progress)}</span>
-                      <span className="stage-name">{getStageName(progress)}</span>
-                      <span className="progress-percent">{Math.round(progress)}%</span>
-                    </div>
-                    
-                    {/* Таймер */}
-                    <div className="timer-display">
-                      {isReady ? (
-                        <span className="timer-ready">Готово!</span>
-                      ) : (
-                        <>
-                          <span className="timer-icon">⏱️</span>
-                          <span className="timer-value">{secondsLeft} сек</span>
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* Прогресс-бар */}
-                    {!isReady && (
-                      <div className="progress-bar-simple">
-                        <div 
-                          className="progress-fill-simple"
-                          style={{ width: `${progress}%` }}
-                        >
-                          <div className="progress-glow"></div>
-                        </div>
-                        <div className="progress-dots">
-                          {[25, 50, 75, 100].map(dot => (
-                            <div 
-                              key={dot}
-                              className={`progress-dot-simple ${progress >= dot ? 'active' : ''}`}
-                              style={{ left: `${dot}%` }}
-                            />
-                          ))}
-                        </div>
+                    {group.count > 1 && (
+                      <div className="seed-count-badge">
+                        ×{group.count}
                       </div>
                     )}
                   </div>
                   
-                  {/* Кнопка сбора */}
-                  {isReady && !field.harvested && (
-                    <button
-                      onClick={() => harvestField(field.id)}
-                      className="harvest-btn-simple"
-                    >
-                      <span className="harvest-icon">🔄</span>
-                      Собрать +{plant?.yield || 0}💰
-                    </button>
-                  )}
-                  
-                  {field.harvested && (
-                    <div className="harvested-badge">
-                      <span>✅ Собрано</span>
+                  <div className="seed-square-info">
+                    <div className="seed-square-name">{group.name}</div>
+                    <div className="seed-square-details">
+                      <div className="seed-detail">
+                        <span className="detail-icon">⏱️</span>
+                        <span>{plant?.growthTime || 30}с</span>
+                      </div>
+                      <div className="seed-detail">
+                        <span className="detail-icon">💰</span>
+                        <span>+{plant?.yield || 0}</span>
+                      </div>
                     </div>
-                  )}
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (canPlant) {
+                        plantSeed(group.plantId, group.name)
+                      }
+                    }}
+                    disabled={!canPlant}
+                    className={`plant-btn-square ${canPlant ? '' : 'disabled'}`}
+                  >
+                    {canPlant ? 'Посадить' : 'Нет места'}
+                  </button>
                 </div>
               )
-            })}
-          </div>
-        )}
-      </div>
-
-      {/* Сгруппированные семена для посадки */}
-    {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
-    <div className="seeds-container">
-        <h3 className="section-title">
-        <span className="title-icon">🌱</span>
-        Семена для посадки ({fields.filter(f => !f.harvested).length}/5)
-        </h3>
-    
-    {/* Сообщение если слотов нет */}
-    {fields.filter(f => !f.harvested).length >= 5 && (
-      <div className="slots-full-message">
-        <span className="warning-icon">⚠️</span>
-        <span>Все слоты заняты! Освободите место или купите дополнительные слоты в магазине.</span>
+            })
+          })()}
+        </div>
       </div>
     )}
-    
-    <div className="seeds-grid-square">
-      {(() => {
-        // Группируем семена по типу
-        const seedGroups = {}
-        user.game_data.inventory
-          .filter(item => item.type === 'seed' && (item.count || 0) > 0)
-          .forEach(item => {
-            const key = item.plantId
-            if (!seedGroups[key]) {
-              seedGroups[key] = {
-                plantId: item.plantId,
-                name: item.name,
-                count: 0,
-                price: item.price,
-                items: []
-              }
-            }
-            seedGroups[key].count += (item.count || 1)
-            seedGroups[key].items.push(item)
-          })
-
-        return Object.values(seedGroups).map((group, index) => {
-          const plant = GAME_CONFIG.plants.find(p => p.id === group.plantId)
-          const canPlant = fields.filter(f => !f.harvested).length < 5
-          
-          return (
-            <div 
-              key={index} 
-              className={`seed-card-square ${!canPlant ? 'disabled' : ''}`}
-              title={!canPlant ? 'Нет свободных слотов' : `Посадить ${group.name}`}
-            >
-              <div className="seed-square-top">
-                <div className="seed-square-emoji">
-                  {plant?.name?.split(' ')[0] || '🌱'}
-                </div>
-                {group.count > 1 && (
-                  <div className="seed-count-badge">
-                    ×{group.count}
-                  </div>
-                )}
-              </div>
-              
-              <div className="seed-square-info">
-                <div className="seed-square-name">{group.name}</div>
-                <div className="seed-square-details">
-                  <div className="seed-detail">
-                    <span className="detail-icon">⏱️</span>
-                    <span>{plant?.growthTime || 30}с</span>
-                  </div>
-                  <div className="seed-detail">
-                    <span className="detail-icon">💰</span>
-                    <span>+{plant?.yield || 0}</span>
-                  </div>
-                </div>
-              </div>
-              
-              <button
-                onClick={() => {
-                  if (canPlant) {
-                    plantSeed(group.plantId, group.name)
-                  }
-                }}
-                disabled={!canPlant}
-                className={`plant-btn-square ${canPlant ? '' : 'disabled'}`}
-              >
-                {canPlant ? 'Посадить' : 'Нет места'}
-              </button>
-            </div>
-          )
-        })
-      })()}
-    </div>
-  </div>
-)
+  </div> // <-- Этот закрывающий div должен быть ТОЛЬКО ОДИН!
+);
 }
-
