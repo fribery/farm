@@ -20,50 +20,40 @@ function App() {
     }
   })
 
-  // Инициализация Telegram WebApp и отключение нативной панели
-    useEffect(() => {
-      if (window.Telegram?.WebApp) {
-        const tg = window.Telegram.WebApp
-        tg.ready()
-
-        tg.CloudStorage.getItem('user_game_data', (error, savedData) => {
-          if (!error && savedData) {
+ useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp
+      tg.ready()
+      
+      // Загружаем сохранённые данные
+      tg.CloudStorage.getItem('user_game_data', (error, savedData) => {
+        if (!error && savedData) {
           try {
-          const parsedData = JSON.parse(savedData)
-          console.log('Загружены сохранённые данные:', parsedData)
-          
-          setUser(prev => ({
-            ...prev,
-            game_data: { ...prev.game_data, ...parsedData }
-          }))
-              } catch (e) {
-                console.error('Ошибка парсинга сохранённых данных:', e)
-              }
-            } else {
-              console.log('Нет сохранённых данных, используем начальные')
-            }
-          })
+            const parsedData = JSON.parse(savedData)
+            setUser(prev => ({
+              ...prev,
+              game_data: { ...prev.game_data, ...parsedData }
+            }))
+          } catch (e) {
+            console.error('Ошибка парсинга:', e)
+          }
+        }
         
-        setTimeout(() => {
-          tg.expand()
-          tg.disableVerticalSwipes()
-          tg.setHeaderColor('#4CAF50')
-          tg.MainButton.hide()
-          tg.BackButton.hide()
-          
-          console.log('Telegram WebApp инициализирован')
-          
-          // Фикс для навигации
-          setTimeout(() => {
-            const nav = document.querySelector('.nav-container')
-            if (nav) {
-              nav.style.position = 'fixed'
-              nav.style.bottom = '0'
-            }
-          }, 200)
-        }, 100)
-      }
-    }, [])
+        // ВСЁ загружено, можно показывать приложение
+        setIsLoading(false)
+        
+        // Теперь настройки Telegram
+        tg.expand()
+        tg.disableVerticalSwipes()
+        tg.setHeaderColor('#4CAF50')
+        tg.MainButton.hide()
+        tg.BackButton.hide()
+      })
+    } else {
+      // Режим разработки (вне Telegram)
+      setIsLoading(false)
+    }
+  }, [])
 
     const updateGameData = (newGameData) => {
       setUser(prev => ({
