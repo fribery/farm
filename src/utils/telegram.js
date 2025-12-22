@@ -1,5 +1,5 @@
-// TelegramService БЕЗ внешних зависимостей
-// Использует нативный Telegram WebApp API
+// TelegramService без внешних зависимостей
+// Использует нативный Telegram WebApp API который точно работает
 
 class TelegramService {
   constructor() {
@@ -96,16 +96,6 @@ class TelegramService {
   close() {
     if (this.isInTelegram() && window.Telegram.WebApp.close) {
       window.Telegram.WebApp.close();
-    }
-  }
-
-  // Показать подтверждение
-  showConfirm(message, callback) {
-    if (this.isInTelegram() && window.Telegram.WebApp.showConfirm) {
-      window.Telegram.WebApp.showConfirm(message, callback);
-    } else {
-      const result = confirm(message);
-      if (callback) callback(result);
     }
   }
 }
