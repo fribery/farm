@@ -2,10 +2,11 @@ import { useState } from 'react'
 import { useTelegram } from './hooks/useTelegram'
 import Navigation from './components/Navigation'
 import FarmScreen from './components/Screens/FarmScreen'
-import ShopScreen from './components/Screens/ShopScreen'
-import StatsScreen from './components/Screens/StatsScreen'
-import ProfileScreen from './components/Screens/ProfileScreen'
+import ProfileScreen from '/src/components/Screens/ProfileScreen'
+import ShopScreen from '/src/components/Screens/ShopScreen'
+import StatsScreen from '/src/components/Screens/StatsScreen'
 import './App.css'
+
 
 function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()

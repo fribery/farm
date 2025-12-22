@@ -16,8 +16,6 @@ export default function StatsScreen({ user }) {
     { id: 1, name: '🌱 Начинающий фермер', desc: 'Собрать 10 растений', completed: (user.game_data?.plantsHarvested || 0) >= 10 },
     { id: 2, name: '💰 Первая тысяча', desc: 'Заработать 1000 монет', completed: (user.game_data?.money || 0) >= 1000 },
     { id: 3, name: '⭐ Опытный фермер', desc: 'Достигнуть 5 уровня', completed: (user.game_data?.level || 1) >= 5 },
-    { id: 4, name: '🏆 Коллекционер', desc: 'Купить все виды семян', completed: false },
-    { id: 5, name: '👑 Фермер месяца', desc: 'Заработать 5000 монет', completed: (user.game_data?.totalEarned || 0) >= 5000 },
   ]
 
   return (
@@ -30,7 +28,6 @@ export default function StatsScreen({ user }) {
       </div>
 
       <div className="stats-content">
-        {/* Основная статистика */}
         <section className="stats-section">
           <h3>📈 Основные показатели</h3>
           <div className="stats-grid">
@@ -48,24 +45,9 @@ export default function StatsScreen({ user }) {
                 <div className="stat-value">{user.game_data?.experience || 0}</div>
               </div>
             </div>
-            <div className="stat-card">
-              <div className="stat-icon">🌾</div>
-              <div className="stat-info">
-                <div className="stat-name">Растений собрано</div>
-                <div className="stat-value">{user.game_data?.plantsHarvested || 0}</div>
-              </div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-icon">⏱️</div>
-              <div className="stat-info">
-                <div className="stat-name">Время в игре</div>
-                <div className="stat-value">{user.game_data?.playTime || 0} мин</div>
-              </div>
-            </div>
           </div>
         </section>
 
-        {/* Прогресс уровня */}
         <section className="stats-section">
           <h3>🎯 Прогресс уровня</h3>
           <div className="level-progress">
@@ -79,13 +61,9 @@ export default function StatsScreen({ user }) {
                 style={{ width: `${calculateLevelProgress()}%` }}
               ></div>
             </div>
-            <div className="level-hint">
-              До следующего уровня осталось: {1000 - (user.game_data?.experience || 0)} опыта
-            </div>
           </div>
         </section>
 
-        {/* Достижения */}
         <section className="stats-section">
           <h3>🏆 Достижения</h3>
           <div className="achievements-list">
@@ -106,25 +84,6 @@ export default function StatsScreen({ user }) {
                 </div>
               </div>
             ))}
-          </div>
-        </section>
-
-        {/* Игровая информация */}
-        <section className="stats-section">
-          <h3>ℹ️ Игровая информация</h3>
-          <div className="info-cards">
-            <div className="info-card">
-              <h4>💰 Как зарабатывать?</h4>
-              <p>Покупайте семена, выращивайте растения и продавайте урожай</p>
-            </div>
-            <div className="info-card">
-              <h4>⭐ Как получать опыт?</h4>
-              <p>Собирайте урожай и выполняйте ежедневные задания</p>
-            </div>
-            <div className="info-card">
-              <h4>🚀 Как развиваться?</h4>
-              <p>Покупайте животных и постройки для увеличения дохода</p>
-            </div>
           </div>
         </section>
       </div>

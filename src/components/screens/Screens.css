@@ -234,12 +234,6 @@
   transition: width 0.5s ease;
 }
 
-.level-hint {
-  font-size: 0.9rem;
-  color: #666;
-  text-align: center;
-}
-
 /* Достижения */
 .achievements-list {
   display: flex;
@@ -301,32 +295,6 @@
   color: white;
 }
 
-/* Информационные карточки */
-.info-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-.info-card {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-  border-top: 4px solid #667eea;
-}
-
-.info-card h4 {
-  margin: 0 0 15px 0;
-  color: #2c3e50;
-}
-
-.info-card p {
-  margin: 0;
-  color: #666;
-  line-height: 1.5;
-}
-
 /* Стили для профиля */
 .profile-content {
   padding: 20px;
@@ -367,13 +335,6 @@
   margin: 0 0 5px 0;
   opacity: 0.9;
   font-size: 1.1rem;
-}
-
-.profile-id {
-  margin: 0;
-  opacity: 0.7;
-  font-size: 0.9rem;
-  font-family: monospace;
 }
 
 .profile-section {
@@ -464,18 +425,9 @@
 }
 
 .status-desc {
-  margin: 0 0 15px 0;
+  margin: 0;
   color: #666;
   line-height: 1.5;
-}
-
-.status-warning {
-  padding: 10px 15px;
-  background: #fff3e0;
-  border-radius: 8px;
-  color: #e65100;
-  font-size: 0.9rem;
-  border-left: 3px solid #ff9800;
 }
 
 /* Инвентарь профиля */
@@ -512,64 +464,13 @@
 .item-name {
   font-weight: 500;
   color: #2c3e50;
-  margin-bottom: 3px;
 }
 
-.item-count {
-  font-size: 0.85rem;
-  color: #666;
-}
-
-.item-value {
-  font-weight: bold;
-  color: #4CAF50;
-}
-
-.empty-inventory {
+.more-items {
   text-align: center;
-  padding: 40px;
-  background: #f8f9fa;
-  border-radius: 15px;
-  color: #999;
+  padding: 10px;
+  color: #666;
   font-style: italic;
-}
-
-/* Действия профиля */
-.profile-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 15px;
-}
-
-.action-btn {
-  padding: 15px;
-  background: white;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-
-.action-btn:hover {
-  background: #f5f5f5;
-  border-color: #667eea;
-  transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-}
-
-.action-btn.danger {
-  border-color: #ffcdd2;
-  color: #d32f2f;
-}
-
-.action-btn.danger:hover {
-  background: #ffebee;
-  border-color: #f44336;
 }
 
 /* Адаптивность */
@@ -582,15 +483,7 @@
     grid-template-columns: repeat(2, 1fr);
   }
   
-  .info-cards {
-    grid-template-columns: 1fr;
-  }
-  
   .profile-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .profile-actions {
     grid-template-columns: repeat(2, 1fr);
   }
   
@@ -607,10 +500,6 @@
   }
   
   .profile-stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .profile-actions {
     grid-template-columns: 1fr;
   }
 }

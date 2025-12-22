@@ -58,20 +58,6 @@
   font-weight: 500;
 }
 
-/* Анимация активного элемента */
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.nav-item.active .nav-icon {
-  animation: pulse 2s infinite;
-}
-
 @media (max-width: 480px) {
   .nav-container {
     padding: 0 10px;
