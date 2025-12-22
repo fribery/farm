@@ -1036,17 +1036,25 @@
   }
 }
 
-/* Скрываем нативную панель Telegram */
+/* Скрываем ТОЛЬКО нативную панель Telegram (синюю), но НЕ нашу зелёную шапку */
 .tg-header,
 div[style*="background-color: var(--tg-theme-secondary-bg-color)"],
-div[class*="header"],
 div[style*="background: blue"],
-div[style*="background-color: blue"] {
+div[style*="background-color: blue"],
+/* Эти селекторы более специфичны для Telegram панели */
+div[class*="tg"]:has(h2),
+div:has(h2:contains("Ваша ферма")) {
   display: none !important;
 }
 
-/* Убираем отступы, которые создавала панель */
-body, #root, .app {
+/* Убираем отступы, но не трогаем нашу шапку */
+body, #root {
   padding-top: 0 !important;
   margin-top: 0 !important;
+}
+
+/* Наша зелёная шапка должна остаться видимой! */
+.header-compact-vertical {
+  display: block !important;
+  visibility: visible !important;
 }
