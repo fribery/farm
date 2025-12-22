@@ -1036,22 +1036,15 @@
   }
 }
 
-/* Удаляем ТОЛЬКО синюю Telegram-панель "Ваша ферма" (если она есть) */
-body > div:first-child > div:has(> h2),
-div:has(> h2:contains("Ваша ферма")):not(.header-compact-vertical),
-div[class*="tg"][class*="header"] {
+/* Скрываем элементы с текстом "Ваша ферма" */
+div[class*="header"]:has(h2),
+div:has(> h2) {
   display: none !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  min-height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  overflow: hidden !important;
 }
 
-/* Гарантируем, что НАША шапка видна */
-.app > .header-compact-vertical {
-  display: block !important;
+/* Явно показываем НАШУ зелёную шапку */
+.header-compact-vertical {
+  display: flex !important;
   visibility: visible !important;
   opacity: 1 !important;
 }
