@@ -75,27 +75,38 @@ useEffect(() => {
   }
 }, [])  
 
-    const updateGameData = (newGameData) => {
-      setUser(prev => ({
-        ...prev,
-        game_data: { ...prev.game_data, ...newGameData }
-      }))
+const updateGameData = (newGameData) => {
+  console.log('🔄 updateGameData вызван с данными:', newGameData)
+  
+  setUser(prev => ({
+    ...prev,
+    game_data: { ...prev.game_data, ...newGameData }
+  }))
 
-      // КРИТИЧЕСКИ ВАЖНО: сохраняем в Telegram Cloud
-      if (window.Telegram?.WebApp) {
-        window.Telegram.WebApp.CloudStorage.setItem(
-          'user_game_data',
-          JSON.stringify(newGameData),
-          (error) => {
-            if (error) {
-              console.error('Ошибка сохранения в CloudStorage:', error)
-            } else {
-              console.log('Данные сохранены в CloudStorage')
-            }
-          }
-        )
-      }
+  if (window.Telegram?.WebApp) {
+    console.log('💾 Сохраняем в CloudStorage...')
+    
+    // Сохраняем ВЕСЬ объект game_data, а не только newGameData
+    const dataToSave = {
+      ...user.game_data,
+      ...newGameData
     }
+    
+    console.log('📦 Данные для сохранения:', dataToSave)
+    
+    window.Telegram.WebApp.CloudStorage.setItem(
+      'user_game_data',
+      JSON.stringify(dataToSave),
+      (error) => {
+        if (error) {
+          console.error('❌ Ошибка сохранения в CloudStorage:', error)
+        } else {
+          console.log('✅ Данные сохранены в CloudStorage:', dataToSave)
+        }
+      }
+    )
+  }
+}
 
   return (
     <div className="app">
