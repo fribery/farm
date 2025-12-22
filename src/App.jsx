@@ -49,48 +49,6 @@ function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
   const [activeScreen, setActiveScreen] = useState('farm')
 
-   // ЭФФЕКТ ДЛЯ УДАЛЕНИЯ TELEGRAM-ШАПКИ
-  useEffect(() => {
-    // Функция для поиска и удаления синей шапки
-    const removeTelegramHeader = () => {
-      // Ищем ВСЕ элементы на странице
-      const allElements = document.querySelectorAll('div, section, header');
-      
-      allElements.forEach(element => {
-        const text = element.textContent || '';
-        
-        // Если элемент содержит "Ваша ферма" И цифры 740, 390
-        if (text.includes('Ваша ферма') && 
-            (text.includes('740') || text.includes('390') || text.includes('Ур.'))) {
-          
-          console.log('Найдена Telegram-шапка:', element);
-          
-          // Скрываем элемент
-          element.style.display = 'none';
-          element.style.visibility = 'hidden';
-          element.style.height = '0';
-          element.style.padding = '0';
-          element.style.margin = '0';
-          element.style.overflow = 'hidden';
-        }
-      });
-    };
-    
-    // Выполняем сразу и через небольшой таймаут (на всякий случай)
-    removeTelegramHeader();
-    setTimeout(removeTelegramHeader, 100);
-    setTimeout(removeTelegramHeader, 500);
-    
-    // Также можно попробовать отключить через Telegram WebApp API
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp;
-      // Пробуем скрыть нативную панель
-      tg.MainButton.hide();
-      tg.BackButton.hide();
-    }
-    
-  }, []);
-
   if (loading) {
     return (
       <div className="App">
