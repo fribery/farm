@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { useTelegram } from './hooks/useTelegram'
 import Navigation from './components/Navigation'
-import ProfileScreen from '/src/components/Screens/ProfileScreen.jsx'
-import ShopScreen from '/src/components/Screens/ShopScreen.jsx'
-import StatsScreen from '/src/components/Screens/StatsScreen.jsx'
-import FarmScreen from '/components/Screens/FarmScreen.jsx'
+import ProfileScreen from 'src/components/Screens/ProfileScreen.jsx'
+import ShopScreen from 'src/components/Screens/ShopScreen.jsx'
+import StatsScreen from 'src/components/Screens/StatsScreen.jsx'
+import FarmScreen from 'src/components/Screens/FarmScreen.jsx'
 import './App.css'
 
 
