@@ -77,29 +77,6 @@ function App() {
     )
   }
 
-  useEffect(() => {
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp
-    tg.ready()
-    tg.expand()
-    
-    // Пробуем скрыть нативную панель через 100мс после загрузки
-    setTimeout(() => {
-      // Ищем и удаляем Telegram-панель
-      const telegramPanels = document.querySelectorAll(
-        '.tg-header, .WebAppHeader, div[style*="background-color: var"], div:has(h2)'
-      )
-      telegramPanels.forEach(panel => {
-        if (panel.textContent.includes('Ваша ферма')) {
-          panel.style.display = 'none'
-          panel.style.visibility = 'hidden'
-          panel.style.height = '0'
-        }
-      })
-    }, 100)
-  }
-}, [])
-
   // Рендерим активный экран
   const renderScreen = () => {
     switch (activeScreen) {
