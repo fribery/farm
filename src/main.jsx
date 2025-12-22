@@ -4,6 +4,12 @@ import './index.css'
 import App from './App.jsx'
 import { init, miniApp, mainButton, shareURL } from '@telegram-apps/sdk';
 
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+)
+
 const initializeTelegramSDK = async () => {
   try {
     await init();

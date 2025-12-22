@@ -1,13 +1,8 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+import React, { useState, useEffect, useRef } from 'react';
+import { telegramService } from './utils/telegram';
+import { supabaseService } from './utils/supabase';
+import './App.css';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
 // Конфигурация культур с таймерами
 const CROPS_CONFIG = {
   wheat: {
@@ -63,11 +58,11 @@ const UPGRADES_CONFIG = {
 
 function App() {
   // В начале функции App
-  console.log('=== ПРОВЕРКА ПЕРЕМЕННЫХ В APP ===');
-  console.log('VITE_SUPABASE_URL из import.meta.env:', import.meta.env.VITE_SUPABASE_URL);
-  console.log('VITE_SUPABASE_ANON_KEY первые 20 символов:', 
+console.log('=== ПРОВЕРКА ПЕРЕМЕННЫХ В APP ===');
+console.log('VITE_SUPABASE_URL из import.meta.env:', import.meta.env.VITE_SUPABASE_URL);
+console.log('VITE_SUPABASE_ANON_KEY первые 20 символов:', 
   import.meta.env.VITE_SUPABASE_ANON_KEY?.substring(0, 20) + '...');
-  console.log('Все env переменные:', import.meta.env);
+console.log('Все env переменные:', import.meta.env);
   console.log('🔄 Проверка окружения:', {
   envUrl: import.meta.env.VITE_SUPABASE_URL,
   envKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
@@ -312,8 +307,6 @@ const autoSave = async (data) => {
     console.error('❌ Ошибка мгновенного сохранения:', error);
     setDbStatus('❌ Ошибка сохранения');
   }
-
-  
 };
 
 // Ручное сохранение с детальной отладкой
@@ -1080,7 +1073,6 @@ const manualSave = async () => {
       </div>
     </details>
   </div>
-  
 )}
 
 
