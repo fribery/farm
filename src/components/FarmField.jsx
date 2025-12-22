@@ -1,45 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { GAME_CONFIG, formatTime } from '../game/config'
 import './FarmField.css'
 
 export default function FarmField({ user, updateGameData }) {
-  const [selectedPlant, setSelectedPlant] = useState(null)
   const [fields, setFields] = useState(user.game_data?.farm || [])
 
-  // Покупка семян
-  const buySeeds = (plant) => {
-    if (user.game_data.money < plant.price) {
-      alert('Недостаточно денег!')
-      return
-    }
-
-    const newGameData = {
-      ...user.game_data,
-      money: user.game_data.money - plant.price,
-      inventory: [...(user.game_data.inventory || []), {
-        type: 'seed',
-        plantId: plant.id,
-        name: plant.name,
-        count: 1
-      }]
-    }
-
-    updateGameData(newGameData)
-    alert(`Куплены семена: ${plant.name}`)
-  }
-
-  // Посадка растения
-  const plantSeed = (plantId) => {
+  // Посадка растения из инвентаря
+  const plantSeed = (plantId, plantName) => {
     const plant = GAME_CONFIG.plants.find(p => p.id === plantId)
     if (!plant) return
 
     const newField = {
       id: Date.now(),
       plantId,
-      name: plant.name,
+      name: plantName,
       plantedAt: Date.now(),
       growthTime: plant.growthTime,
-      isReady: false
+      isReady: false,
+      harvested: false // Добавляем флаг сбора
     }
 
     const newFields = [...fields, newField]
@@ -49,9 +27,14 @@ export default function FarmField({ user, updateGameData }) {
       ...user.game_data,
       farm: newFields,
       // Удаляем семя из инвентаря
-      inventory: user.game_data.inventory.filter(item => 
-        !(item.type === 'seed' && item.plantId === plantId)
-      )
+      inventory: user.game_data.inventory?.filter(item => 
+        !(item.type === 'seed' && item.plantId === plantId && item.count > 0)
+      ).map(item => {
+        if (item.type === 'seed' && item.plantId === plantId) {
+          return { ...item, count: Math.max(0, (item.count || 1) - 1) }
+        }
+        return item
+      }).filter(item => !(item.type === 'seed' && (item.count || 0) <= 0))
     }
 
     updateGameData(newGameData)
@@ -59,91 +42,96 @@ export default function FarmField({ user, updateGameData }) {
 
   // Сбор урожая
   const harvestField = (fieldId) => {
-    const field = fields.find(f => f.id === fieldId)
-    if (!field || !field.isReady) return
+    const fieldIndex = fields.findIndex(f => f.id === fieldId)
+    if (fieldIndex === -1 || !fields[fieldIndex].isReady || fields[fieldIndex].harvested) return
 
-    const plant = GAME_CONFIG.plants.find(p => p.id === field.plantId)
-    
+    const plant = GAME_CONFIG.plants.find(p => p.id === fields[fieldIndex].plantId)
+    if (!plant) return
+
+    // Помечаем как собранное
+    const updatedFields = [...fields]
+    updatedFields[fieldIndex] = { ...updatedFields[fieldIndex], harvested: true }
+
     const newGameData = {
       ...user.game_data,
-      money: user.game_data.money + plant.yield,
-      experience: user.game_data.experience + plant.exp,
-      farm: fields.filter(f => f.id !== fieldId)
+      money: (user.game_data.money || 0) + plant.yield,
+      experience: (user.game_data.experience || 0) + plant.exp,
+      plantsHarvested: (user.game_data.plantsHarvested || 0) + 1,
+      totalEarned: (user.game_data.totalEarned || 0) + plant.yield,
+      farm: updatedFields.filter(f => !f.harvested) // Удаляем собранные поля
     }
 
-    setFields(prev => prev.filter(f => f.id !== fieldId))
+    setFields(updatedFields.filter(f => !f.harvested))
     updateGameData(newGameData)
   }
 
   // Обновление таймеров
   const updateGrowth = () => {
     const updatedFields = fields.map(field => {
-      if (field.isReady) return field
+      if (field.isReady || field.harvested) return field
       
-      const elapsed = (Date.now() - field.plantedAt) / 1000 // в секундах
+      const elapsed = (Date.now() - field.plantedAt) / 1000
       const isReady = elapsed >= field.growthTime
       
       return { ...field, isReady }
     })
     
-    setFields(updatedFields)
-    
-    // Обновляем в геймдате только если есть изменения
-    if (JSON.stringify(updatedFields) !== JSON.stringify(fields)) {
+    // Обновляем только если есть изменения
+    const hasChanges = JSON.stringify(updatedFields) !== JSON.stringify(fields)
+    if (hasChanges) {
+      setFields(updatedFields)
       const newGameData = { ...user.game_data, farm: updatedFields }
       updateGameData(newGameData)
     }
   }
 
-  // Вызываем обновление каждую секунду
-  useState(() => {
+  // Таймер обновления
+  useEffect(() => {
     const interval = setInterval(updateGrowth, 1000)
     return () => clearInterval(interval)
-  })
+  }, [fields])
+
+  // Обновляем поля при изменении user.game_data.farm
+  useEffect(() => {
+    if (user.game_data?.farm && JSON.stringify(user.game_data.farm) !== JSON.stringify(fields)) {
+      setFields(user.game_data.farm)
+    }
+  }, [user.game_data?.farm])
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>🌾 Ваша ферма</h2>
+    <div className="farm-section">
+      <h2>🌾 Ваши поля</h2>
       
       {/* Статистика */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '10px',
-        marginBottom: '20px'
-      }}>
-        <div style={{ background: '#e3f2fd', padding: '10px', borderRadius: '8px' }}>
+      <div className="stats-grid">
+        <div className="stat-card">
           <div>💰 Деньги</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{user.game_data?.money || 0}</div>
+          <div className="stat-value">{user.game_data?.money || 0}</div>
         </div>
-        <div style={{ background: '#f3e5f5', padding: '10px', borderRadius: '8px' }}>
+        <div className="stat-card">
           <div>⭐ Опыт</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{user.game_data?.experience || 0}</div>
+          <div className="stat-value">{user.game_data?.experience || 0}</div>
         </div>
-        <div style={{ background: '#e8f5e9', padding: '10px', borderRadius: '8px' }}>
+        <div className="stat-card">
           <div>📈 Уровень</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{user.game_data?.level || 1}</div>
+          <div className="stat-value">{user.game_data?.level || 1}</div>
         </div>
-        <div style={{ background: '#fff3e0', padding: '10px', borderRadius: '8px' }}>
+        <div className="stat-card">
           <div>🌱 Поля</div>
-          <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{fields.length}</div>
+          <div className="stat-value">{fields.length}</div>
         </div>
       </div>
 
       {/* Поля фермы */}
-      <div style={{ marginBottom: '30px' }}>
-        <h3>🏞️ Ваши поля</h3>
+      <div style={{ marginTop: '30px' }}>
+        <h3>🏞️ Активные поля</h3>
         {fields.length === 0 ? (
-          <p style={{ color: '#666', textAlign: 'center', padding: '20px' }}>
-            Пока нет посаженных растений. Купите семена в магазине!
-          </p>
+          <div className="field-empty">
+            <p>Пока нет посаженных растений.</p>
+            <p>Купите семена в магазине и посадите их здесь!</p>
+          </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '15px',
-            marginTop: '15px'
-          }}>
+          <div className="fields-grid">
             {fields.map(field => {
               const plant = GAME_CONFIG.plants.find(p => p.id === field.plantId)
               const elapsed = (Date.now() - field.plantedAt) / 1000
@@ -151,54 +139,51 @@ export default function FarmField({ user, updateGameData }) {
               const progress = Math.min(100, (elapsed / field.growthTime) * 100)
 
               return (
-                <div key={field.id} style={{
-                  background: field.isReady ? '#e8f5e9' : '#fff3e0',
-                  padding: '15px',
-                  borderRadius: '10px',
-                  border: '2px solid',
-                  borderColor: field.isReady ? '#4caf50' : '#ff9800'
-                }}>
-                  <div style={{ fontSize: '24px', textAlign: 'center' }}>
+                <div 
+                  key={field.id} 
+                  className={`field-card ${field.isReady ? 'ready' : 'growing'}`}
+                >
+                  <div className="field-emoji">
                     {plant?.name?.split(' ')[0] || '🌱'}
                   </div>
-                  <div style={{ marginTop: '10px' }}>
-                    <div>{plant?.name}</div>
-                    <div style={{ fontSize: '12px', color: '#666' }}>
-                      {field.isReady ? '✅ Готов к сбору' : `⏳ ${formatTime(remaining)}`}
+                  <div className="field-info">
+                    <h4>{plant?.name || field.name}</h4>
+                    <div className="field-status">
+                      {field.isReady ? (
+                        <span style={{ color: '#4CAF50' }}>✅ Готов к сбору</span>
+                      ) : (
+                        <>
+                          <span>⏳ </span>
+                          <span className="field-timer">{formatTime(remaining)}</span>
+                        </>
+                      )}
                     </div>
                     {!field.isReady && (
-                      <div style={{
-                        height: '5px',
-                        background: '#ddd',
-                        borderRadius: '3px',
-                        marginTop: '5px',
-                        overflow: 'hidden'
-                      }}>
-                        <div style={{
-                          width: `${progress}%`,
-                          height: '100%',
-                          background: '#4caf50',
-                          transition: 'width 1s'
-                        }} />
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${progress}%` }}
+                        />
                       </div>
                     )}
                   </div>
-                  {field.isReady && (
+                  {field.isReady && !field.harvested && (
                     <button
                       onClick={() => harvestField(field.id)}
-                      style={{
-                        width: '100%',
-                        marginTop: '10px',
-                        padding: '8px',
-                        background: '#4caf50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '5px',
-                        cursor: 'pointer'
-                      }}
+                      className="harvest-btn"
                     >
-                      Собрать (+{plant?.yield}💰)
+                      Собрать урожай (+{plant?.yield || 0}💰)
                     </button>
+                  )}
+                  {field.harvested && (
+                    <div style={{ 
+                      textAlign: 'center', 
+                      color: '#666', 
+                      fontSize: '0.9rem',
+                      marginTop: '10px'
+                    }}>
+                      Уже собрано
+                    </div>
                   )}
                 </div>
               )
@@ -207,96 +192,33 @@ export default function FarmField({ user, updateGameData }) {
         )}
       </div>
 
-      {/* Магазин семян */}
-      <div style={{ marginBottom: '30px' }}>
-        <h3>🏪 Магазин семян</h3>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: '15px',
-          marginTop: '15px'
-        }}>
-          {GAME_CONFIG.plants.map(plant => (
-            <div key={plant.id} style={{
-              background: '#f5f5f5',
-              padding: '15px',
-              borderRadius: '10px'
-            }}>
-              <div style={{ fontSize: '24px', textAlign: 'center' }}>
-                {plant.name.split(' ')[0]}
-              </div>
-              <div style={{ marginTop: '10px' }}>
-                <div><strong>{plant.name}</strong></div>
-                <div>Цена: {plant.price}💰</div>
-                <div>Урожай: {plant.yield}💰</div>
-                <div>Время: {plant.growthTime}с</div>
-                <div>Опыт: {plant.exp}⭐</div>
-              </div>
-              <button
-                onClick={() => buySeeds(plant)}
-                disabled={user.game_data.money < plant.price}
-                style={{
-                  width: '100%',
-                  marginTop: '10px',
-                  padding: '8px',
-                  background: user.game_data.money >= plant.price ? '#2196f3' : '#ccc',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '5px',
-                  cursor: user.game_data.money >= plant.price ? 'pointer' : 'not-allowed'
-                }}
-              >
-                Купить семена
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Инвентарь */}
-      {user.game_data?.inventory?.length > 0 && (
-        <div>
-          <h3>🎒 Инвентарь</h3>
-          <div style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '10px',
-            marginTop: '15px'
-          }}>
-            {user.game_data.inventory.map((item, index) => (
-              <div key={index} style={{
-                background: '#e1bee7',
-                padding: '10px',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px'
-              }}>
-                <span style={{ fontSize: '20px' }}>
-                  {item.type === 'seed' ? '🌱' : '📦'}
-                </span>
-                <div>
-                  <div>{item.name}</div>
-                  <div style={{ fontSize: '12px' }}>x{item.count || 1}</div>
-                </div>
-                {item.type === 'seed' && (
-                  <button
-                    onClick={() => plantSeed(item.plantId)}
-                    style={{
-                      padding: '5px 10px',
-                      background: '#9c27b0',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '5px',
-                      cursor: 'pointer',
-                      fontSize: '12px'
-                    }}
-                  >
-                    Посадить
-                  </button>
-                )}
-              </div>
-            ))}
+      {/* Инвентарь для посадки */}
+      {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <h3>🌱 Семена для посадки</h3>
+          <div className="inventory-grid">
+            {user.game_data.inventory
+              .filter(item => item.type === 'seed' && (item.count || 0) > 0)
+              .map((item, index) => {
+                const plant = GAME_CONFIG.plants.find(p => p.id === item.plantId)
+                return (
+                  <div key={index} className="inventory-item">
+                    <span className="item-emoji">
+                      {plant?.name?.split(' ')[0] || '🌱'}
+                    </span>
+                    <div className="item-info">
+                      <h5>{item.name}</h5>
+                      <div className="item-count">Осталось: {item.count || 1}</div>
+                    </div>
+                    <button
+                      onClick={() => plantSeed(item.plantId, item.name)}
+                      className="plant-btn"
+                    >
+                      Посадить
+                    </button>
+                  </div>
+                )
+              })}
           </div>
         </div>
       )}

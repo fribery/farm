@@ -15,6 +15,17 @@ export function useTelegram() {
     try {
       console.log('🔍 Проверяем Supabase подключение...')
       
+
+      const initialGameData = {
+        money: 100,
+        experience: 0,
+        level: 1,
+        inventory: [],
+        farm: [],
+        plantsHarvested: 0,
+        totalEarned: 0,
+        playTime: 0
+      }
       // Пробуем подключиться к Supabase
       const { data: testData, error: testError } = await supabase
         .from('profiles')

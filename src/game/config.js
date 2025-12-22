@@ -53,3 +53,4 @@ export const calculateLevel = (exp) => {
     .reduce((max, l) => l.level > max ? l.level : max, 1)
   return level
 }
+
