@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { useTelegram } from './hooks/useTelegram'
 import Navigation from './components/Navigation.jsx'
-import FarmScreen from '@screens/FarmScreen.jsx'
-import ShopScreen from '@screens/ShopScreen.jsx'
-import StatsScreen from '@screens/StatsScreen.jsx'
-import ProfileScreen from '@screens/ProfileScreen.jsx'
-// import { 
-//   FarmScreen, 
-//   ShopScreen, 
-//   StatsScreen, 
-//   ProfileScreen 
-// } from '/components/Screens'
+// import FarmScreen from '@screens/FarmScreen.jsx'
+// import ShopScreen from '@screens/ShopScreen.jsx'
+// import StatsScreen from '@screens/StatsScreen.jsx'
+// import ProfileScreen from '@screens/ProfileScreen.jsx'
+import { 
+  FarmScreen, 
+  ShopScreen, 
+  StatsScreen, 
+  ProfileScreen 
+} from '/src/components/Screens/index.js'
 import './App.css'
 
 
