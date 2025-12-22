@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { GAME_CONFIG, formatTime } from '../game/config'
+import './FarmField.css'
 
 export default function FarmField({ user, updateGameData }) {
   const [selectedPlant, setSelectedPlant] = useState(null)

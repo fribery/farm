@@ -58,27 +58,35 @@ function App() {
       minHeight: '100vh',
       background: '#f5f5f5'
     }}>
-      <header style={{ 
-        padding: '15px 20px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        color: 'white',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-      }}>
-        <h1 style={{ margin: 0 }}>🌾 Ферма</h1>
-        {user && (
-          <div style={{ marginTop: 10, fontSize: '0.9em' }}>
-            <div>
-              <strong>{user.first_name} {user.last_name || ''}</strong>
-              {user.username && ` (@${user.username})`}
-            </div>
-            <div style={{ display: 'flex', gap: '15px', marginTop: '5px' }}>
+    <header className="app-header">
+      <h1>Ферма</h1>
+      {user && (
+        <div className="header-user-info">
+          <div className="user-name">
+            👤 {user.first_name} {user.last_name || ''}
+            {user.username && <span>@{user.username}</span>}
+          </div>
+          <div className="header-stats">
+            <div className="stat-item">
+              <span className="emoji">📈</span>
               <span>Уровень: {user.game_data?.level || 1}</span>
-              <span>💰 {user.game_data?.money || 0}</span>
-              <span>⭐ {user.game_data?.experience || 0}</span>
+            </div>
+            <div className="stat-item">
+              <span className="emoji">💰</span>
+              <span>{user.game_data?.money || 0} монет</span>
+            </div>
+            <div className="stat-item">
+              <span className="emoji">⭐</span>
+              <span>{user.game_data?.experience || 0} опыта</span>
+            </div>
+            <div className="stat-item">
+              <span className="emoji">{usingSupabase ? '☁️' : '📱'}</span>
+              <span>{usingSupabase ? 'Supabase' : 'Local'}</span>
             </div>
           </div>
-        )}
-      </header>
+        </div>
+      )}
+    </header>
 
       <main style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
   {user ? (

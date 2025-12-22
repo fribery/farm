@@ -1,3 +1,5 @@
+import './QuickActions.css'
+
 export default function QuickActions({ user, updateGameData }) {
   const quickActions = [
     {
