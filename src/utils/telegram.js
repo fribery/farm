@@ -1,75 +1,70 @@
-import { init, retrieveLaunchParams } from '@telegram-apps/sdk';
+// TelegramService БЕЗ внешних зависимостей
+// Использует нативный Telegram WebApp API
 
 class TelegramService {
   constructor() {
-    this.isInitialized = false;
+    console.log('🔧 TelegramService (без зависимостей)');
     this.user = null;
-    this.initData = null;
-    this.init();
+    this.isInitialized = false;
   }
 
-init() {
-  try {
-    // Способ 1: Через SDK
-    if (!this.isInitialized) {
-      init();
-      this.isInitialized = true;
+  // Основная инициализация
+  init() {
+    if (this.isInitialized) {
+      return this.user;
     }
     
-    const launchParams = retrieveLaunchParams();
-    this.user = launchParams.initDataUnsafe?.user;
+    console.log('🔄 Инициализация Telegram WebApp...');
     
-    // Способ 2: Через window.Telegram.WebApp (Telegram Mini Apps)
-    if (!this.user && window.Telegram?.WebApp) {
-      console.log('📱 Используем Telegram WebApp API');
-      const webApp = window.Telegram.WebApp;
-      
-      // Инициализируем WebApp
-      webApp.ready();
-      webApp.expand();
-      
-      this.user = webApp.initDataUnsafe?.user;
-      
-      if (this.user) {
-        console.log('✅ Telegram WebApp пользователь:', this.user);
+    // Способ 1: Нативный Telegram WebApp
+    if (typeof window !== 'undefined' && window.Telegram?.WebApp) {
+      try {
+        console.log('📱 Обнаружен Telegram WebApp');
+        const webApp = window.Telegram.WebApp;
+        
+        // Обязательные вызовы для Mini Apps
+        webApp.ready();
+        webApp.expand();
+        webApp.enableClosingConfirmation();
+        
+        this.user = webApp.initDataUnsafe?.user;
+        this.isInitialized = true;
+        
+        console.log('✅ Telegram WebApp инициализирован');
+        console.log('👤 Пользователь:', this.user);
+        
+        return this.user;
+      } catch (error) {
+        console.error('❌ Ошибка Telegram WebApp:', error);
       }
     }
     
-    // Способ 3: Для разработки
-    if (!this.user && process.env.NODE_ENV === 'development') {
-      console.log('🛠️ Режим разработки, тестовый пользователь');
-      this.user = {
-        id: 123456789,
-        first_name: 'Telegram',
-        last_name: 'Тест',
-        username: 'telegram_test'
-      };
-    }
-    
-    return this.user;
-    
-  } catch (error) {
-    console.error('❌ Ошибка Telegram инициализации:', error);
-    
-    // Ultimate fallback
+    // Способ 2: Для разработки/тестирования
+    console.log('🛠️ Telegram не обнаружен, используем тестового пользователя');
     this.user = {
-      id: Date.now(),
-      first_name: 'Игрок',
-      last_name: ''
+      id: Math.floor(Math.random() * 1000000) + 100000,
+      first_name: 'Тестовый',
+      last_name: 'Игрок',
+      username: 'test_player_' + Date.now(),
+      language_code: 'ru'
     };
     
+    this.isInitialized = true;
     return this.user;
   }
-}
 
-  // Получить данные пользователя
+  // Получить пользователя
   getUser() {
-    return this.user || this.init();
+    if (!this.isInitialized) {
+      return this.init();
+    }
+    return this.user;
   }
 
-  // Получить Telegram ID
+  // Получить ID пользователя
   getUserId() {
-    return this.user?.id || this.getUser()?.id;
+    const user = this.getUser();
+    return user?.id;
   }
 
   // Получить имя пользователя
@@ -83,27 +78,42 @@ init() {
     return user.first_name || user.username || 'Игрок';
   }
 
-  // Проверить, запущено ли в Telegram
+  // Проверить, в Telegram ли мы
   isInTelegram() {
-    return !!this.user || !!window.Telegram?.WebApp;
+    return typeof window !== 'undefined' && !!window.Telegram?.WebApp;
   }
 
-  // Показать алерт в Telegram
+  // Показать сообщение
   showAlert(message) {
-    if (window.Telegram?.WebApp) {
+    if (this.isInTelegram() && window.Telegram.WebApp.showAlert) {
       window.Telegram.WebApp.showAlert(message);
     } else {
       alert(message);
     }
   }
 
-  // Закрыть мини-апп
+  // Закрыть приложение
   close() {
-    if (window.Telegram?.WebApp) {
+    if (this.isInTelegram() && window.Telegram.WebApp.close) {
       window.Telegram.WebApp.close();
+    }
+  }
+
+  // Показать подтверждение
+  showConfirm(message, callback) {
+    if (this.isInTelegram() && window.Telegram.WebApp.showConfirm) {
+      window.Telegram.WebApp.showConfirm(message, callback);
+    } else {
+      const result = confirm(message);
+      if (callback) callback(result);
     }
   }
 }
 
-// Экспортируем singleton как именованный экспорт
+// Создаем и экспортируем глобальный экземпляр
 export const telegramService = new TelegramService();
+
+// Автоматическая инициализация при импорте
+if (typeof window !== 'undefined') {
+  telegramService.init();
+}
