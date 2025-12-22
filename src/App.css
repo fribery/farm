@@ -1112,23 +1112,6 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 }
 
-
-
-/* Кнопка "Ферма" */
-.app .nav-btn:nth-child(1)::before {
-  content: "🌾";
-}
-
-/* Кнопка "Магазин" */
-.app .nav-btn:nth-child(2)::before {
-  content: "🛒";
-}
-
-/* Кнопка "Профиль" */
-.app .nav-btn:nth-child(3)::before {
-  content: "👤";
-}
-
 /* Активная кнопка */
 .app .nav-btn.active {
   background: linear-gradient(135deg, #4CAF50, #66BB6A);
