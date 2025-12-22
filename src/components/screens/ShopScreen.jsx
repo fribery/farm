@@ -3,6 +3,11 @@ import './Screens.css'
 
 export default function ShopScreen({ user, updateGameData }) {
   const buySeeds = (plant) => {
+    if (!user) {
+    console.error('user is not defined in ShopScreen')
+    alert('Ошибка загрузки данных пользователя')
+    return
+  }
   if (user.game_data.money < plant.price) {
     alert('Недостаточно денег!')
     return
