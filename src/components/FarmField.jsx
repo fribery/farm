@@ -155,10 +155,9 @@ export default function FarmField({ user, updateGameData }) {
     return 'Готово'
   }
 
-  return (
+return (
   <div className="farm-section">
-
-    {/* Сгруппированные семена для посадки */}
+    {/* Сгруппированные семена для посадки - ТЕПЕРЬ ПЕРВЫМ! */}
     {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
       <div className="seeds-container">
         <h3 className="section-title">
@@ -249,8 +248,7 @@ export default function FarmField({ user, updateGameData }) {
       </div>
     )}
 
-
-    {/* Поля фермы */}
+    {/* Поля фермы - ТЕПЕРЬ ВТОРЫМ! */}
     <div className="fields-container">
       <h3 className="section-title">
         <span className="title-icon">🏞️</span>
@@ -360,6 +358,6 @@ export default function FarmField({ user, updateGameData }) {
         </div>
       )}
     </div>
-  </div> // <-- Этот закрывающий div должен быть ТОЛЬКО ОДИН!
+  </div>
 );
 }
