@@ -48,7 +48,6 @@ export default function FarmField({ user, updateGameData }) {
     const plant = GAME_CONFIG.plants.find(p => p.id === fields[fieldIndex].plantId)
     if (!plant) return
 
-    // Помечаем как собранное
     const updatedFields = [...fields]
     updatedFields[fieldIndex] = { ...updatedFields[fieldIndex], harvested: true }
 
@@ -65,7 +64,7 @@ export default function FarmField({ user, updateGameData }) {
     updateGameData(newGameData)
   }
 
-  // Обновление таймеров и прогресса
+  // Обновление таймеров
   useEffect(() => {
     const updateTimers = () => {
       const now = Date.now()
@@ -79,82 +78,60 @@ export default function FarmField({ user, updateGameData }) {
         const elapsed = (now - field.plantedAt) / 1000
         const remaining = Math.max(0, field.growthTime - elapsed)
         const isReady = remaining <= 0
-        const progress = Math.min(100, (elapsed / field.growthTime) * 100)
         
-        newTimeLeft[field.id] = Math.ceil(remaining) // Целое число секунд
+        newTimeLeft[field.id] = Math.ceil(remaining)
         
-        return { ...field, isReady, progress }
+        return { ...field, isReady, progress: Math.min(100, (elapsed / field.growthTime) * 100) }
       })
       
       setTimeLeft(newTimeLeft)
       
-      // Обновляем поля если есть изменения
       const hasChanges = JSON.stringify(updatedFields) !== JSON.stringify(fields)
       if (hasChanges) {
         setFields(updatedFields)
         const newGameData = { 
           ...user.game_data, 
-          farm: updatedFields.map(f => ({ 
-            ...f, 
-            progress: undefined 
-          })) 
+          farm: updatedFields.map(f => ({ ...f, progress: undefined })) 
         }
         updateGameData(newGameData)
       }
     }
     
     const interval = setInterval(updateTimers, 1000)
-    updateTimers() // Запускаем сразу
+    updateTimers()
     
     return () => clearInterval(interval)
   }, [fields])
 
-  // Обновляем поля при изменении user.game_data.farm
+  // Синхронизация полей
   useEffect(() => {
     if (user.game_data?.farm && JSON.stringify(user.game_data.farm) !== JSON.stringify(fields)) {
       const now = Date.now()
       const restoredFields = user.game_data.farm.map(field => {
         if (field.isReady || field.harvested) return field
         const elapsed = (now - field.plantedAt) / 1000
-        const progress = Math.min(100, (elapsed / field.growthTime) * 100)
-        return { ...field, progress }
+        return { ...field, progress: Math.min(100, (elapsed / field.growthTime) * 100) }
       })
       setFields(restoredFields)
     }
   }, [user.game_data?.farm])
 
-  // Функция для получения цвета прогресс-бара
-  const getProgressColor = (progress) => {
-    if (progress < 25) return '#ff9800' // оранжевый
-    if (progress < 50) return '#ffb74d' // светлый оранжевый
-    if (progress < 75) return '#ffd54f' // желтый
-    return '#4caf50' // зеленый
-  }
-
-  // Функция для получения иконки прогресса
-  const getProgressIcon = (progress, isReady) => {
-    if (isReady) return '🎉'
+  // Получение иконки для этапа
+  const getStageIcon = (progress) => {
     if (progress < 25) return '🌱'
     if (progress < 50) return '🪴'
     if (progress < 75) return '🌿'
-    return '🌸'
-  }
-
-  // Получение текста для таймера
-  const getTimerText = (fieldId) => {
-    const seconds = timeLeft[fieldId]
-    if (seconds === undefined) return '...'
-    if (seconds === 0) return 'Готово!'
-    return `${seconds} сек`
+    if (progress < 100) return '🌸'
+    return '✅'
   }
 
   // Получение названия этапа
   const getStageName = (progress) => {
     if (progress < 25) return 'Посажено'
-    if (progress < 50) return 'Рост'
-    if (progress < 75) return 'Цветение'
-    if (progress < 100) return 'Созревание'
-    return 'Готово!'
+    if (progress < 50) return 'Растет'
+    if (progress < 75) return 'Цветет'
+    if (progress < 100) return 'Созревает'
+    return 'Готово'
   }
 
   return (
@@ -162,158 +139,132 @@ export default function FarmField({ user, updateGameData }) {
       <h2>🌾 Ваши поля</h2>
       
       {/* Статистика */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div>💰 Деньги</div>
-          <div className="stat-value">{user.game_data?.money || 0}</div>
+      <div className="stats-grid-compact">
+        <div className="stat-item-compact">
+          <span className="stat-icon">💰</span>
+          <div className="stat-content">
+            <div className="stat-label-small">Баланс</div>
+            <div className="stat-value">{user.game_data?.money || 0}</div>
+          </div>
         </div>
-        <div className="stat-card">
-          <div>⭐ Опыт</div>
-          <div className="stat-value">{user.game_data?.experience || 0}</div>
+        <div className="stat-item-compact">
+          <span className="stat-icon">⭐</span>
+          <div className="stat-content">
+            <div className="stat-label-small">Опыт</div>
+            <div className="stat-value">{user.game_data?.experience || 0}</div>
+          </div>
         </div>
-        <div className="stat-card">
-          <div>📈 Уровень</div>
-          <div className="stat-value">{user.game_data?.level || 1}</div>
-        </div>
-        <div className="stat-card">
-          <div>🌱 Активные поля</div>
-          <div className="stat-value">{fields.filter(f => !f.harvested).length}</div>
+        <div className="stat-item-compact">
+          <span className="stat-icon">📈</span>
+          <div className="stat-content">
+            <div className="stat-label-small">Уровень</div>
+            <div className="stat-value">{user.game_data?.level || 1}</div>
+          </div>
         </div>
       </div>
 
       {/* Поля фермы */}
-      <div style={{ marginTop: '30px' }}>
-        <h3>🏞️ Активные поля</h3>
+      <div className="fields-container">
+        <h3 className="section-title">
+          <span className="title-icon">🏞️</span>
+          Активные поля: {fields.filter(f => !f.harvested).length}
+        </h3>
+        
         {fields.length === 0 ? (
-          <div className="field-empty">
-            <p>Пока нет посаженных растений.</p>
-            <p>Купите семена в магазине и посадите их здесь!</p>
+          <div className="empty-state">
+            <div className="empty-icon">🌱</div>
+            <p className="empty-title">Пока нет растений</p>
+            <p className="empty-subtitle">Купите семена в магазине</p>
           </div>
         ) : (
-          <div className="fields-grid">
+          <div className="fields-grid-compact">
             {fields.map(field => {
               const plant = GAME_CONFIG.plants.find(p => p.id === field.plantId)
               const progress = field.progress || 0
-              const timerText = getTimerText(field.id)
-
+              const secondsLeft = timeLeft[field.id] || 0
+              const isReady = field.isReady
+              
               return (
                 <div 
                   key={field.id} 
-                  className={`field-card ${field.isReady ? 'ready' : 'growing'}`}
+                  className={`field-card-compact ${isReady ? 'ready' : 'growing'}`}
                 >
-                  <div className="field-header">
-                    <div className="field-main-emoji">
+                  {/* Заголовок карточки */}
+                  <div className="field-header-compact">
+                    <div className="field-emoji-compact">
                       {plant?.name?.split(' ')[0] || '🌱'}
                     </div>
-                    <div className="field-timer-display">
-                      <div className="timer-text">{timerText}</div>
-                      {!field.isReady && (
-                        <div className="timer-label">Осталось</div>
-                      )}
+                    <div className="field-info-compact">
+                      <h4 className="field-name">{plant?.name || field.name}</h4>
+                      <div className="field-stats">
+                        <span className="field-stat">
+                          <span className="stat-icon-small">💰</span>
+                          {plant?.price || 0}
+                        </span>
+                        <span className="field-stat">
+                          <span className="stat-icon-small">⏱️</span>
+                          {plant?.growthTime || 30}с
+                        </span>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="field-info">
-                    <h4>{plant?.name || field.name}</h4>
-                    
-                    <div className="field-status-row">
-                      <div className="status-icon">
-                        {getProgressIcon(progress, field.isReady)}
-                      </div>
-                      <div className="status-text">
-                        {field.isReady ? 'Готов к сбору!' : getStageName(progress)}
-                      </div>
-                      <div className="status-percent">
-                        {Math.round(progress)}%
-                      </div>
+                  {/* Прогресс */}
+                  <div className="field-progress-section">
+                    <div className="progress-header">
+                      <span className="stage-icon">{getStageIcon(progress)}</span>
+                      <span className="stage-name">{getStageName(progress)}</span>
+                      <span className="progress-percent">{Math.round(progress)}%</span>
                     </div>
                     
-                    {/* Прогресс-бар с этапами в одну линию */}
-                    {!field.isReady && (
-                      <div className="progress-container">
-                        {/* Этапы роста в одну линию */}
-                        <div className="stages-line">
-                          <div className="stage-marker" style={{ left: '0%' }}>
-                            <div className={`stage-dot ${progress >= 0 ? 'active' : ''}`}></div>
-                            <div className="stage-label">🌱</div>
-                          </div>
-                          <div className="stage-marker" style={{ left: '25%' }}>
-                            <div className={`stage-dot ${progress >= 25 ? 'active' : ''}`}></div>
-                            <div className="stage-label">🪴</div>
-                          </div>
-                          <div className="stage-marker" style={{ left: '50%' }}>
-                            <div className={`stage-dot ${progress >= 50 ? 'active' : ''}`}></div>
-                            <div className="stage-label">🌿</div>
-                          </div>
-                          <div className="stage-marker" style={{ left: '75%' }}>
-                            <div className={`stage-dot ${progress >= 75 ? 'active' : ''}`}></div>
-                            <div className="stage-label">🌸</div>
-                          </div>
-                          <div className="stage-marker" style={{ left: '100%' }}>
-                            <div className={`stage-dot ${progress >= 100 ? 'active' : ''}`}></div>
-                            <div className="stage-label">🎉</div>
-                          </div>
+                    {/* Таймер */}
+                    <div className="timer-display">
+                      {isReady ? (
+                        <span className="timer-ready">Готово!</span>
+                      ) : (
+                        <>
+                          <span className="timer-icon">⏱️</span>
+                          <span className="timer-value">{secondsLeft} сек</span>
+                        </>
+                      )}
+                    </div>
+                    
+                    {/* Прогресс-бар */}
+                    {!isReady && (
+                      <div className="progress-bar-simple">
+                        <div 
+                          className="progress-fill-simple"
+                          style={{ width: `${progress}%` }}
+                        >
+                          <div className="progress-glow"></div>
                         </div>
-                        
-                        {/* Основной прогресс-бар */}
-                        <div className="progress-bar-container">
-                          <div className="progress-bar-background">
+                        <div className="progress-dots">
+                          {[25, 50, 75, 100].map(dot => (
                             <div 
-                              className="progress-bar-fill"
-                              style={{
-                                width: `${progress}%`,
-                                backgroundColor: getProgressColor(progress),
-                              }}
-                            >
-                              <div className="progress-bar-shine"></div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Подписи этапов */}
-                        <div className="stage-names">
-                          <span style={{ left: '0%' }}>Старт</span>
-                          <span style={{ left: '25%' }}>Рост</span>
-                          <span style={{ left: '50%' }}>Стебли</span>
-                          <span style={{ left: '75%' }}>Цветы</span>
-                          <span style={{ left: '100%' }}>Урожай</span>
+                              key={dot}
+                              className={`progress-dot-simple ${progress >= dot ? 'active' : ''}`}
+                              style={{ left: `${dot}%` }}
+                            />
+                          ))}
                         </div>
                       </div>
                     )}
-                    
-                    {/* Информация о растении */}
-                    <div className="plant-info-grid">
-                      <div className="plant-info-item">
-                        <span className="info-label">Цена семян:</span>
-                        <span className="info-value">{plant?.price || 0}💰</span>
-                      </div>
-                      <div className="plant-info-item">
-                        <span className="info-label">Урожай:</span>
-                        <span className="info-value">{plant?.yield || 0}💰</span>
-                      </div>
-                      <div className="plant-info-item">
-                        <span className="info-label">Опыт:</span>
-                        <span className="info-value">{plant?.exp || 0}⭐</span>
-                      </div>
-                      <div className="plant-info-item">
-                        <span className="info-label">Время роста:</span>
-                        <span className="info-value">{plant?.growthTime || 30} сек</span>
-                      </div>
-                    </div>
                   </div>
                   
-                  {field.isReady && !field.harvested && (
+                  {/* Кнопка сбора */}
+                  {isReady && !field.harvested && (
                     <button
                       onClick={() => harvestField(field.id)}
-                      className="harvest-btn pulse-animation"
+                      className="harvest-btn-simple"
                     >
-                      🎉 Собрать урожай! (+{plant?.yield || 0}💰)
+                      <span className="harvest-icon">🔄</span>
+                      Собрать +{plant?.yield || 0}💰
                     </button>
                   )}
                   
                   {field.harvested && (
-                    <div className="harvested-message">
-                      ✅ Урожай собран
+                    <div className="harvested-badge">
+                      <span>✅ Собрано</span>
                     </div>
                   )}
                 </div>
@@ -323,33 +274,37 @@ export default function FarmField({ user, updateGameData }) {
         )}
       </div>
 
-      {/* Инвентарь для посадки */}
+      {/* Семена для посадки */}
       {user.game_data?.inventory?.filter(item => item.type === 'seed' && (item.count || 0) > 0).length > 0 && (
-        <div style={{ marginTop: '40px' }}>
-          <h3>🌱 Семена для посадки</h3>
-          <div className="inventory-grid">
+        <div className="seeds-container">
+          <h3 className="section-title">
+            <span className="title-icon">🌱</span>
+            Семена для посадки
+          </h3>
+          
+          <div className="seeds-grid">
             {user.game_data.inventory
               .filter(item => item.type === 'seed' && (item.count || 0) > 0)
               .map((item, index) => {
                 const plant = GAME_CONFIG.plants.find(p => p.id === item.plantId)
                 return (
-                  <div key={index} className="inventory-item">
-                    <span className="item-emoji">
+                  <div key={index} className="seed-card">
+                    <div className="seed-emoji">
                       {plant?.name?.split(' ')[0] || '🌱'}
-                    </span>
-                    <div className="item-info">
-                      <h5>{item.name}</h5>
-                      <div className="item-details">
-                        <div className="item-count">Осталось: {item.count || 1} шт</div>
-                        <div className="item-time">Время: {plant?.growthTime || 30} сек</div>
-                        <div className="item-profit">Прибыль: +{plant?.yield || 0}💰</div>
+                    </div>
+                    <div className="seed-info">
+                      <div className="seed-name">{item.name}</div>
+                      <div className="seed-details">
+                        <span className="seed-count">×{item.count || 1}</span>
+                        <span className="seed-time">{plant?.growthTime || 30}с</span>
+                        <span className="seed-profit">+{plant?.yield || 0}💰</span>
                       </div>
                     </div>
                     <button
                       onClick={() => plantSeed(item.plantId, item.name)}
-                      className="plant-btn"
+                      className="plant-btn-simple"
                     >
-                      🌱 Посадить
+                      Посадить
                     </button>
                   </div>
                 )

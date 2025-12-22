@@ -1,146 +1,248 @@
-/* Таймер */
-.field-timer-display {
-  text-align: center;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 2px solid #4CAF50;
-  min-width: 80px;
+/* Компактная статистика */
+.stats-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 20px 0;
 }
 
-.timer-text {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #2e7d32;
-  font-family: 'Courier New', monospace;
-}
-
-.timer-label {
-  font-size: 0.7rem;
-  color: #666;
-  margin-top: 2px;
-}
-
-/* Заголовок поля */
-.field-header {
+.stat-item-compact {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #f0f0f0;
+  gap: 12px;
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  border: 1px solid #f0f0f0;
 }
 
-.field-main-emoji {
-  font-size: 3.5rem;
+.stat-icon {
+  font-size: 1.8rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 10px;
 }
 
-/* Строка статуса */
-.field-status-row {
+.stat-content {
+  flex: 1;
+}
+
+.stat-label-small {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+/* Заголовки секций */
+.section-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 15px 0;
-  padding: 10px;
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin: 25px 0 15px 0;
+}
+
+.title-icon {
+  font-size: 1.4rem;
+}
+
+/* Состояние "пусто" */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 15px;
+  border: 2px dashed #e0e0e0;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  font-size: 1.1rem;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.empty-subtitle {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+/* Компактная карточка поля */
+.fields-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.field-card-compact {
+  background: white;
+  border-radius: 15px;
+  padding: 20px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  border: 2px solid #f0f0f0;
+  transition: all 0.3s ease;
+}
+
+.field-card-compact:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+.field-card-compact.ready {
+  border-color: #4CAF50;
+  background: linear-gradient(135deg, #f8fff8 0%, #e8f5e9 100%);
+}
+
+/* Заголовок поля */
+.field-header-compact {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.field-emoji-compact {
+  font-size: 2.5rem;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: #f8f9fa;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
-.status-icon {
-  font-size: 1.8rem;
-  animation: float 2s ease-in-out infinite;
-}
-
-.status-text {
+.field-info-compact {
   flex: 1;
+}
+
+.field-name {
+  margin: 0 0 8px 0;
+  font-size: 1.1rem;
+  color: #2c3e50;
+}
+
+.field-stats {
+  display: flex;
+  gap: 15px;
+}
+
+.field-stat {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: #666;
+  background: #f8f9fa;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.stat-icon-small {
+  font-size: 0.9rem;
+}
+
+/* Прогресс */
+.field-progress-section {
+  margin-bottom: 20px;
+}
+
+.progress-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stage-icon {
+  font-size: 1.5rem;
+  animation: float 3s ease-in-out infinite;
+}
+
+.stage-name {
+  flex: 1;
+  margin-left: 10px;
   font-weight: 500;
   color: #333;
 }
 
-.status-percent {
-  font-weight: bold;
-  font-size: 1.2rem;
+.progress-percent {
+  font-weight: 700;
   color: #4CAF50;
   background: white;
   padding: 4px 10px;
-  border-radius: 20px;
+  border-radius: 15px;
   border: 2px solid #4CAF50;
+  font-size: 0.9rem;
 }
 
-/* Прогресс-бар с этапами в линию */
-.progress-container {
-  margin: 20px 0;
-  position: relative;
-}
-
-.stages-line {
-  position: relative;
-  height: 40px;
-  margin-bottom: 10px;
-}
-
-.stage-marker {
-  position: absolute;
-  transform: translateX(-50%);
+/* Таймер */
+.timer-display {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 10px;
 }
 
-.stage-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background-color: #e0e0e0;
-  border: 3px solid white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  transition: all 0.3s ease;
-  z-index: 2;
-}
-
-.stage-dot.active {
-  background-color: #4CAF50;
-  transform: scale(1.2);
-  box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
-}
-
-.stage-label {
+.timer-icon {
   font-size: 1.2rem;
-  opacity: 0.7;
-  transition: all 0.3s ease;
 }
 
-.stage-dot.active + .stage-label {
-  opacity: 1;
-  transform: scale(1.1);
+.timer-value {
+  font-family: 'Courier New', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #e65100;
 }
 
-/* Линия прогресса */
-.progress-bar-container {
+.timer-ready {
+  font-weight: 700;
+  color: #4CAF50;
+  font-size: 1.1rem;
+}
+
+/* Простой прогресс-бар */
+.progress-bar-simple {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  margin-top: 15px;
   position: relative;
-  height: 20px;
-  margin: 0 8px;
-}
-
-.progress-bar-background {
-  width: 100%;
-  height: 12px;
-  background-color: #e0e0e0;
-  border-radius: 6px;
   overflow: hidden;
-  position: relative;
 }
 
-.progress-bar-fill {
+.progress-fill-simple {
   height: 100%;
-  border-radius: 6px;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 4px;
+  transition: width 1s ease;
   position: relative;
-  transition: width 1s ease-in-out, background-color 1s ease;
-  overflow: hidden;
 }
 
-.progress-bar-shine {
+.progress-glow {
   position: absolute;
   top: 0;
   left: -100%;
@@ -148,156 +250,200 @@
   height: 100%;
   background: linear-gradient(
     90deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.4) 50%,
-    transparent 100%
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
   );
-  animation: shine 2s infinite;
+  animation: slide 2s infinite;
 }
 
-@keyframes shine {
+@keyframes slide {
   0% { left: -100%; }
   100% { left: 100%; }
 }
 
-/* Подписи этапов */
-.stage-names {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  position: relative;
-}
-
-.stage-names span {
+.progress-dots {
   position: absolute;
-  transform: translateX(-50%);
-  font-size: 0.7rem;
-  color: #666;
-  white-space: nowrap;
-  text-align: center;
-  width: 50px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
-.stage-names span:first-child {
-  transform: translateX(0);
+.progress-dot-simple {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #bdbdbd;
+  border: 2px solid white;
+  transition: all 0.3s ease;
 }
 
-.stage-names span:last-child {
-  transform: translateX(-100%);
+.progress-dot-simple.active {
+  background: #4CAF50;
+  box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
 }
 
-/* Информация о растении */
-.plant-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 20px;
-  padding: 15px;
-  background: #f8f9fa;
+/* Простая кнопка сбора */
+.harvest-btn-simple {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #4CAF50;
+  border: 2px solid #4CAF50;
   border-radius: 10px;
-  border: 1px solid #e0e0e0;
-}
-
-.plant-info-item {
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px;
-  background: white;
-  border-radius: 6px;
+  justify-content: center;
+  gap: 8px;
 }
 
-.info-label {
-  font-size: 0.8rem;
-  color: #666;
+.harvest-btn-simple:hover {
+  background: #4CAF50;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
 }
 
-.info-value {
-  font-weight: bold;
-  color: #2c3e50;
+.harvest-icon {
+  font-size: 1.1rem;
 }
 
-/* Детали семян в инвентаре */
-.item-details {
-  margin-top: 8px;
-}
-
-.item-details div {
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 2px;
-}
-
-.item-profit {
-  color: #4CAF50 !important;
-  font-weight: bold;
-}
-
-/* Сообщение о сборе */
-.harvested-message {
+.harvested-badge {
   text-align: center;
+  padding: 10px;
   color: #666;
   font-size: 0.9rem;
-  margin-top: 10px;
-  padding: 10px;
-  background: #e8f5e9;
-  border-radius: 6px;
-  border-left: 4px solid #4CAF50;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px dashed #ddd;
 }
 
-/* Анимация кнопки сбора */
-.pulse-animation {
-  animation: pulse 2s infinite;
+/* Карточки семян */
+.seeds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
 }
 
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
-  }
-  100% {
-    boxShadow: 0 0 0 0 rgba(76, 175, 80, 0);
-  }
+.seed-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
 }
 
-/* Анимация плавающей иконки */
+.seed-card:hover {
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.seed-emoji {
+  font-size: 2rem;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.seed-info {
+  flex: 1;
+}
+
+.seed-name {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.seed-details {
+  display: flex;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+
+.seed-count {
+  color: #666;
+}
+
+.seed-time {
+  color: #e65100;
+}
+
+.seed-profit {
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+.plant-btn-simple {
+  padding: 8px 16px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.plant-btn-simple:hover {
+  background: #3d8b40;
+  transform: scale(1.05);
+}
+
+/* Анимация плавания */
 @keyframes float {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .field-header {
-    flex-direction: column;
-    gap: 10px;
-    text-align: center;
-  }
-  
-  .plant-info-grid {
+  .fields-grid-compact {
     grid-template-columns: 1fr;
   }
   
-  .stage-names span {
-    font-size: 0.6rem;
-    width: 40px;
+  .seeds-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid-compact {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  
+  .stat-item-compact {
+    padding: 12px;
   }
 }
 
 @media (max-width: 480px) {
-  .field-status-row {
-    flex-direction: column;
-    text-align: center;
-    gap: 5px;
+  .stats-grid-compact {
+    grid-template-columns: 1fr;
   }
   
-  .stage-label {
-    font-size: 1rem;
+  .field-header-compact {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .field-stats {
+    justify-content: center;
   }
 }
