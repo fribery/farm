@@ -1108,15 +1108,11 @@
   flex-direction: column;
   align-items: center;
   gap: 6px;
-  min-width: 80px;
+  min-width: 70px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* Эмодзи в кнопках */
-.app .nav-btn::before {
-  font-size: 1.4rem;
-  margin-bottom: 2px;
-}
+
 
 /* Кнопка "Ферма" */
 .app .nav-btn:nth-child(1)::before {
