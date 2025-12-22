@@ -5,37 +5,43 @@ import Navigation from './components/Navigation'
 //import ShopScreen from 'src/components/Screens/ShopScreen.jsx'
 //import StatsScreen from 'src/components/Screens/StatsScreen.jsx'
 //import FarmScreen from 'src/components/Screens/FarmScreen.jsx'
+import { 
+  FarmScreen, 
+  ShopScreen, 
+  StatsScreen, 
+  ProfileScreen 
+} from './components/Screens'
 import './App.css'
 
 
-// Добавьте перед функцией App эти компоненты:
-const FarmScreen = ({ user, updateGameData }) => (
-  <div style={{ padding: '20px' }}>
-    <h2>🌾 Ферма</h2>
-    <p>Экран фермы</p>
-  </div>
-)
+// // Добавьте перед функцией App эти компоненты:
+// const FarmScreen = ({ user, updateGameData }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>🌾 Ферма</h2>
+//     <p>Экран фермы</p>
+//   </div>
+// )
 
-const ShopScreen = ({ user, updateGameData }) => (
-  <div style={{ padding: '20px' }}>
-    <h2>🏪 Магазин</h2>
-    <p>Экран магазина</p>
-  </div>
-)
+// const ShopScreen = ({ user, updateGameData }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>🏪 Магазин</h2>
+//     <p>Экран магазина</p>
+//   </div>
+// )
 
-const StatsScreen = ({ user }) => (
-  <div style={{ padding: '20px' }}>
-    <h2>📊 Статистика</h2>
-    <p>Экран статистики</p>
-  </div>
-)
+// const StatsScreen = ({ user }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>📊 Статистика</h2>
+//     <p>Экран статистики</p>
+//   </div>
+// )
 
-const ProfileScreen = ({ user, usingSupabase }) => (
-  <div style={{ padding: '20px' }}>
-    <h2>👤 Профиль</h2>
-    <p>Экран профиля</p>
-  </div>
-)
+// const ProfileScreen = ({ user, usingSupabase }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>👤 Профиль</h2>
+//     <p>Экран профиля</p>
+//   </div>
+// )
 
 
 function App() {
