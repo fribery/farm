@@ -55,24 +55,60 @@ export default function ProfileScreen({ user, usingSupabase }) {
         </section>
 
         {user.game_data?.inventory?.length > 0 && (
-          <section className="profile-section">
-            <h3>🎒 Инвентарь ({user.game_data.inventory.length})</h3>
-            <div className="inventory-list">
-              {user.game_data.inventory.slice(0, 3).map((item, index) => (
-                <div key={index} className="inventory-item">
-                  <span className="item-emoji">
-                    {item.type === 'seed' ? '🌱' : '📦'}
-                  </span>
-                  <div className="item-info">
-                    <div className="item-name">{item.name}</div>
-                  </div>
+          <div className="inventory-section">
+  <h3 className="section-title">
+    <span className="title-icon">🎒</span> Инвентарь ({user.game_data?.inventory?.length || 0})
+  </h3>
+  
+  {(!user.game_data?.inventory || user.game_data.inventory.length === 0) ? (
+    <div className="empty-inventory">
+      <p>Инвентарь пуст. Купите что-нибудь в магазине!</p>
+    </div>
+  ) : (
+    <div className="inventory-grid-square">
+      {(() => {
+        // Группируем предметы по типу и plantId
+        const groupedItems = {};
+        user.game_data.inventory.forEach(item => {
+          const key = `${item.type}_${item.plantId || item.name}`;
+          if (!groupedItems[key]) {
+            groupedItems[key] = {
+              ...item,
+              count: 0
+            };
+          }
+          groupedItems[key].count += (item.count || 1);
+        });
+
+        return Object.values(groupedItems).map((item, index) => (
+          <div key={index} className="inventory-card-square">
+            <div className="inventory-square-top">
+              <div className="inventory-emoji">
+                {item.type === 'seed' ? '🌱' : '🛠️'}
+              </div>
+              {item.count > 1 && (
+                <div className="inventory-count-badge">
+                  ×{item.count}
                 </div>
-              ))}
-              {user.game_data.inventory.length > 3 && (
-                <p className="more-items">...и еще {user.game_data.inventory.length - 3} предметов</p>
               )}
             </div>
-          </section>
+            
+            <div className="inventory-square-info">
+              <div className="inventory-name">{item.name}</div>
+              <div className="inventory-type">{item.type === 'seed' ? 'Семена' : 'Инструмент'}</div>
+              {item.price && (
+                <div className="inventory-price">
+                  <span className="price-icon">💰</span>
+                  <span>{item.price}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        ));
+      })()}
+    </div>
+  )}
+</div>
         )}
       </div>
     </div>

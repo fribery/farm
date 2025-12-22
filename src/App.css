@@ -628,3 +628,196 @@
     justify-content: center;
   }
 }
+
+/* ===== КОМПАКТНЫЙ HEADER ===== */
+.header-compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #2E7D32, #4CAF50);
+  color: white;
+  border-radius: 0 0 20px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.header-left {
+  flex: 1;
+}
+
+.app-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.header-stats {
+  display: flex;
+  gap: 15px;
+  flex: 2;
+  justify-content: center;
+}
+
+.stat-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 8px 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  transition: all 0.2s ease;
+}
+
+.stat-compact:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 1.2rem;
+}
+
+.stat-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* ===== ИНВЕНТАРЬ В ПРОФИЛЕ (КВАДРАТИКИ) ===== */
+.inventory-section {
+  margin-top: 25px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 20px;
+}
+
+.inventory-grid-square {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.inventory-card-square {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  border: 2px solid #e9ecef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.3s ease;
+  min-height: 140px;
+}
+
+.inventory-card-square:hover {
+  transform: translateY(-3px);
+  border-color: #4CAF50;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.inventory-square-top {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.inventory-emoji {
+  font-size: 2.5rem;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 15px;
+  margin: 0 auto;
+}
+
+.inventory-count-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff9800;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 20px;
+  border: 2px solid white;
+}
+
+.inventory-square-info {
+  flex: 1;
+  width: 100%;
+}
+
+.inventory-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 5px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inventory-type {
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 8px;
+  padding: 3px 10px;
+  background: #e9ecef;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+.inventory-price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.price-icon {
+  font-size: 0.9rem;
+}
+
+.empty-inventory {
+  text-align: center;
+  padding: 30px;
+  color: #6c757d;
+  font-style: italic;
+  background: white;
+  border-radius: 15px;
+  border: 2px dashed #dee2e6;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .header-compact {
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+  }
+  
+  .header-stats {
+    width: 100%;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .stat-compact {
+    flex: 1;
+    justify-content: center;
+    padding: 8px 10px;
+  }
+  
+  .inventory-grid-square {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}
