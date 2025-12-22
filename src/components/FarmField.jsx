@@ -158,36 +158,6 @@ export default function FarmField({ user, updateGameData }) {
   return (
   <div className="farm-section">
     <h2>🌾 Ваши поля</h2>
-    
-    {/* Статистика */}
-    <div className="stats-grid-compact">
-      <div className="stat-item-compact">
-        <span className="stat-icon">💰</span>
-        <div className="stat-content">
-          <div className="stat-label-small">Баланс</div>
-          <div className="stat-value">{user.game_data?.money || 0}</div>
-        </div>
-      </div>
-      <div className="stat-item-compact">
-        <span className="stat-icon">🌱</span>
-        <div className="stat-content">
-          <div className="stat-label-small">Слоты</div>
-          <div className="stat-value">
-            {fields.filter(f => !f.harvested).length}/5
-            {fields.filter(f => !f.harvested).length >= 5 && (
-              <span style={{ fontSize: '0.7rem', color: '#f44336', marginLeft: '5px' }}>заполнено</span>
-            )}
-          </div>
-        </div>
-      </div>
-      <div className="stat-item-compact">
-        <span className="stat-icon">⭐</span>
-        <div className="stat-content">
-          <div className="stat-label-small">Уровень</div>
-          <div className="stat-value">{user.game_data?.level || 1}</div>
-        </div>
-      </div>
-    </div>
 
     {/* Поля фермы */}
     <div className="fields-container">
