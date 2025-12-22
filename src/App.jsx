@@ -9,56 +9,68 @@ import {
 import './App.css'
 
 function App() {
-  const [activeScreen, setActiveScreen] = useState('farm')
-  const [user, setUser] = useState({
-    game_data: {
-      money: 740,
-      level: 1,
-      xp: 390,
-      inventory: [],
-      farm: []
-    }
-  })
-
-const updateGameData = (newGameData) => {
-  console.log('💾 СОХРАНЕНИЕ ДАННЫХ:', newGameData)
-  
-  // Обновляем состояние
-  setUser(prev => {
-    const updated = { ...prev.game_data, ...newGameData }
-    
-    // Сохраняем в localStorage СРАЗУ
+  // 1. Загружаем данные из localStorage при создании
+  const [user, setUser] = useState(() => {
     try {
-      localStorage.setItem('farm_game_data', JSON.stringify(updated))
-      console.log('✅ Успешно сохранено в localStorage')
+      const saved = localStorage.getItem('farm_game_data')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        console.log('📂 Загружено из localStorage:', parsed)
+        return { game_data: parsed }
+      }
     } catch (e) {
-      console.error('❌ Ошибка сохранения в localStorage:', e)
+      console.error('Ошибка загрузки:', e)
     }
     
-    return { game_data: updated }
+    // Стартовые данные
+    return {
+      game_data: {
+        money: 740,
+        level: 1,
+        xp: 390,
+        inventory: [],
+        farm: []
+      }
+    }
   })
-}
+  
+  const [activeScreen, setActiveScreen] = useState('farm')
 
-// Упрощенный useEffect только для Telegram
-useEffect(() => {
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp
+  // 2. ПРОСТАЯ функция сохранения
+  const updateGameData = (newGameData) => {
+    console.log('💾 Сохраняем:', newGameData)
     
-    tg.ready()
-    setTimeout(() => {
-      tg.expand()
-      tg.disableVerticalSwipes()
-      tg.setHeaderColor('#4CAF50')
-      tg.MainButton.hide()
-      tg.BackButton.hide()
-      console.log('🎮 Telegram настроен')
-    }, 100)
+    setUser(prev => {
+      const updated = { ...prev.game_data, ...newGameData }
+      
+      // ВСЕГДА сохраняем в localStorage
+      localStorage.setItem('farm_game_data', JSON.stringify(updated))
+      console.log('✅ Сохранено в localStorage')
+      
+      return { game_data: updated }
+    })
   }
-}, [])
+
+  // 3. ПРОСТАЯ инициализация Telegram
+  useEffect(() => {
+    if (window.Telegram?.WebApp) {
+      const tg = window.Telegram.WebApp
+      tg.ready()
+      
+      // Минимальные настройки
+      setTimeout(() => {
+        tg.expand()
+        tg.disableVerticalSwipes()
+        tg.setHeaderColor('#4CAF50')
+        tg.MainButton.hide()
+        console.log('🎮 Telegram готов')
+      }, 100)
+    }
+  }, [])
 
   return (
     <div className="app">
-      {/* Наша зелёная шапка */}
+      {/* Шапка */}
       <div className="header-compact-vertical">
         <div className="header-top-row">
           <div className="header-logo-small">
@@ -116,7 +128,7 @@ useEffect(() => {
         </button>
       </div>
 
-      {/* Основной контент */}
+      {/* Контент */}
       <main className="main-content">
         {activeScreen === 'farm' && (
           <FarmField user={user} updateGameData={updateGameData} />
