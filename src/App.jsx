@@ -25,26 +25,26 @@ function App() {
     if (window.Telegram?.WebApp) {
       const tg = window.Telegram.WebApp
       tg.ready()
-      tg.expand()
-      tg.disableVerticalSwipes() // Ключевая команда для отключения нативной панели
-      tg.setHeaderColor('#4CAF50') // Меняем цвет на зелёный
-      tg.MainButton.hide()
-      tg.BackButton.hide()
       
-      console.log('Telegram WebApp инициализирован, нативная панель отключена')
-      
-      // Дополнительный фикс на случай, если Telegram проигнорировал настройки
+      // Небольшая задержка перед expand, чтобы интерфейс успел загрузиться
       setTimeout(() => {
-        document.querySelectorAll('div, header, section').forEach(el => {
-          const text = el.textContent || ''
-          if (text.includes('Ваша ферма') && 
-              (text.includes('740') || text.includes('390') || text.includes('Ур.'))) {
-            el.style.display = 'none'
-            el.style.visibility = 'hidden'
-            el.style.height = '0'
+        tg.expand()
+        tg.disableVerticalSwipes() // Ключевая команда для отключения нативной панели
+        tg.setHeaderColor('#4CAF50')
+        tg.MainButton.hide()
+        tg.BackButton.hide()
+        
+        console.log('Telegram WebApp инициализирован, нативная панель отключена')
+        
+        // Дополнительно: принудительно корректируем размер контейнера
+        setTimeout(() => {
+          const appContainer = document.querySelector('.app')
+          if (appContainer) {
+            appContainer.style.minHeight = '100vh'
+            appContainer.style.paddingBottom = '70px' // Место для навигации
           }
-        })
-      }, 300)
+        }, 100)
+      }, 50)
     }
   }, [])
 
