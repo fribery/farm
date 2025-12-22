@@ -1,59 +1,19 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Проверяем переменные окружения с дефолтными значениями для разработки
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://sqiszyeauncebbxdsavq.supabase.co'
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNxaXN6eWVhdW5jZWJieGRzYXZxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjYzNDAxNzAsImV4cCI6MjA4MTkxNjE3MH0.ESSYsrnx1FIPzU1Ss_w_L723MaEjk8-ADkVst9MX9KA'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+console.log('Supabase URL:', supabaseUrl ? 'Установлен' : 'Не установлен')
+console.log('Supabase Key:', supabaseAnonKey ? 'Установлен' : 'Не установлен')
 
-// Функция для проверки данных Telegram
-export async function verifyTelegramData(initData) {
-  const encoder = new TextEncoder()
-  
-  // Извлекаем хеш из initData
-  const initDataParams = new URLSearchParams(initData)
-  const hash = initDataParams.get('hash')
-  initDataParams.delete('hash')
-  
-  // Сортируем параметры
-  const sortedParams = Array.from(initDataParams.entries())
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([key, value]) => `${key}=${value}`)
-    .join('\n')
-  
-  // Создаем секретный ключ
-  const secretKey = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode('WebAppData'),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  )
-  
-  // Вычисляем хеш
-  const secret = await crypto.subtle.sign(
-    'HMAC',
-    secretKey,
-    encoder.encode(import.meta.env.VITE_TELEGRAM_BOT_TOKEN)
-  )
-  
-  const dataKey = await crypto.subtle.importKey(
-    'raw',
-    secret,
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign']
-  )
-  
-  const dataHash = await crypto.subtle.sign(
-    'HMAC',
-    dataKey,
-    encoder.encode(sortedParams)
-  )
-  
-  // Сравниваем хеши
-  const calculatedHash = Array.from(new Uint8Array(dataHash))
-    .map(b => b.toString(16).padStart(2, '0'))
-    .join('')
-  
-  return calculatedHash === hash
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('⚠️ Supabase переменные окружения не установлены!')
 }
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+})
