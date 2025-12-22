@@ -20,40 +20,60 @@ function App() {
     }
   })
 
- useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const tg = window.Telegram.WebApp
-      tg.ready()
-      
-      // Загружаем сохранённые данные
-      tg.CloudStorage.getItem('user_game_data', (error, savedData) => {
-        if (!error && savedData) {
-          try {
-            const parsedData = JSON.parse(savedData)
-            setUser(prev => ({
-              ...prev,
-              game_data: { ...prev.game_data, ...parsedData }
-            }))
-          } catch (e) {
-            console.error('Ошибка парсинга:', e)
-          }
+useEffect(() => {
+  if (window.Telegram?.WebApp) {
+    const tg = window.Telegram.WebApp
+    tg.ready()
+    
+    console.log('Telegram WebApp CloudStorage доступен:', !!tg.CloudStorage)
+    
+    // 1. СНАЧАЛА загружаем сохранённые данные
+    tg.CloudStorage.getItem('user_game_data', (error, savedData) => {
+      if (!error && savedData) {
+        try {
+          const parsedData = JSON.parse(savedData)
+          console.log('✅ Загружены сохранённые данные из CloudStorage:', parsedData)
+          
+          // Обновляем состояние с загруженными данными
+          setUser(prev => ({
+            ...prev,
+            game_data: { 
+              ...prev.game_data, 
+              ...parsedData,
+              // Сохраняем важные поля, которые могут отсутствовать в сохранённых данных
+              inventory: parsedData.inventory || prev.game_data.inventory,
+              farm: parsedData.farm || prev.game_data.farm,
+              money: parsedData.money !== undefined ? parsedData.money : prev.game_data.money,
+              level: parsedData.level !== undefined ? parsedData.level : prev.game_data.level,
+              xp: parsedData.xp !== undefined ? parsedData.xp : prev.game_data.xp
+            }
+          }))
+        } catch (e) {
+          console.error('❌ Ошибка парсинга сохранённых данных:', e)
         }
-        
-        // ВСЁ загружено, можно показывать приложение
-        setIsLoading(false)
-        
-        // Теперь настройки Telegram
+      } else {
+        if (error) {
+          console.error('❌ Ошибка загрузки из CloudStorage:', error)
+        } else {
+          console.log('ℹ️ Нет сохранённых данных в CloudStorage, используем начальные')
+        }
+      }
+      
+      // 2. ТОЛЬКО ПОСЛЕ загрузки данных настраиваем интерфейс
+      setTimeout(() => {
         tg.expand()
         tg.disableVerticalSwipes()
         tg.setHeaderColor('#4CAF50')
         tg.MainButton.hide()
         tg.BackButton.hide()
-      })
-    } else {
-      // Режим разработки (вне Telegram)
-      setIsLoading(false)
-    }
-  }, [])
+        
+        console.log('🎮 Telegram WebApp настроен')
+      }, 100)
+    })
+  } else {
+    console.log('🔧 Режим разработки (вне Telegram)')
+  }
+}, [])  
 
     const updateGameData = (newGameData) => {
       setUser(prev => ({
