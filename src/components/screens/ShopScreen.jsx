@@ -57,3 +57,37 @@ export default function ShopScreen({ user, updateGameData }) {
   </div>
 )}
 }
+
+{/* Дополнительные слоты фермы */}
+<section className="shop-section">
+  <h3>🏗️ Улучшения фермы</h3>
+  <div className="items-grid">
+    <div className="shop-item">
+      <div className="item-emoji">➕</div>
+      <div className="item-info">
+        <h4>Дополнительный слот</h4>
+        <div className="item-stats">
+          <div className="stat">
+            <span>Цена:</span>
+            <strong>500💰</strong>
+          </div>
+          <div className="stat">
+            <span>Текущие слоты:</span>
+            <span>5/5</span>
+          </div>
+          <div className="stat">
+            <span>Новые слоты:</span>
+            <span>+3 слота</span>
+          </div>
+        </div>
+      </div>
+      <button
+        onClick={() => alert('Функция в разработке')}
+        disabled={user.game_data.money < 500}
+        className={`buy-btn ${user.game_data.money >= 500 ? '' : 'disabled'}`}
+      >
+        Купить за 500💰
+      </button>
+    </div>
+  </div>
+</section>

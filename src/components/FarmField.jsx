@@ -8,37 +8,58 @@ export default function FarmField({ user, updateGameData }) {
 
   // Посадка растения из инвентаря
   const plantSeed = (plantId, plantName) => {
-    const plant = GAME_CONFIG.plants.find(p => p.id === plantId)
-    if (!plant) return
-
-    const newField = {
-      id: Date.now(),
-      plantId,
-      name: plantName,
-      plantedAt: Date.now(),
-      growthTime: plant.growthTime,
-      isReady: false,
-      harvested: false
-    }
-
-    const newFields = [...fields, newField]
-    setFields(newFields)
-
-    const newGameData = {
-      ...user.game_data,
-      farm: newFields,
-      inventory: user.game_data.inventory?.filter(item => 
-        !(item.type === 'seed' && item.plantId === plantId && item.count > 0)
-      ).map(item => {
-        if (item.type === 'seed' && item.plantId === plantId) {
-          return { ...item, count: Math.max(0, (item.count || 1) - 1) }
-        }
-        return item
-      }).filter(item => !(item.type === 'seed' && (item.count || 0) <= 0))
-    }
-
-    updateGameData(newGameData)
+  // Проверяем свободные слоты
+  if (fields.filter(f => !f.harvested).length >= 5) {
+    alert('Все слоты фермы заняты! Освободите место или купите дополнительные слоты.')
+    return
   }
+
+  const plant = GAME_CONFIG.plants.find(p => p.id === plantId)
+  if (!plant) return
+
+  // Находим первую доступную группу семян
+  const seedItemIndex = user.game_data.inventory?.findIndex(
+    item => item.type === 'seed' && item.plantId === plantId && (item.count || 0) > 0
+  )
+
+  if (seedItemIndex === -1 || (user.game_data.inventory[seedItemIndex].count || 0) <= 0) {
+    alert('Семян не осталось!')
+    return
+  }
+
+  const newField = {
+    id: Date.now(), // Уникальный ID для каждого растения
+    plantId,
+    name: plantName,
+    plantedAt: Date.now(),
+    growthTime: plant.growthTime,
+    isReady: false,
+    harvested: false
+  }
+
+  const newFields = [...fields, newField]
+  setFields(newFields)
+
+  // Уменьшаем количество семян
+  const newInventory = [...(user.game_data.inventory || [])]
+  newInventory[seedItemIndex] = {
+    ...newInventory[seedItemIndex],
+    count: Math.max(0, (newInventory[seedItemIndex].count || 1) - 1)
+  }
+
+  // Удаляем записи с нулевым количеством
+  const filteredInventory = newInventory.filter(item => 
+    !(item.type === 'seed' && (item.count || 0) <= 0)
+  )
+
+  const newGameData = {
+    ...user.game_data,
+    farm: newFields,
+    inventory: filteredInventory
+  }
+
+  updateGameData(newGameData)
+}
 
   // Сбор урожая
   const harvestField = (fieldId) => {
@@ -139,30 +160,35 @@ export default function FarmField({ user, updateGameData }) {
       <h2>🌾 Ваши поля</h2>
       
       {/* Статистика */}
-      <div className="stats-grid-compact">
-        <div className="stat-item-compact">
-          <span className="stat-icon">💰</span>
-          <div className="stat-content">
-            <div className="stat-label-small">Баланс</div>
-            <div className="stat-value">{user.game_data?.money || 0}</div>
-          </div>
-        </div>
-        <div className="stat-item-compact">
-          <span className="stat-icon">⭐</span>
-          <div className="stat-content">
-            <div className="stat-label-small">Опыт</div>
-            <div className="stat-value">{user.game_data?.experience || 0}</div>
-          </div>
-        </div>
-        <div className="stat-item-compact">
-          <span className="stat-icon">📈</span>
-          <div className="stat-content">
-            <div className="stat-label-small">Уровень</div>
-            <div className="stat-value">{user.game_data?.level || 1}</div>
-          </div>
-        </div>
+<div className="stats-grid-compact">
+  <div className="stat-item-compact">
+    <span className="stat-icon">💰</span>
+    <div className="stat-content">
+      <div className="stat-label-small">Баланс</div>
+      <div className="stat-value">{user.game_data?.money || 0}</div>
+    </div>
+  </div>
+  <div className="stat-item-compact">
+    <span className="stat-icon">🌱</span>
+    <div className="stat-content">
+      <div className="stat-label-small">Слоты</div>
+      <div className="stat-value">
+        {fields.filter(f => !f.harvested).length}/5
+        {fields.filter(f => !f.harvested).length >= 5 && (
+          <span style={{ fontSize: '0.7rem', color: '#f44336', marginLeft: '5px' }}>заполнено</span>
+        )}
       </div>
-      </div>
+    </div>
+  </div>
+  <div className="stat-item-compact">
+    <span className="stat-icon">⭐</span>
+    <div className="stat-content">
+      <div className="stat-label-small">Уровень</div>
+      <div className="stat-value">{user.game_data?.level || 1}</div>
+    </div>
+  </div>
+</div>
+    </div>
   )
 
       {/* Поля фермы */}

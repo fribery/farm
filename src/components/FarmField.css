@@ -447,3 +447,205 @@
     justify-content: center;
   }
 }
+
+/* Квадратные карточки семян */
+.seeds-grid-square {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 15px;
+}
+
+.seed-card-square {
+  background: white;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+  border: 2px solid #f0f0f0;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-height: 180px;
+}
+
+.seed-card-square:hover:not(.disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+  border-color: #4CAF50;
+}
+
+.seed-card-square.disabled {
+  opacity: 0.6;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+}
+
+.seed-square-top {
+  position: relative;
+  margin-bottom: 10px;
+}
+
+.seed-square-emoji {
+  font-size: 3rem;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 15px;
+  margin: 0 auto;
+}
+
+.seed-count-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #4CAF50;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 20px;
+  border: 2px solid white;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.seed-square-info {
+  flex: 1;
+  width: 100%;
+}
+
+.seed-square-name {
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seed-square-details {
+  display: flex;
+  justify-content: space-around;
+  margin-bottom: 15px;
+}
+
+.seed-detail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.detail-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.plant-btn-square {
+  width: 100%;
+  padding: 10px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.plant-btn-square:hover:not(.disabled) {
+  background: #3d8b40;
+  transform: scale(1.05);
+}
+
+.plant-btn-square.disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+/* Сообщение о заполненных слотах */
+.slots-full-message {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 15px;
+  background: #fff3e0;
+  border-radius: 10px;
+  border-left: 4px solid #ff9800;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #e65100;
+}
+
+.warning-icon {
+  font-size: 1.2rem;
+}
+
+/* Прогресс слотов */
+.slots-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.slots-bar {
+  flex: 1;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.slots-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Магазин - отображение количества */
+.shop-item-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #e8f5e9;
+  padding: 4px 10px;
+  border-radius: 15px;
+  font-size: 0.85rem;
+  color: #2e7d32;
+  margin-bottom: 10px;
+}
+
+/* Адаптивность квадратных карточек */
+@media (max-width: 768px) {
+  .seeds-grid-square {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 12px;
+  }
+  
+  .seed-card-square {
+    padding: 12px;
+    min-height: 160px;
+  }
+  
+  .seed-square-emoji {
+    font-size: 2.5rem;
+    width: 60px;
+    height: 60px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seeds-grid-square {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
