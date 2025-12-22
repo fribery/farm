@@ -21,38 +21,71 @@ function App() {
   })
 
   // Инициализация Telegram WebApp и отключение нативной панели
-  useEffect(() => {
-  if (window.Telegram?.WebApp) {
-    const tg = window.Telegram.WebApp
-    tg.ready()
-    
-    setTimeout(() => {
-      tg.expand()
-      tg.disableVerticalSwipes()
-      tg.setHeaderColor('#4CAF50')
-      tg.MainButton.hide()
-      tg.BackButton.hide()
-      
-      console.log('Telegram WebApp инициализирован')
-      
-      // Фикс для навигации
-      setTimeout(() => {
-        const nav = document.querySelector('.nav-container')
-        if (nav) {
-          nav.style.position = 'fixed'
-          nav.style.bottom = '0'
-        }
-      }, 200)
-    }, 100)
-  }
-}, [])
+    useEffect(() => {
+      if (window.Telegram?.WebApp) {
+        const tg = window.Telegram.WebApp
+        tg.ready()
 
-  const updateGameData = (newGameData) => {
-    setUser(prev => ({
-      ...prev,
-      game_data: { ...prev.game_data, ...newGameData }
-    }))
-  }
+        tg.CloudStorage.getItem('user_game_data', (error, savedData) => {
+          if (!error && savedData) {
+          try {
+          const parsedData = JSON.parse(savedData)
+          console.log('Загружены сохранённые данные:', parsedData)
+          
+          setUser(prev => ({
+            ...prev,
+            game_data: { ...prev.game_data, ...parsedData }
+          }))
+              } catch (e) {
+                console.error('Ошибка парсинга сохранённых данных:', e)
+              }
+            } else {
+              console.log('Нет сохранённых данных, используем начальные')
+            }
+          })
+        
+        setTimeout(() => {
+          tg.expand()
+          tg.disableVerticalSwipes()
+          tg.setHeaderColor('#4CAF50')
+          tg.MainButton.hide()
+          tg.BackButton.hide()
+          
+          console.log('Telegram WebApp инициализирован')
+          
+          // Фикс для навигации
+          setTimeout(() => {
+            const nav = document.querySelector('.nav-container')
+            if (nav) {
+              nav.style.position = 'fixed'
+              nav.style.bottom = '0'
+            }
+          }, 200)
+        }, 100)
+      }
+    }, [])
+
+    const updateGameData = (newGameData) => {
+      setUser(prev => ({
+        ...prev,
+        game_data: { ...prev.game_data, ...newGameData }
+      }))
+
+      // КРИТИЧЕСКИ ВАЖНО: сохраняем в Telegram Cloud
+      if (window.Telegram?.WebApp) {
+        window.Telegram.WebApp.CloudStorage.setItem(
+          'user_game_data',
+          JSON.stringify(newGameData),
+          (error) => {
+            if (error) {
+              console.error('Ошибка сохранения в CloudStorage:', error)
+            } else {
+              console.log('Данные сохранены в CloudStorage')
+            }
+          }
+        )
+      }
+    }
 
   return (
     <div className="app">
