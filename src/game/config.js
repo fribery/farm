@@ -17,6 +17,8 @@ export const GAME_CONFIG = {
     { level: 5, expRequired: 1000, energyMax: 300 }
   ],
   
+
+  
   // Растения
   plants: [
     { id: 1, name: '🌾 Пшеница', price: 10, growthTime: 30, yield: 15, exp: 5 },
