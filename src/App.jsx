@@ -1,17 +1,48 @@
 import { useState } from 'react'
 import { useTelegram } from './hooks/useTelegram'
 import Navigation from './components/Navigation.jsx'
-import FarmScreen from './components/screens/FarmScreen.jsx'
-import ShopScreen from './components/screens/ShopScreen.jsx'
-import StatsScreen from './components/screens/StatsScreen.jsx'
-import ProfileScreen from './components/screens/ProfileScreen.jsx'
-// import { 
-//   FarmScreen, 
-//   ShopScreen, 
-//   StatsScreen, 
-//   ProfileScreen 
-// } from '/src/components/screens/index.js'
-// import './App.css'
+// import FarmScreen from '@screens/FarmScreen.jsx'
+// import ShopScreen from '@screens/ShopScreen.jsx'
+// import StatsScreen from '@screens/StatsScreen.jsx'
+// import ProfileScreen from '@screens/ProfileScreen.jsx'
+import { 
+  FarmScreen, 
+  ShopScreen, 
+  StatsScreen, 
+  ProfileScreen 
+} from '/src/components/screens/index.js'
+import './App.css'
+
+
+// // Добавьте перед функцией App эти компоненты:
+// const FarmScreen = ({ user, updateGameData }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>🌾 Ферма</h2>
+//     <p>Экран фермы</p>
+//   </div>
+// )
+
+// const ShopScreen = ({ user, updateGameData }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>🏪 Магазин</h2>
+//     <p>Экран магазина</p>
+//   </div>
+// )
+
+// const StatsScreen = ({ user }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>📊 Статистика</h2>
+//     <p>Экран статистики</p>
+//   </div>
+// )
+
+// const ProfileScreen = ({ user, usingSupabase }) => (
+//   <div style={{ padding: '20px' }}>
+//     <h2>👤 Профиль</h2>
+//     <p>Экран профиля</p>
+//   </div>
+// )
+
 
 function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
