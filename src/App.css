@@ -668,15 +668,6 @@
   flex-wrap: wrap;
 }
 
-/* Контейнер статистики */
-.stats-container {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
-}
-
 .stats-container h3 {
   color: #2c3e50;
   margin-top: 0;
