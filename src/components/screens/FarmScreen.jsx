@@ -26,3 +26,4 @@ export default function FarmScreen({ user, updateGameData }) {
     </div>
   )
 }
+
