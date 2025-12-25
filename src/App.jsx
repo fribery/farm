@@ -47,6 +47,7 @@ import './App.css'
 function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
   const [activeScreen, setActiveScreen] = useState('farm')
+  const [selectedTab, setSelectedTab] = useState('farm')
 
   if (loading) {
     return (
@@ -95,26 +96,42 @@ function App() {
 
   return (
     <div className="App">
-<div className="header-compact">
-    <div className="header-left">
-      <h1 className="app-title">🚜 FARM</h1>
-    </div>
-    
-    <div className="header-stats">
-      <div className="stat-compact">
-        <span className="stat-icon">💰</span>
-        <span className="stat-value">{user.game_data?.money || 0}</span>
-      </div>
-      <div className="stat-compact">
-        <span className="stat-icon">🌱</span>
-        <span className="stat-value">Ур. {user.game_data?.level || 1}</span>
-      </div>
-      <div className="stat-compact">
-        <span className="stat-icon">⭐</span>
-        <span className="stat-value">{user.game_data?.xp || 0} опыта</span>
-      </div>
-    </div>
-  </div>
+      <header className="app-header">
+        <div className="header-content">
+          <div className="header-top">
+            <div className="app-logo">
+              <span className="tractor-icon">🚜</span>
+              <span className="app-name">Farm</span>
+            </div>
+          </div>
+          
+          <div className="stats-container">
+            <div className="stat-item money">
+              <div className="stat-icon">💰</div>
+              <div className="stat-details">
+                <div className="stat-value">920</div>
+                <div className="stat-label">Деньги</div>
+              </div>
+            </div>
+            
+            <div className="stat-item level">
+              <div className="stat-icon">🏆</div>
+              <div className="stat-details">
+                <div className="stat-value">1</div>
+                <div className="stat-label">Уровень</div>
+              </div>
+            </div>
+            
+            <div className="stat-item exp">
+              <div className="stat-icon">⭐</div>
+              <div className="stat-details">
+                <div className="stat-value">0</div>
+                <div className="stat-label">Опыт</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
 
   
       <main className="app-main">
