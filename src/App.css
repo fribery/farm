@@ -116,12 +116,8 @@
 }
 
 @keyframes tractor-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 /* АДАПТИВНОСТЬ */
@@ -129,35 +125,35 @@
   .app-header {
     padding: 10px 12px !important;
   }
-  
+
   .tractor-icon {
     font-size: 24px;
   }
-  
+
   .app-name {
     font-size: 20px;
   }
-  
+
   .stats-container {
     gap: 6px;
   }
-  
+
   .stat-item {
     padding: 8px;
     gap: 8px;
     min-height: 55px;
   }
-  
+
   .stat-icon {
     font-size: 18px;
     width: 32px;
     height: 32px;
   }
-  
+
   .stat-value {
     font-size: 16px;
   }
-  
+
   .stat-label {
     font-size: 10px;
   }
@@ -258,6 +254,7 @@
     transform: scale(0, 0);
     opacity: 0.5;
   }
+
   100% {
     transform: scale(40, 40);
     opacity: 0;
@@ -446,9 +443,12 @@
 }
 
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-15px);
   }
@@ -569,39 +569,39 @@
   .app-main {
     padding: 15px;
   }
-  
+
   .welcome-card,
   .farm-container {
     padding: 20px;
   }
-  
+
   .btn {
     padding: 12px 20px;
     font-size: 0.95rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
   }
-  
+
   .achievements-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .unauthorized-screen {
     padding: 40px 20px;
   }
-  
+
   .unauthorized-screen h2 {
     font-size: 1.8rem;
   }
-  
+
   .instruction-step {
     flex-direction: column;
     gap: 10px;
   }
-  
+
   .step-number {
     width: 35px;
     height: 35px;
@@ -614,11 +614,11 @@
     flex-direction: column;
     gap: 8px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
@@ -645,8 +645,13 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Группа кнопок действий */
@@ -703,7 +708,7 @@
   .action-buttons {
     flex-direction: column;
   }
-  
+
   .btn {
     width: 100%;
     justify-content: center;
@@ -885,19 +890,19 @@
     gap: 10px;
     padding: 15px;
   }
-  
+
   .header-stats {
     width: 100%;
     justify-content: space-between;
     gap: 10px;
   }
-  
+
   .stat-compact {
     flex: 1;
     justify-content: center;
     padding: 8px 10px;
   }
-  
+
   .inventory-grid-square {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
