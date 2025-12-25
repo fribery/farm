@@ -4,42 +4,167 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
-/* Хедер приложения */
+/* ===== ОБНОВЛЕННАЯ ШАПКА ===== */
 .app-header {
-  padding: 20px 25px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
+  color: white !important;
+  padding: 12px 16px 16px !important;
   position: relative;
-  overflow: hidden;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+  text-align: left !important;
 }
 
-.app-header::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
-  opacity: 0.1;
-}
-
+/* Убираем старый заголовок */
 .app-header h1 {
-  font-size: 2.2rem;
-  margin: 0;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  position: relative;
-  z-index: 1;
-  display: inline-block;
+  display: none !important;
 }
 
-.app-header h1::after {
-  content: '🌾';
-  margin-left: 10px;
-  font-size: 1.8rem;
-  vertical-align: middle;
+/* Контейнер для новой шапки */
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Логотип с трактором */
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.tractor-icon {
+  font-size: 28px;
+  animation: tractor-bounce 2s infinite;
+}
+
+.app-name {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Уменьшаем подложку под квадратиками */
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Карточки статистики - делаем компактнее */
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+  min-height: 60px;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.stat-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 2px;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Цвета иконок */
+.stat-item.money .stat-icon {
+  background: rgba(255, 193, 7, 0.3);
+  color: #FFC107;
+}
+
+.stat-item.level .stat-icon {
+  background: rgba(33, 150, 243, 0.3);
+  color: #2196F3;
+}
+
+.stat-item.exp .stat-icon {
+  background: rgba(156, 39, 176, 0.3);
+  color: #9C27B0;
+}
+
+@keyframes tractor-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 10px 14px 14px !important;
+  }
+  
+  .tractor-icon {
+    font-size: 24px;
+  }
+  
+  .app-name {
+    font-size: 20px;
+  }
+  
+  .stats-container {
+    padding: 10px;
+    gap: 6px;
+  }
+  
+  .stat-item {
+    padding: 6px 3px;
+    min-height: 55px;
+  }
+  
+  .stat-icon {
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
 }
 
 .header-user-info {
@@ -820,4 +945,241 @@
   .inventory-grid-square {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
+}
+
+/* ====== НОВАЯ ШАПКА FARM ====== */
+
+.app-header {
+  padding: 16px 20px 20px !important;
+  text-align: left !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-content {
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.header-top {
+  margin-bottom: 16px;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tractor-icon {
+  font-size: 32px;
+  animation: tractor-float 3s ease-in-out infinite;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.app-name {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.5px;
+}
+
+/* Скрываем старый заголовок */
+.app-header h1 {
+  display: none !important;
+}
+
+/* Контейнер статистики */
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* Карточки статистики */
+.stat-item {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 14px;
+  padding: 14px 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-item:active {
+  transform: translateY(-1px);
+}
+
+/* Иконки */
+.stat-icon {
+  font-size: 26px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-icon {
+  transform: scale(1.1);
+}
+
+/* Детали */
+.stat-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 6px;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.stat-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  opacity: 0.95;
+  letter-spacing: 0.3px;
+}
+
+/* Цвета для карточек */
+.stat-item.money .stat-icon {
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.35), rgba(255, 152, 0, 0.25));
+  color: #FFC107;
+}
+
+.stat-item.level .stat-icon {
+  background: linear-gradient(135deg, rgba(33, 150, 243, 0.35), rgba(3, 169, 244, 0.25));
+  color: #2196F3;
+}
+
+.stat-item.exp .stat-icon {
+  background: linear-gradient(135deg, rgba(156, 39, 176, 0.35), rgba(103, 58, 183, 0.25));
+  color: #9C27B0;
+}
+
+/* Анимация трактора */
+@keyframes tractor-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(5deg);
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 14px 16px 18px !important;
+  }
+  
+  .tractor-icon {
+    font-size: 28px;
+  }
+  
+  .app-name {
+    font-size: 22px;
+  }
+  
+  .stats-container {
+    gap: 10px;
+  }
+  
+  .stat-item {
+    padding: 12px 10px;
+    min-height: 68px;
+    gap: 10px;
+  }
+  
+  .stat-icon {
+    font-size: 24px;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .stat-value {
+    font-size: 20px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .app-logo {
+    gap: 8px;
+  }
+  
+  .tractor-icon {
+    font-size: 24px;
+  }
+  
+  .app-name {
+    font-size: 20px;
+  }
+  
+  .stat-item {
+    padding: 10px 8px;
+    min-height: 64px;
+  }
+  
+  .stat-icon {
+    font-size: 22px;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .stat-value {
+    font-size: 18px;
+  }
+}
+
+/* Если белый текст все еще есть, добавь эти строки в конец файла */
+
+/* Гарантируем темный текст в основном контенте */
+.main-content,
+.farm-screen,
+.shop-screen,
+.profile-screen {
+  color: #333;
+}
+
+/* Исправляем карточки Bootstrap */
+.card {
+  color: #333;
+}
+
+/* Исправляем модальные окна */
+.modal-content {
+  color: #333;
 }
