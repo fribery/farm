@@ -5,7 +5,13 @@ import FarmScreen from './components/screens/FarmScreen.jsx'
 import ShopScreen from './components/screens/ShopScreen.jsx'
 import StatsScreen from './components/screens/StatsScreen.jsx'
 import ProfileScreen from './components/screens/ProfileScreen.jsx'
-
+// import { 
+//   FarmScreen, 
+//   ShopScreen, 
+//   StatsScreen, 
+//   ProfileScreen 
+// } from '/src/components/screens/index.js'
+// import './App.css'
 
 function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
