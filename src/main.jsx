@@ -12,15 +12,6 @@ root.render(
   </React.StrictMode>
 )
 
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  document.body.innerHTML = '<h1 style="color:red">Ошибка: нет элемента #root</h1>';
-} else {
-  console.log('✅ Найден #root');
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(<App />);
-}
-
 const initializeTelegramSDK = async () => {
   try {
     await init();
