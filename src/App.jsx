@@ -58,26 +58,47 @@ function App() {
 
   return (
     <div className="App">
-<div className="header-compact">
-    <div className="header-left">
-      <h1 className="app-title">🚜 FARM</h1>
-    </div>
-    
-    <div className="header-stats">
-      <div className="stat-compact">
-        <span className="stat-icon">💰</span>
-        <span className="stat-value">{user.game_data?.money || 0}</span>
+    <header className="app-header">
+      <div className="header-content">
+        <div className="app-logo">
+          <div className="app-logo">
+            <img 
+              src="/logo.png" 
+              alt="Farm Logo" 
+              className="logo-image"
+              style={{ width: '60px', height: '60px', borderRadius: '50px' }}
+            />
+            <span className="app-name">HappyFarm</span>
+          </div>
+        </div>
+        
+        <div className="stats-container">
+          <div className="stat-item money">
+            <div className="stat-icon">💰</div>
+            <div className="stat-details">
+              <div className="stat-value">{user.game_data?.money || 0}</div>
+              <div className="stat-label">Деньги</div>
+            </div>
+          </div>
+          
+          <div className="stat-item level">
+            <div className="stat-icon">🏆</div>
+            <div className="stat-details">
+              <div className="stat-value">Ур. {user.game_data?.level || 1}</div>
+              <div className="stat-label">Уровень</div>
+            </div>
+          </div>
+          
+          <div className="stat-item exp">
+            <div className="stat-icon">⭐</div>
+            <div className="stat-details">
+              <div className="stat-value">{user.game_data?.xp || 0}</div>
+              <div className="stat-label">Опыт</div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div className="stat-compact">
-        <span className="stat-icon">🌱</span>
-        <span className="stat-value">Ур. {user.game_data?.level || 1}</span>
-      </div>
-      <div className="stat-compact">
-        <span className="stat-icon">⭐</span>
-        <span className="stat-value">{user.game_data?.xp || 0} опыта</span>
-      </div>
-    </div>
-  </div>
+    </header>
 
   
       <main className="app-main">

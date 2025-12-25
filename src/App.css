@@ -4,81 +4,69 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
-/* ===== ОБНОВЛЕННАЯ ШАПКА ===== */
+/* ===== КОМПАКТНАЯ ШАПКА ===== */
 .app-header {
-  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
-  color: white !important;
-  padding: 12px 16px !important;
+  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+  padding: 8px 12px;
   position: relative;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
-  text-align: left !important;
+  box-shadow: 0 2px 8px rgba(46, 125, 50, 0.2);
 }
 
-/* Убираем старый заголовок */
-.app-header h1 {
-  display: none !important;
-}
-
-/* Контейнер для новой шапки */
 .header-content {
   max-width: 600px;
   margin: 0 auto;
 }
 
-/* Логотип с трактором */
+/* Логотип - компактный */
 .app-logo {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
+  gap: 8px;
+  margin-bottom: 8px;
+  border-radius: 25px;
 }
 
 .tractor-icon {
-  font-size: 28px;
+  font-size: 20px;
 }
 
 .app-name {
-  font-size: 22px;
+  font-size: 25px;
+  font-weight: 1500;
   font-weight: 700;
-/* ===== ЕДИНСТВЕННЫЙ БЛОК ДЛЯ ШАПКИ ===== */
-/* Хедер приложения */
-.app-header {
-  padding: 20px 25px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-/* Уменьшаем подложку под квадратиками */
+/* Статистика - компактные карточки */
 .stats-container {
   display: flex;
   justify-content: space-between;
-  gap: 8px;
+  gap: 6px;
 }
 
-/* Карточки статистики - делаем компактнее */
 .stat-item {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 60px;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  min-height: 48px;
 }
 
 .stat-icon {
-  font-size: 20px;
-  width: 36px;
-  height: 36px;
+  font-size: 16px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 6px;
   flex-shrink: 0;
 }
 
@@ -88,88 +76,124 @@
 }
 
 .stat-value {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 700;
   color: white;
   line-height: 1.2;
-  margin-bottom: 2px;
+  margin-bottom: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
 }
 
 /* Цвета иконок */
 .stat-item.money .stat-icon {
-  background: rgba(255, 193, 7, 0.3);
+  background: rgba(255, 193, 7, 0.25);
   color: #FFC107;
 }
 
 .stat-item.level .stat-icon {
-  background: rgba(33, 150, 243, 0.3);
+  background: rgba(33, 150, 243, 0.25);
   color: #2196F3;
 }
 
 .stat-item.exp .stat-icon {
-  background: rgba(156, 39, 176, 0.3);
+  background: rgba(156, 39, 176, 0.25);
   color: #9C27B0;
 }
 
-@keyframes tractor-bounce {
-
-  0%,
-  100% {
-    transform: translateY(0);
+/* Адаптивность для очень маленьких экранов */
+@media (max-width: 360px) {
+  .app-header {
+    padding: 6px 10px;
   }
+  
+/* Стили для логотипа */
+.logo-icon {
+  font-size: 22px;
+  display: inline-block;
+  border-radius: 25px;
+  animation: logo-spin 10s linear infinite;
+}
 
-  50% {
-    transform: translateY(-4px);
+.logo-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 25px;
+  object-fit: contain;
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* АДАПТИВНОСТЬ */
-@media (max-width: 480px) {
-  .app-header {
-    padding: 10px 12px !important;
-  }
+/* Если хочешь только лого без текста */
+.app-logo.logo-only .app-name {
+  display: none;
+}
 
+.app-logo.logo-only .logo-icon {
+  font-size: 26px;
+}
+  
   .tractor-icon {
-    font-size: 24px;
-  }
-
-  .app-name {
-    font-size: 20px;
-  }
-
-  .stats-container {
-    gap: 6px;
-  }
-
-  .stat-item {
-    padding: 8px;
-    gap: 8px;
-    min-height: 55px;
-  }
-
-  .stat-icon {
     font-size: 18px;
-    width: 32px;
-    height: 32px;
   }
-
-  .stat-value {
+  
+  .app-name {
     font-size: 16px;
   }
-
+  
+  .stats-container {
+    gap: 4px;
+  }
+  
+  .stat-item {
+    padding: 5px 6px;
+    gap: 6px;
+    min-height: 44px;
+  }
+  
+  .stat-icon {
+    font-size: 14px;
+    width: 24px;
+    height: 24px;
+  }
+  
+  .stat-value {
+    font-size: 13px;
+  }
+  
   .stat-label {
-    font-size: 10px;
+    font-size: 9px;
   }
 }
 
+/* Для iPhone SE и подобных */
+@media (max-width: 320px) {
+  .stat-value {
+    font-size: 12px;
+  }
+  
+  .stat-label {
+    font-size: 8px;
+  }
+}
+
+/* ===== ОСТАЛЬНЫЕ СТИЛИ (без изменений) ===== */
 .header-user-info {
   margin-top: 15px;
   font-size: 0.95rem;
@@ -265,7 +289,6 @@
     transform: scale(0, 0);
     opacity: 0.5;
   }
-
   100% {
     transform: scale(40, 40);
     opacity: 0;
@@ -454,12 +477,9 @@
 }
 
 @keyframes float {
-
-  0%,
-  100% {
+  0%, 100% {
     transform: translateY(0);
   }
-
   50% {
     transform: translateY(-15px);
   }
@@ -621,11 +641,6 @@
 }
 
 @media (max-width: 480px) {
-  .header-stats {
-    flex-direction: column;
-    gap: 8px;
-  }
-
   .stats-grid {
     grid-template-columns: 1fr;
   }
@@ -659,7 +674,6 @@
   0% {
     transform: rotate(0deg);
   }
-
   100% {
     transform: rotate(360deg);
   }
@@ -671,105 +685,6 @@
   gap: 15px;
   margin-top: 25px;
   flex-wrap: wrap;
-}
-
-.stats-container h3 {
-  color: #2c3e50;
-  margin-top: 0;
-  margin-bottom: 25px;
-  font-size: 1.5rem;
-}
-
-/* Заголовок "Скоро будет" */
-.coming-soon {
-  text-align: center;
-  margin-top: 30px;
-  padding: 15px;
-  background: linear-gradient(135deg, #fdfcfb 0%, #e2d1c3 100%);
-  border-radius: 10px;
-}
-
-.coming-soon p {
-  margin: 0;
-  color: #7f8c8d;
-  font-size: 0.95rem;
-}
-
-/* Список достижений */
-.achievement-list {
-  line-height: 2;
-}
-
-/* Шаги инструкции */
-.instruction-steps {
-  margin-top: 20px;
-}
-
-/* Адаптивность для кнопок действий */
-@media (max-width: 768px) {
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* ===== КОМПАКТНЫЙ HEADER ===== */
-.header-compact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #2E7D32, #4CAF50);
-  color: white;
-  border-radius: 0 0 20px 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.header-left {
-  flex: 1;
-}
-
-.app-title {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-}
-
-.header-stats {
-  display: flex;
-  gap: 15px;
-  flex: 2;
-  justify-content: center;
-}
-
-.stat-compact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 8px 16px;
-  border-radius: 20px;
-  backdrop-filter: blur(5px);
-  transition: all 0.2s ease;
-}
-
-.stat-compact:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  font-size: 1.2rem;
-}
-
-.stat-value {
-  font-weight: 600;
-  font-size: 0.95rem;
 }
 
 /* ===== ИНВЕНТАРЬ В ПРОФИЛЕ (КВАДРАТИКИ) ===== */
@@ -887,24 +802,6 @@
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .header-compact {
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-  }
-
-  .header-stats {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
-  }
-
-  .stat-compact {
-    flex: 1;
-    justify-content: center;
-    padding: 8px 10px;
-  }
-
   .inventory-grid-square {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
@@ -926,5 +823,4 @@
 /* Исправляем модальные окна */
 .modal-content {
   color: #333;
-}
 }
