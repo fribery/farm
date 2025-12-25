@@ -1,21 +1,16 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
+import React from 'react'
 import ReactDOM from 'react-dom/client';
 import './index.css'
 import App from './App.jsx'
+import './App.css'
 //import { init, miniApp, mainButton, shareURL } from '@telegram-apps/sdk';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
-
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  document.body.innerHTML = '<h1 style="color:red">Ошибка: нет элемента #root</h1>';
-} else {
-  console.log('✅ Найден #root');
-  const root = ReactDOM.createRoot(rootElement);
-  root.render(<App />);
-}
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
 
 const initializeTelegramSDK = async () => {
   try {
@@ -66,12 +61,5 @@ const initializeTelegramSDK = async () => {
 
     
 initializeTelegramSDK();
-
-
-createRoot(document.getElementById('root')).render(
-//  <StrictMode> 
-    <App /> 
-//    </StrictMode>,
-)
 
 miniApp.setHeaderColor('#fcb69f');
