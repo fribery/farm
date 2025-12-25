@@ -5,6 +5,7 @@ import FarmScreen from './components/screens/FarmScreen.jsx'
 import ShopScreen from './components/screens/ShopScreen.jsx'
 import StatsScreen from './components/screens/StatsScreen.jsx'
 import ProfileScreen from './components/screens/ProfileScreen.jsx'
+import './App.css'
 // import { 
 //   FarmScreen, 
 //   ShopScreen, 
