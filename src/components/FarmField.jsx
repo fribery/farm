@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { GAME_CONFIG } from '../game/config'
 import './FarmField.css'
+import './App.css'
 
 export default function FarmField({ user, updateGameData }) {
   const [fields, setFields] = useState(user.game_data?.farm || [])
