@@ -41,6 +41,11 @@
 .app-name {
   font-size: 22px;
   font-weight: 700;
+/* ===== ЕДИНСТВЕННЫЙ БЛОК ДЛЯ ШАПКИ ===== */
+/* Хедер приложения */
+.app-header {
+  padding: 20px 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
