@@ -4,11 +4,55 @@
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
+/* ===== ЕДИНСТВЕННЫЙ БЛОК ДЛЯ ШАПКИ ===== */
 /* Хедер приложения */
 .app-header {
   padding: 20px 25px;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* ЕДИНСТВЕННЫЙ КОНТЕЙНЕР СТАТИСТИКИ - КОМПАКТНЫЙ */
+.stats-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(5px);
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Карточки статистики - КОМПАКТНЫЕ */
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 3px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.2s ease;
+  min-height: 55px;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.stat-icon {
+  font-size: 18px;
+  margin-bottom: 3px;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
   box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
   position: relative;
   overflow: hidden;
@@ -29,17 +73,80 @@
   font-size: 2.2rem;
   margin: 0;
   font-weight: 700;
-  letter-spacing: -0.5px;
-  position: relative;
-  z-index: 1;
-  display: inline-block;
+  color: white;
+  margin-bottom: 1px;
 }
 
-.app-header h1::after {
-  content: '🌾';
-  margin-left: 10px;
-  font-size: 1.8rem;
-  vertical-align: middle;
+.stat-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Цвета иконок */
+.stat-item.money .stat-icon {
+  background: rgba(255, 193, 7, 0.25);
+  color: #FFC107;
+}
+
+.stat-item.level .stat-icon {
+  background: rgba(33, 150, 243, 0.25);
+  color: #2196F3;
+}
+
+.stat-item.exp .stat-icon {
+  background: rgba(156, 39, 176, 0.25);
+  color: #9C27B0;
+}
+
+@keyframes tractor-bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* АДАПТИВНОСТЬ */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 10px 12px 12px !important;
+  }
+  
+  .tractor-icon {
+    font-size: 24px;
+  }
+  
+  .app-name {
+    font-size: 20px;
+  }
+  
+  .stats-container {
+    padding: 8px;
+    gap: 4px;
+  }
+  
+  .stat-item {
+    padding: 5px 2px;
+    min-height: 50px;
+  }
+  
+  .stat-icon {
+    font-size: 16px;
+    width: 26px;
+    height: 26px;
+  }
+  
+  .stat-value {
+    font-size: 14px;
+  }
+  
+  .stat-label {
+    font-size: 9px;
+  }
 }
 
 .header-user-info {
@@ -52,34 +159,6 @@
   border-radius: 12px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.header-user-info .user-name {
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 5px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.header-stats {
-  display: flex;
-  gap: 20px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-.stat-item .emoji {
-  font-size: 1.1rem;
 }
 
 /* Основной контент */
@@ -473,14 +552,6 @@
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .app-header {
-    padding: 15px 20px;
-  }
-  
-  .app-header h1 {
-    font-size: 1.8rem;
-  }
-  
   .app-main {
     padding: 15px;
   }
@@ -525,10 +596,6 @@
 }
 
 @media (max-width: 480px) {
-  .app-header h1 {
-    font-size: 1.6rem;
-  }
-  
   .header-stats {
     flex-direction: column;
     gap: 8px;
@@ -576,22 +643,6 @@
   flex-wrap: wrap;
 }
 
-/* Контейнер статистики */
-.stats-container {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
-}
-
-.stats-container h3 {
-  color: #2c3e50;
-  margin-top: 0;
-  margin-bottom: 25px;
-  font-size: 1.5rem;
-}
-
 /* Заголовок "Скоро будет" */
 .coming-soon {
   text-align: center;
@@ -627,61 +678,6 @@
     width: 100%;
     justify-content: center;
   }
-}
-
-/* ===== КОМПАКТНЫЙ HEADER ===== */
-.header-compact {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: linear-gradient(135deg, #2E7D32, #4CAF50);
-  color: white;
-  border-radius: 0 0 20px 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.header-left {
-  flex: 1;
-}
-
-.app-title {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-}
-
-.header-stats {
-  display: flex;
-  gap: 15px;
-  flex: 2;
-  justify-content: center;
-}
-
-.stat-compact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  padding: 8px 16px;
-  border-radius: 20px;
-  backdrop-filter: blur(5px);
-  transition: all 0.2s ease;
-}
-
-.stat-compact:hover {
-  background: rgba(255, 255, 255, 0.25);
-  transform: translateY(-2px);
-}
-
-.stat-icon {
-  font-size: 1.2rem;
-}
-
-.stat-value {
-  font-weight: 600;
-  font-size: 0.95rem;
 }
 
 /* ===== ИНВЕНТАРЬ В ПРОФИЛЕ (КВАДРАТИКИ) ===== */
@@ -799,25 +795,25 @@
 
 /* Адаптивность */
 @media (max-width: 768px) {
-  .header-compact {
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-  }
-  
-  .header-stats {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
-  }
-  
-  .stat-compact {
-    flex: 1;
-    justify-content: center;
-    padding: 8px 10px;
-  }
-  
   .inventory-grid-square {
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   }
+}
+
+/* Гарантируем темный текст в основном контенте */
+.main-content,
+.farm-screen,
+.shop-screen,
+.profile-screen {
+  color: #333;
+}
+
+/* Исправляем карточки Bootstrap */
+.card {
+  color: #333;
+}
+
+/* Исправляем модальные окна */
+.modal-content {
+  color: #333;
 }
