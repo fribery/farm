@@ -1,11 +1,16 @@
+import React from 'react'
 import ReactDOM from 'react-dom/client';
 import './index.css'
 import App from './App.jsx'
 import './App.css'
 //import { init, miniApp, mainButton, shareURL } from '@telegram-apps/sdk';
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+)
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -64,15 +69,6 @@ const initializeTelegramSDK = async () => {
     }
 
     
-
-
-
-createRoot(document.getElementById('root')).render(
-//  <StrictMode> 
-    <App /> 
-//    </StrictMode>,
-)
-
 initializeTelegramSDK();
 
 miniApp.setHeaderColor('#fcb69f');
