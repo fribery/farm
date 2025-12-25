@@ -5,43 +5,10 @@
 }
 
 /* ===== ЕДИНСТВЕННЫЙ БЛОК ДЛЯ ШАПКИ ===== */
+/* Хедер приложения */
 .app-header {
-  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
-  color: white !important;
-  padding: 12px 16px 16px !important;
-  position: relative;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
-  text-align: left !important;
-}
-
-/* Убираем старый заголовок */
-.app-header h1 {
-  display: none !important;
-}
-
-/* Контейнер для новой шапки */
-.header-content {
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-/* Логотип с трактором */
-.app-logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.tractor-icon {
-  font-size: 28px;
-  animation: tractor-bounce 2s infinite;
-}
-
-.app-name {
-  font-size: 22px;
-  font-weight: 700;
+  padding: 20px 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
@@ -86,10 +53,25 @@
   align-items: center;
   justify-content: center;
   border-radius: 7px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
-.stat-value {
-  font-size: 16px;
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%239C92AC' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.1;
+}
+
+.app-header h1 {
+  font-size: 2.2rem;
+  margin: 0;
   font-weight: 700;
   color: white;
   margin-bottom: 1px;
