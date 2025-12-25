@@ -64,7 +64,7 @@ const initializeTelegramSDK = async () => {
     }
 
     
-
+initializeTelegramSDK();
 
 
 createRoot(document.getElementById('root')).render(
@@ -72,7 +72,5 @@ createRoot(document.getElementById('root')).render(
     <App /> 
 //    </StrictMode>,
 )
-
-initializeTelegramSDK();
 
 miniApp.setHeaderColor('#fcb69f');
