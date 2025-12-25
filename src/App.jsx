@@ -13,6 +13,7 @@ import ProfileScreen from './components/screens/ProfileScreen.jsx'
 // } from '/src/components/screens/index.js'
 // import './App.css'
 
+
 function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
   const [activeScreen, setActiveScreen] = useState('farm')
