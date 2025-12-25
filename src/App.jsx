@@ -92,7 +92,7 @@ function App() {
           <div className="stat-item exp">
             <div className="stat-icon">⭐</div>
             <div className="stat-details">
-              <div className="stat-value">{user.game_data?.xp || 0}</div>
+              <div className="stat-value">{user.game_data?.experience || 0}</div>
               <div className="stat-label">Опыт</div>
             </div>
           </div>
