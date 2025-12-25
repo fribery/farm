@@ -15,6 +15,11 @@
   text-align: left !important;
 }
 
+/* Убираем старый заголовок */
+.app-header h1 {
+  display: none !important;
+}
+
 /* Контейнер для новой шапки */
 .header-content {
   max-width: 600px;
@@ -898,76 +903,6 @@
   }
 }
 
-/* Адаптивность */
-@media (max-width: 480px) {
-  .app-header {
-    padding: 14px 16px 18px !important;
-  }
-  
-  .tractor-icon {
-    font-size: 28px;
-  }
-  
-  .app-name {
-    font-size: 22px;
-  }
-  
-  .stats-container {
-    gap: 10px;
-  }
-  
-  .stat-item {
-    padding: 12px 10px;
-    min-height: 68px;
-    gap: 10px;
-  }
-  
-  .stat-icon {
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-  }
-  
-  .stat-value {
-    font-size: 20px;
-  }
-  
-  .stat-label {
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 360px) {
-  .app-logo {
-    gap: 8px;
-  }
-  
-  .tractor-icon {
-    font-size: 24px;
-  }
-  
-  .app-name {
-    font-size: 20px;
-  }
-  
-  .stat-item {
-    padding: 10px 8px;
-    min-height: 64px;
-  }
-  
-  .stat-icon {
-    font-size: 22px;
-    width: 36px;
-    height: 36px;
-  }
-  
-  .stat-value {
-    font-size: 18px;
-  }
-}
-
-/* Если белый текст все еще есть, добавь эти строки в конец файла */
-
 /* Гарантируем темный текст в основном контенте */
 .main-content,
 .farm-screen,
@@ -984,100 +919,4 @@
 /* Исправляем модальные окна */
 .modal-content {
   color: #333;
-}
-
-/* ===== АВАРИЙНЫЙ ФИКС ДЛЯ ШАПКИ ===== */
-
-/* Гарантируем новую шапку */
-header.app-header {
-  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%) !important;
-  color: white !important;
-  padding: 12px 16px !important;
-  position: relative;
-  z-index: 1000;
-  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
-  text-align: left !important;
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  height: auto !important;
-  min-height: 120px !important;
-}
-
-/* Скрываем ВСЕ старые элементы внутри шапки */
-.app-header > *:not(.header-content),
-.app-header h1,
-.app-header .header-user-info,
-.app-header .header-stats:not(.stats-container) {
-  display: none !important;
-  visibility: hidden !important;
-  height: 0 !important;
-  width: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  opacity: 0 !important;
-}
-
-/* Гарантируем отображение новой структуры */
-.header-content {
-  display: block !important;
-  max-width: 600px;
-  margin: 0 auto !important;
-}
-
-.app-logo {
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-}
-
-.tractor-icon {
-  font-size: 28px;
-  animation: tractor-bounce 2s infinite;
-}
-
-.app-name {
-  font-size: 22px;
-  font-weight: 700;
-  color: white;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Гарантируем статистику */
-.stats-container {
-  display: flex !important;
-  justify-content: space-between;
-  gap: 8px;
-  flex-wrap: nowrap !important;
-}
-
-.stat-item {
-  display: flex !important;
-  align-items: center;
-  gap: 10px;
-  padding: 10px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  min-height: 60px;
-  flex: 1 !important;
-}
-
-/* Критичные !important для видимости */
-.stat-item.money,
-.stat-item.level,
-.stat-item.exp {
-  display: flex !important;
-  visibility: visible !important;
-}
-
-@keyframes tractor-bounce {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-4px);
-  }
 }
