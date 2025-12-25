@@ -817,3 +817,22 @@
 .modal-content {
   color: #333;
 }
+
+/* ФИКС ДЛЯ СТАРЫХ СТИЛЕЙ */
+.app-header h1 {
+  display: none !important;
+}
+
+.header-top,
+.header-user-info,
+.header-compact,
+.header-stats .stat-item:not(.money):not(.level):not(.exp) {
+  display: none !important;
+}
+
+/* Гарантируем отображение */
+.app-logo,
+.stats-container,
+.stat-item {
+  display: flex !important;
+}
