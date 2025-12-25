@@ -44,7 +44,7 @@ export default function ShopScreen({ user, updateGameData }) {
     }
 
     updateGameData(newGameData)
-    alert(`Куплены семена: ${plant.name}`)
+//    alert(`Куплены семена: ${plant.name}`)
   }
 
   return (

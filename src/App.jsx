@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTelegram } from './hooks/useTelegram'
 import Navigation from './components/Navigation.jsx'
 // import FarmScreen from '@screens/FarmScreen.jsx'
