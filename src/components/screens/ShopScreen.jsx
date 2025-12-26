@@ -93,10 +93,10 @@ export default function ShopScreen({ user, updateGameData }) {
     console.log('Выбрана награда:', reward);
     console.log('plantId:', reward.plantId);
     console.log('name:', reward.name);
+    console.log('quantity из конфига:', reward.quantity);
     
     const plantFromConfig = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
     console.log('Растение в конфиге:', plantFromConfig?.name);
-    console.log('Совпадение имен:', plantFromConfig?.name === reward.name ? '✅ Да' : '❌ Нет');
     
     // Сохраняем кейс и награду
     setCurrentCase(caseItem);
@@ -143,16 +143,9 @@ export default function ShopScreen({ user, updateGameData }) {
       return;
     }
     
-    // Определяем количество
-    let quantity = 1;
-    if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
-      const [min, max] = reward.quantity.split('-').map(Number);
-      quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-    } else if (typeof reward.quantity === 'number') {
-      quantity = reward.quantity;
-    }
-    
-    console.log('Финальное количество:', quantity);
+    // КОЛИЧЕСТВО УЖЕ РАССЧИТАНО В CaseOpeningAnimation
+    const quantity = parseInt(reward.quantity, 10) || 1;
+    console.log('Финальное количество из награды:', quantity);
     
     // Обновляем инвентарь
     const newInventory = [...(user.game_data.inventory || [])];
@@ -178,7 +171,7 @@ export default function ShopScreen({ user, updateGameData }) {
     };
     
     updateGameData(newGameData);
-//    alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
+    alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
   };
 
   const buySlot = () => {

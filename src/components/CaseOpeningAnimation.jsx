@@ -5,6 +5,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
   const [animationStage, setAnimationStage] = useState('closed');
   const [rewardsList, setRewardsList] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [actualQuantity, setActualQuantity] = useState(1); // ДОБАВЛЕНО
   const caseRef = useRef(null);
   const animationTimeoutRef = useRef(null);
 
@@ -25,11 +26,34 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     };
   }, [caseItem, selectedReward, plants]);
 
+  // ДОБАВЛЕНА ФУНКЦИЯ ДЛЯ РАСЧЕТА КОЛИЧЕСТВА
+  const calculateActualQuantity = (reward) => {
+    if (!reward || !reward.quantity) return 1;
+    
+    if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
+      const [minStr, maxStr] = reward.quantity.split('-');
+      const min = parseInt(minStr, 10);
+      const max = parseInt(maxStr, 10);
+      
+      if (!isNaN(min) && !isNaN(max)) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+    }
+    
+    // Если quantity это число
+    const quantityNum = parseInt(reward.quantity, 10);
+    return !isNaN(quantityNum) ? quantityNum : 1;
+  };
+
   const generateRewardsList = () => {
     if (!caseItem?.rewards || !selectedReward || !plants) return;
     
     console.log('=== ГЕНЕРАЦИЯ СПИСКА ДЛЯ ПРОКРУТКИ ===');
     console.log('Финальная награда:', selectedReward);
+    
+    // РАССЧИТЫВАЕМ КОЛИЧЕСТВО ЗАРАНЕЕ
+    const finalQuantity = calculateActualQuantity(selectedReward);
+    console.log('Выпавшее количество:', finalQuantity);
     
     const list = [];
     
@@ -39,18 +63,22 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       const rarities = ['common', 'rare', 'epic'];
       const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
       
+      // Рандомное количество для обычных элементов
+      const randomQuantity = Math.floor(Math.random() * 5) + 1;
+      
       list.push({
         plantId: randomPlant.id,
         name: randomPlant.name,
         rarity: randomRarity,
-        quantity: '1-3',
+        quantity: randomQuantity.toString(), // Теперь число, а не диапазон
         isFinal: false
       });
     }
     
-    // Финальная награда на позиции 16
+    // Финальная награда на позиции 16 с РЕАЛЬНЫМ количеством
     list.push({
       ...selectedReward,
+      quantity: finalQuantity.toString(), // ЗАМЕНЯЕМ на реальное количество
       isFinal: true
     });
     
@@ -60,110 +88,108 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       const rarities = ['common', 'rare', 'epic'];
       const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
       
+      const randomQuantity = Math.floor(Math.random() * 5) + 1;
+      
       list.push({
         plantId: randomPlant.id,
         name: randomPlant.name,
         rarity: randomRarity,
-        quantity: '1-3',
+        quantity: randomQuantity.toString(),
         isFinal: false
       });
     }
     
-    console.log('Сгенерировано элементов:', list.length); // Должно быть 21
-    console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal)); // Должно быть 15
-    
-    // Визуальная проверка
-    console.log('Последние 5 элементов:');
-    for (let i = Math.max(0, list.length - 5); i < list.length; i++) {
-      console.log(`[${i}] ${list[i].name} ${list[i].isFinal ? '(FINAL)' : ''}`);
-    }
+    console.log('Сгенерировано элементов:', list.length);
+    console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal));
     
     setRewardsList(list);
+    setActualQuantity(finalQuantity); // СОХРАНЯЕМ КОЛИЧЕСТВО
   };
 
-const handleOpenCase = () => {
-  if (animationStage !== 'closed') return;
-  
-  setAnimationStage('spinning');
-  setIsSpinning(true);
-  
-  if (onRewardTaken) {
-    onRewardTaken({ type: 'payment', price: caseItem.price });
-  }
-  
-  if (caseRef.current && rewardsList.length > 0) {
-    const finalIndex = rewardsList.findIndex(item => item.isFinal);
-    if (finalIndex === -1) return;
+  const handleOpenCase = () => {
+    if (animationStage !== 'closed') return;
     
-    console.log('=== ЗАПУСК АНИМАЦИИ ===');
-    console.log('Финальный индекс:', finalIndex);
-    console.log('Финальная награда:', rewardsList[finalIndex]);
+    setAnimationStage('spinning');
+    setIsSpinning(true);
     
-    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Ждем рендера DOM
-    setTimeout(() => {
-      if (!caseRef.current) return;
+    if (onRewardTaken) {
+      onRewardTaken({ type: 'payment', price: caseItem.price });
+    }
+    
+    if (caseRef.current && rewardsList.length > 0) {
+      const finalIndex = rewardsList.findIndex(item => item.isFinal);
+      if (finalIndex === -1) return;
       
-      const track = caseRef.current;
-      const container = track.parentElement;
+      console.log('=== ЗАПУСК АНИМАЦИИ ===');
+      console.log('Финальный индекс:', finalIndex);
+      console.log('Финальная награда:', rewardsList[finalIndex]);
       
-      if (!container) return;
-      
-      // 1. Измеряем реальные размеры
-      const containerRect = container.getBoundingClientRect();
-      const containerWidth = containerRect.width;
-      
-      // 2. Находим финальный элемент
-      const finalElement = track.children[finalIndex];
-      if (!finalElement) {
-        console.error('Финальный элемент не найден!');
-        return;
-      }
-      
-      const elementRect = finalElement.getBoundingClientRect();
-      const elementWidth = elementRect.width;
-      
-      // 3. Рассчитываем позицию для центрирования
-      const centerOffset = containerWidth / 2;
-      const elementLeft = finalElement.offsetLeft;
-      const elementCenter = elementLeft + elementWidth / 2;
-      
-      // 4. Смещение для центрирования элемента
-      const finalPosition = -elementLeft + (centerOffset - elementWidth / 2);
-      
-      console.log('=== РАСЧЕТ ПОЗИЦИИ ===');
-      console.log('Ширина контейнера:', containerWidth);
-      console.log('Ширина элемента:', elementWidth);
-      console.log('Позиция элемента:', elementLeft);
-      console.log('Центр контейнера:', centerOffset);
-      console.log('Финальная позиция:', finalPosition);
-      console.log('Должен быть в центре:', rewardsList[finalIndex]?.name);
-      
-      // 5. Сброс и запуск анимации
-      track.style.transition = 'none';
-      track.style.transform = 'translateX(0)';
-      
-      // 6. Даем время на сброс
+      // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Ждем рендера DOM
       setTimeout(() => {
-        if (caseRef.current) {
-          caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
-          caseRef.current.style.transform = `translateX(${finalPosition}px)`;
+        if (!caseRef.current) return;
+        
+        const track = caseRef.current;
+        const container = track.parentElement;
+        
+        if (!container) return;
+        
+        // 1. Измеряем реальные размеры
+        const containerRect = container.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        
+        // 2. Находим финальный элемент
+        const finalElement = track.children[finalIndex];
+        if (!finalElement) {
+          console.error('Финальный элемент не найден!');
+          return;
         }
-      }, 50);
-      
-    }, 100); // Даем время на рендер DOM
-  }
-  
-  animationTimeoutRef.current = setTimeout(() => {
-    console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
-    setIsSpinning(false);
-    setAnimationStage('ready');
-  }, 2800);
-};
+        
+        const elementRect = finalElement.getBoundingClientRect();
+        const elementWidth = elementRect.width;
+        
+        // 3. Рассчитываем позицию для центрирования
+        const centerOffset = containerWidth / 2;
+        const elementLeft = finalElement.offsetLeft;
+        const elementCenter = elementLeft + elementWidth / 2;
+        
+        // 4. Смещение для центрирования элемента
+        const finalPosition = -elementLeft + (centerOffset - elementWidth / 2);
+        
+        console.log('=== РАСЧЕТ ПОЗИЦИИ ===');
+        console.log('Ширина контейнера:', containerWidth);
+        console.log('Ширина элемента:', elementWidth);
+        console.log('Позиция элемента:', elementLeft);
+        console.log('Центр контейнера:', centerOffset);
+        console.log('Финальная позиция:', finalPosition);
+        console.log('Должен быть в центре:', rewardsList[finalIndex]?.name);
+        
+        // 5. Сброс и запуск анимации
+        track.style.transition = 'none';
+        track.style.transform = 'translateX(0)';
+        
+        // 6. Даем время на сброс
+        setTimeout(() => {
+          if (caseRef.current) {
+            caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
+            caseRef.current.style.transform = `translateX(${finalPosition}px)`;
+          }
+        }, 50);
+        
+      }, 100);
+    }
+    
+    animationTimeoutRef.current = setTimeout(() => {
+      console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
+      setIsSpinning(false);
+      setAnimationStage('ready');
+    }, 2800);
+  };
 
   const handleTakeReward = async () => {
     console.log('=== НАЖАТА "ЗАБРАТЬ НАГРАДУ" ===');
     console.log('Текущий stage:', animationStage);
     console.log('Награда для отправки:', selectedReward);
+    console.log('Количество:', actualQuantity);
     
     if (animationStage !== 'ready' || !selectedReward) {
       console.log('Не могу забрать: stage=', animationStage, 'hasReward=', !!selectedReward);
@@ -171,8 +197,12 @@ const handleOpenCase = () => {
     }
     
     try {
+      // Отправляем награду с РЕАЛЬНЫМ количеством
       if (onRewardTaken) {
-        onRewardTaken(selectedReward);
+        onRewardTaken({
+          ...selectedReward,
+          quantity: actualQuantity // ОТПРАВЛЯЕМ РАССЧИТАННОЕ КОЛИЧЕСТВО
+        });
       }
       
       handleClose();
@@ -278,7 +308,7 @@ const handleOpenCase = () => {
                       {getRarityName(reward.rarity)}
                     </div>
                     <div className="reward-quantity">
-                      {reward.quantity ? `×${reward.quantity}` : '×1'}
+                      ×{reward.quantity} {/* ВСЕГДА ПОКАЗЫВАЕМ ЧИСЛО */}
                     </div>
                   </div>
                 );
@@ -311,7 +341,7 @@ const handleOpenCase = () => {
                 {getRarityName(selectedReward.rarity)}
               </div>
               <div className="reward-card-quantity">
-                Количество: {selectedReward.quantity ? `×${selectedReward.quantity}` : '×1'}
+                Количество: ×{actualQuantity} {/* ПОКАЗЫВАЕМ РАССЧИТАННОЕ КОЛИЧЕСТВО */}
               </div>
               <div className="reward-card-message">
                 Поздравляем! Вы получили награду!
