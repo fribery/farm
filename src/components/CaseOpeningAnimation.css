@@ -163,8 +163,9 @@
 
 /* КАРТОЧКА НАГРАДЫ - БЕЗ блюра и прозрачности */
 .reward-item {
-  flex: 0 0 170px; /* Увеличиваем ширину */
-  height: 170px; /* Увеличиваем высоту */
+  flex: 0 0 170px !important; /* Фиксированная ширина */
+  height: 170px !important; /* Фиксированная высота */
+  width: 170px !important;
   border: 2px solid;
   border-radius: 12px;
   display: flex;
@@ -192,20 +193,18 @@
   }
 }
 
-/* ИНДИКАТОР - ТОЛЬКО рамка, БЕЗ фона */
 .selection-indicator {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 180px; /* Увеличиваем */
-  height: 180px; /* Увеличиваем */
+  width: 170px; /* Должно совпадать с шириной .reward-item */
+  height: 170px; /* Должно совпадать с высотой .reward-item */
   border: 3px solid #FFD700;
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
   pointer-events: none;
   z-index: 10;
-  background: transparent;
 }
 
 /* УБИРАЕМ все псевдоэлементы и маски */
