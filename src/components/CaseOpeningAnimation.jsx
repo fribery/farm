@@ -81,60 +81,84 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     setRewardsList(list);
   };
 
-  const handleOpenCase = () => {
-    if (animationStage !== 'closed') return;
+const handleOpenCase = () => {
+  if (animationStage !== 'closed') return;
+  
+  setAnimationStage('spinning');
+  setIsSpinning(true);
+  
+  if (onRewardTaken) {
+    onRewardTaken({ type: 'payment', price: caseItem.price });
+  }
+  
+  if (caseRef.current && rewardsList.length > 0) {
+    const finalIndex = rewardsList.findIndex(item => item.isFinal);
+    if (finalIndex === -1) return;
     
-    setAnimationStage('spinning');
-    setIsSpinning(true);
+    console.log('=== ЗАПУСК АНИМАЦИИ ===');
+    console.log('Финальный индекс:', finalIndex);
+    console.log('Финальная награда:', rewardsList[finalIndex]);
     
-    // Сразу снимаем деньги
-    if (onRewardTaken) {
-      onRewardTaken({ type: 'payment', price: caseItem.price });
-    }
-    
-    // Анимация прокрутки
-    if (caseRef.current && rewardsList.length > 0) {
-      const finalIndex = rewardsList.findIndex(item => item.isFinal);
-      if (finalIndex === -1) return;
+    // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Ждем рендера DOM
+    setTimeout(() => {
+      if (!caseRef.current) return;
       
-      console.log('=== ЗАПУСК АНИМАЦИИ ===');
-      console.log('Финальный индекс:', finalIndex);
-      console.log('Финальная награда:', rewardsList[finalIndex]);
+      const track = caseRef.current;
+      const container = track.parentElement;
       
-      const elementWidth = 170;
-      const gap = 20;
-      const totalWidth = elementWidth + gap;
+      if (!container) return;
       
-      // ВАЖНОЕ ИСПРАВЛЕНИЕ 2.0:
-      // Останавливаемся НА финальном элементе, а не перед ним
-      const finalPosition = -(finalIndex * totalWidth) + 200;
+      // 1. Измеряем реальные размеры
+      const containerRect = container.getBoundingClientRect();
+      const containerWidth = containerRect.width;
       
-      console.log('Всего элементов:', rewardsList.length);
+      // 2. Находим финальный элемент
+      const finalElement = track.children[finalIndex];
+      if (!finalElement) {
+        console.error('Финальный элемент не найден!');
+        return;
+      }
+      
+      const elementRect = finalElement.getBoundingClientRect();
+      const elementWidth = elementRect.width;
+      
+      // 3. Рассчитываем позицию для центрирования
+      const centerOffset = containerWidth / 2;
+      const elementLeft = finalElement.offsetLeft;
+      const elementCenter = elementLeft + elementWidth / 2;
+      
+      // 4. Смещение для центрирования элемента
+      const finalPosition = -elementLeft + (centerOffset - elementWidth / 2);
+      
+      console.log('=== РАСЧЕТ ПОЗИЦИИ ===');
+      console.log('Ширина контейнера:', containerWidth);
+      console.log('Ширина элемента:', elementWidth);
+      console.log('Позиция элемента:', elementLeft);
+      console.log('Центр контейнера:', centerOffset);
       console.log('Финальная позиция:', finalPosition);
-      console.log('Должен остановиться на:', rewardsList[finalIndex]?.name);
+      console.log('Должен быть в центре:', rewardsList[finalIndex]?.name);
       
-      // Проверим, что показывается в центре ДО анимации
-      const centerIndex = Math.floor((200 - finalPosition) / totalWidth);
-      console.log('В центре до анимации будет:', rewardsList[centerIndex]?.name);
+      // 5. Сброс и запуск анимации
+      track.style.transition = 'none';
+      track.style.transform = 'translateX(0)';
       
-      caseRef.current.style.transition = 'none';
-      caseRef.current.style.transform = 'translateX(0)';
-      
-      // Даем время на сброс
-      requestAnimationFrame(() => {
+      // 6. Даем время на сброс
+      setTimeout(() => {
         if (caseRef.current) {
           caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
           caseRef.current.style.transform = `translateX(${finalPosition}px)`;
         }
-      });
-    }
-    
-    animationTimeoutRef.current = setTimeout(() => {
-      console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
-      setIsSpinning(false);
-      setAnimationStage('ready');
-    }, 2800);
-  };
+      }, 50);
+      
+    }, 100); // Даем время на рендер DOM
+  }
+  
+  animationTimeoutRef.current = setTimeout(() => {
+    console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
+    setIsSpinning(false);
+    setAnimationStage('ready');
+  }, 2800);
+};
 
   const handleTakeReward = async () => {
     console.log('=== НАЖАТА "ЗАБРАТЬ НАГРАДУ" ===');
@@ -275,7 +299,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
               })}
             </div>
             
-            <div className="selection-indicator"></div>
+            <div className="center-line"></div>
           </div>
         </div>
         

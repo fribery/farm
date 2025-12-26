@@ -132,14 +132,17 @@
 
 /* КОНТЕЙНЕР ПРОКРУТКИ - БЕЗ БЛЮРА И ЗАТЕМНЕНИЯ */
 .case-viewport-container {
-  position: relative;
-  width: 100%;
-  height: 220px; /* УВЕЛИЧИВАЕМ высоту */
-  margin-bottom: 25px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.6) 20%,
+    rgba(0, 0, 0, 0.6) 80%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    inset 0 0 30px rgba(0, 0, 0, 0.5),
+    0 5px 20px rgba(0, 0, 0, 0.3);
 }
 
 .case-viewport {
@@ -177,11 +180,31 @@
   transition: all 0.3s ease;
 }
 
+@keyframes finalGlow {
+  0% {
+    box-shadow: 
+      0 0 20px rgba(255, 255, 255, 0.4),
+      0 0 40px currentColor;
+  }
+  100% {
+    box-shadow: 
+      0 0 30px rgba(255, 255, 255, 0.6),
+      0 0 60px currentColor;
+  }
+}
+
 /* Только финальная награда подсвечена */
 .reward-item.final-reward {
-  border-width: 3px;
-  animation: pulseGlow 2s infinite;
-  background: rgba(255, 255, 255, 0.15);
+  position: relative;
+  z-index: 5;
+  animation: finalGlow 2s infinite alternate;
+  transform: scale(1.05);
+}
+
+.reward-item:not(.final-reward) {
+  opacity: 0.6;
+  filter: saturate(0.7);
+  transition: opacity 0.3s, filter 0.3s;
 }
 
 @keyframes pulseGlow {
@@ -193,20 +216,71 @@
   }
 }
 
-.selection-indicator {
+.center-line {
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 50%;
-  transform: translate(-50%, -50%);
-  width: 170px; /* Должно совпадать с шириной .reward-item */
-  height: 170px; /* Должно совпадать с высотой .reward-item */
-  border: 3px solid #FFD700;
-  border-radius: 12px;
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+  transform: translateX(-50%);
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(to bottom, 
+    transparent 0%,
+    #FFD700 20%,
+    #FFD700 80%,
+    transparent 100%
+  );
+  box-shadow: 
+    0 0 15px #FFD700,
+    0 0 30px rgba(255, 215, 0, 0.5);
   pointer-events: none;
   z-index: 10;
 }
+.center-line {
+  animation: linePulse 2s infinite alternate;
+}
 
+@keyframes linePulse {
+  0% {
+    opacity: 0.7;
+    box-shadow: 
+      0 0 10px #FFD700,
+      0 0 20px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    opacity: 1;
+    box-shadow: 
+      0 0 20px #FFD700,
+      0 0 40px rgba(255, 215, 0, 0.6);
+  }
+}
+
+/* Добавить треугольные указатели сверху и снизу */
+.center-line::before,
+.center-line::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+}
+
+.center-line::before {
+  top: 0;
+  border-bottom: 10px solid #FFD700;
+}
+
+.center-line::after {
+  bottom: 0;
+  border-top: 10px solid #FFD700;
+}
+
+.case-viewport-container:hover .reward-item:not(.final-reward) {
+  opacity: 0.8;
+  filter: saturate(1);
+}
 /* УБИРАЕМ все псевдоэлементы и маски */
 .case-viewport::before,
 .case-viewport::after,
@@ -215,8 +289,9 @@
 }
 
 .reward-icon {
-  font-size: 50px; /* Увеличиваем иконку */
+  font-size: 50px;
   margin-bottom: 10px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .reward-name {
