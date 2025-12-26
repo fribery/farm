@@ -90,11 +90,12 @@ export default function ShopScreen({ user, updateGameData }) {
 
 
   // Функция выбора награды (такая же как была в handleRewardTaken)
-  const handleRewardTaken = (reward) => {
-  console.log('Получена награда:', reward);
+const handleRewardTaken = (reward) => {
+  console.log('Получена награда в handleRewardTaken:', reward);
   
   if (reward.type === 'payment') {
     // Только списание денег за кейс
+    console.log('Списываем деньги:', reward.price);
     const newGameData = {
       ...user.game_data,
       money: user.game_data.money - reward.price
@@ -104,9 +105,23 @@ export default function ShopScreen({ user, updateGameData }) {
   }
   
   // reward - это ТА ЖЕ награда, что была выбрана в handleOpenCase
-  const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
-  let quantity = 1;
+  // НЕ выбираем заново, используем готовую!
+  console.log('Выдаем награду из handleRewardTaken:', {
+    plantId: reward.plantId,
+    rarity: reward.rarity,
+    quantity: reward.quantity
+  });
   
+  const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+  
+  if (!plant) {
+    console.error('Растение не найдено для plantId:', reward.plantId);
+    alert('Ошибка: награда не найдена');
+    return;
+  }
+  
+  // Определяем количество
+  let quantity = 1;
   if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
     const [min, max] = reward.quantity.split('-').map(Number);
     quantity = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -114,6 +129,9 @@ export default function ShopScreen({ user, updateGameData }) {
     quantity = reward.quantity;
   }
   
+  console.log('Количество награды:', quantity);
+  
+  // Обновляем инвентарь
   const newInventory = [...(user.game_data.inventory || [])];
   const existingIndex = newInventory.findIndex(
     item => item.type === 'seed' && item.plantId === reward.plantId
@@ -125,7 +143,7 @@ export default function ShopScreen({ user, updateGameData }) {
     newInventory.push({
       type: 'seed',
       plantId: reward.plantId,
-      name: plant?.name || `Семя #${reward.plantId}`,
+      name: plant.name,
       count: quantity,
       rarity: reward.rarity
     });
@@ -137,7 +155,7 @@ export default function ShopScreen({ user, updateGameData }) {
   };
   
   updateGameData(newGameData);
-  alert(`🎉 Вы получили: ${plant?.name || 'Семена'} ×${quantity} (${reward.rarity})`);
+  alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
 };
 
   const buySlot = () => {

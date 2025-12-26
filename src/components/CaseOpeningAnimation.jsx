@@ -90,20 +90,23 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     }, 2800);
   };
 
-  const handleTakeReward = async () => {
+    const handleTakeReward = async () => {
     if (animationStage !== 'ready' || !selectedReward) return;
     
+    console.log('=== Нажата "Забрать награду" ===');
+    console.log('Отправляемая награда:', selectedReward);
+    
     try {
-      if (onRewardTaken) {
-        onRewardTaken(selectedReward); // Отправляем ту же награду
-      }
-      
-      handleClose();
+        if (onRewardTaken) {
+        onRewardTaken(selectedReward);
+        }
+        
+        handleClose();
     } catch (error) {
-      console.error('Ошибка при получении награды:', error);
-      alert('Ошибка при получении награды. Попробуйте снова.');
+        console.error('Ошибка при получении награды:', error);
+        alert('Ошибка при получении награды. Попробуйте снова.');
     }
-  };
+    };
 
   const handleClose = () => {
     if (animationTimeoutRef.current) {
