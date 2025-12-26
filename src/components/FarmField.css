@@ -584,10 +584,30 @@
   font-size: 1.2rem;
 }
 
-/* === УПРОЩЕННЫЕ И РАБОЧИЕ МЕДИА-ЗАПРОСЫ === */
+/* === ИСПРАВЛЕННЫЕ МЕДИА-ЗАПРОСЫ ДЛЯ ВСЕХ УСТРОЙСТВ === */
 
-/* Планшеты и маленькие ноутбуки (768px - 1023px) - 2 в ряд */
-@media (max-width: 1023px) {
+/* Десктоп (больше 1200px) - 3 в ряд */
+@media (min-width: 1200px) {
+  .fields-grid-compact {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .seeds-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Ноутбуки и большие планшеты (992px - 1199px) - 3 в ряд */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .fields-grid-compact {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .seeds-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Планшеты (768px - 991px) - 2 в ряд */
+@media (min-width: 768px) and (max-width: 991px) {
   .fields-grid-compact {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -596,10 +616,10 @@
   }
 }
 
-/* ВСЕ МОБИЛЬНЫЕ ТЕЛЕФОНЫ (до 767px) - 2 в ряд! */
+/* МОБИЛЬНЫЕ ТЕЛЕФОНЫ (до 767px) - ОБЯЗАТЕЛЬНО 2 В РЯД! */
 @media (max-width: 767px) {
   .fields-grid-compact {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important; /* ФОРСИРУЕМ 2 В РЯД */
     gap: 10px;
   }
   
@@ -619,7 +639,7 @@
   }
   
   .seeds-row {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important; /* семена тоже 2 в ряд */
     gap: 8px;
   }
   
@@ -648,14 +668,14 @@
   }
 }
 
-/* Очень маленькие телефоны (до 400px) - 1 в ряд */
-@media (max-width: 400px) {
+/* СУПЕР МАЛЕНЬКИЕ телефоны (до 360px) - только тогда 1 в ряд */
+@media (max-width: 360px) {
   .fields-grid-compact {
     grid-template-columns: 1fr;
   }
   
   .seeds-row {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr); /* семена все равно 2 в ряд */
   }
   
   .field-card-compact {
@@ -675,5 +695,12 @@
   
   .field-stats {
     justify-content: center;
+  }
+}
+
+/* ДОПОЛНИТЕЛЬНАЯ ГАРАНТИЯ: убираем возможные переопределения */
+@media (max-width: 767px) and (min-width: 361px) {
+  .fields-grid-compact {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }
