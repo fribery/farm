@@ -7,28 +7,39 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
   const [isSpinning, setIsSpinning] = useState(false);
   const [actualQuantity, setActualQuantity] = useState(1);
   const [currentReward, setCurrentReward] = useState(selectedReward);
-  const [errorMessage, setErrorMessage] = useState(null); // ДОБАВЛЕНО для ошибок
+  const [isResetting, setIsResetting] = useState(false); // НОВОЕ: флаг сброса
   const caseRef = useRef(null);
   const animationTimeoutRef = useRef(null);
+  const rewardRef = useRef(selectedReward); // НОВОЕ: используем ref для актуальной награды
+
+  // Обновляем ref при изменении selectedReward
+  useEffect(() => {
+    rewardRef.current = selectedReward;
+  }, [selectedReward]);
 
   useEffect(() => {
     console.log('=== DEBUG CaseOpeningAnimation ===');
     console.log('Получен caseItem:', caseItem?.name);
     console.log('Получена selectedReward:', selectedReward);
+    console.log('Получен plants:', plants?.length);
     
+    // Устанавливаем текущую награду
     if (selectedReward) {
       setCurrentReward(selectedReward);
     }
     
-    if (caseItem && selectedReward && plants) {
+    // Генерируем список только если не в процессе сброса
+    if (caseItem && selectedReward && plants && !isResetting) {
+      console.log('Генерация списка наград для:', selectedReward.name);
       generateRewardsList(selectedReward);
     }
+    
     return () => {
       if (animationTimeoutRef.current) {
         clearTimeout(animationTimeoutRef.current);
       }
     };
-  }, [caseItem, selectedReward, plants]);
+  }, [caseItem, selectedReward, plants, isResetting]);
 
   const calculateActualQuantity = (reward) => {
     if (!reward || !reward.quantity) return 1;
@@ -48,14 +59,20 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
   };
 
   const generateRewardsList = (finalReward) => {
-    if (!caseItem?.rewards || !finalReward || !plants) return;
+    if (!caseItem?.rewards || !finalReward || !plants) {
+      console.error('Недостаточно данных для генерации списка');
+      return;
+    }
     
     console.log('=== ГЕНЕРАЦИЯ СПИСКА ДЛЯ ПРОКРУТКИ ===');
+    console.log('Финальная награда:', finalReward);
     
     const finalQuantity = calculateActualQuantity(finalReward);
+    console.log('Выпавшее количество:', finalQuantity);
     
     const list = [];
     
+    // 15 элементов перед финальной наградой
     for (let i = 0; i < 15; i++) {
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
       const rarities = ['common', 'rare', 'epic'];
@@ -72,12 +89,14 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       });
     }
     
+    // Финальная награда на позиции 16
     list.push({
       ...finalReward,
       quantity: finalQuantity.toString(),
       isFinal: true
     });
     
+    // 5 элементов после
     for (let i = 0; i < 5; i++) {
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
       const rarities = ['common', 'rare', 'epic'];
@@ -94,6 +113,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       });
     }
     
+    console.log('Сгенерировано элементов:', list.length);
+    console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal));
+    
     setRewardsList(list);
     setActualQuantity(finalQuantity);
   };
@@ -105,16 +127,30 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
   };
 
   const startSpinningAnimation = () => {
+    if (!currentReward) {
+      console.error('Нет текущей награды для анимации');
+      return;
+    }
+    
     setAnimationStage('spinning');
     setIsSpinning(true);
     
+    // Сразу отправляем списание денег (если это первое открытие)
     if (animationStage === 'closed' && onRewardTaken) {
       onRewardTaken({ type: 'payment', price: caseItem.price });
     }
     
     if (caseRef.current && rewardsList.length > 0) {
       const finalIndex = rewardsList.findIndex(item => item.isFinal);
-      if (finalIndex === -1) return;
+      if (finalIndex === -1) {
+        console.error('Финальная награда не найдена в списке');
+        return;
+      }
+      
+      console.log('=== ЗАПУСК АНИМАЦИИ ===');
+      console.log('Финальный индекс:', finalIndex);
+      console.log('Финальная награда в списке:', rewardsList[finalIndex]);
+      console.log('Текущая награда:', currentReward);
       
       setTimeout(() => {
         if (!caseRef.current) return;
@@ -129,7 +165,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         
         const finalElement = track.children[finalIndex];
         if (!finalElement) {
-          console.error('Финальный элемент не найден!');
+          console.error('Финальный элемент не найден в DOM!');
           return;
         }
         
@@ -141,6 +177,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         
         const finalPosition = -elementLeft + (centerOffset - elementWidth / 2);
         
+        console.log('Финальная позиция:', finalPosition);
+        
+        // Сброс и запуск анимации
         track.style.transition = 'none';
         track.style.transform = 'translateX(0)';
         
@@ -154,12 +193,14 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       }, 100);
     }
     
+    // Очищаем предыдущий таймер
     if (animationTimeoutRef.current) {
       clearTimeout(animationTimeoutRef.current);
     }
     
     animationTimeoutRef.current = setTimeout(() => {
       console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
+      console.log('Показываем награду:', currentReward);
       setIsSpinning(false);
       setAnimationStage('ready');
     }, 2800);
@@ -167,8 +208,11 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
 
   const handleTakeReward = async () => {
     console.log('=== НАЖАТА "ЗАБРАТЬ НАГРАДУ" ===');
+    console.log('Текущая награда:', currentReward);
+    console.log('Количество:', actualQuantity);
     
     if (animationStage !== 'ready' || !currentReward) {
+      console.log('Не могу забрать: stage=', animationStage, 'hasReward=', !!currentReward);
       return;
     }
     
@@ -187,66 +231,71 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     }
   };
 
-  // ИЗМЕНЕНО: Обработчик кнопки "Открыть еще раз" с обработкой ошибок
-  const handleOpenAgain = async () => {
+  const handleOpenAgain = () => {
     console.log('=== НАЖАТА "ОТКРЫТЬ ЕЩЕ РАЗ" ===');
+    console.log('Текущая награда перед сохранением:', currentReward);
     
-    // Показываем индикатор загрузки
-    setErrorMessage(null);
-    
-    try {
-      // 1. Сначала сохраняем текущую награду
-      if (onRewardTaken && currentReward) {
-        onRewardTaken({
-          ...currentReward,
-          quantity: actualQuantity
-        });
-      }
-      
-      // 2. Вызываем колбэк из родителя
-      if (onOpenAgain) {
-        // Предполагаем, что onOpenAgain может вернуть ошибку
-        onOpenAgain();
-      }
-      
-      // 3. Если дошли сюда, значит денег хватило - запускаем новую анимацию
-      resetForNewAnimation();
-      
-    } catch (error) {
-      // Если произошла ошибка (например, недостаточно денег)
-      console.error('Ошибка при открытии еще раз:', error);
-      
-      // ЗАКРЫВАЕМ КЕЙС ПРИ ОШИБКЕ
-      if (onClose) {
-        onClose();
-      }
+    // 1. Сначала сохраняем текущую награду
+    if (onRewardTaken && currentReward) {
+      onRewardTaken({
+        ...currentReward,
+        quantity: actualQuantity
+      });
     }
-  };
-
-  const resetForNewAnimation = () => {
-    console.log('Сброс состояния для новой анимации');
     
+    // 2. Вызываем колбэк из родителя для получения новой награды
+    if (onOpenAgain) {
+      onOpenAgain();
+    }
+    
+    // 3. Устанавливаем флаг сброса
+    setIsResetting(true);
+    
+    // 4. Сбрасываем состояние
     setAnimationStage('closed');
     setIsSpinning(false);
     
+    // 5. Сбрасываем позицию прокрутки
     if (caseRef.current) {
       caseRef.current.style.transition = 'none';
       caseRef.current.style.transform = 'translateX(0)';
     }
     
+    // 6. Очищаем таймер
     if (animationTimeoutRef.current) {
       clearTimeout(animationTimeoutRef.current);
       animationTimeoutRef.current = null;
     }
     
+    // 7. Ждем завершения анимации сброса и обновления пропсов
     setTimeout(() => {
-      if (selectedReward) {
-        generateRewardsList(selectedReward);
+      console.log('Сброс завершен, ждем новую награду...');
+      setIsResetting(false);
+      
+      // 8. После сброса ждем обновления награды от родителя
+      const checkNewReward = () => {
+        const newReward = rewardRef.current;
+        console.log('Проверяем новую награду:', newReward);
         
-        setTimeout(() => {
-          startSpinningAnimation();
-        }, 100);
-      }
+        if (newReward && newReward !== currentReward) {
+          console.log('Новая награда получена:', newReward);
+          setCurrentReward(newReward);
+          
+          // 9. Генерируем список с новой наградой
+          generateRewardsList(newReward);
+          
+          // 10. Запускаем анимацию после генерации списка
+          setTimeout(() => {
+            startSpinningAnimation();
+          }, 200);
+        } else {
+          console.log('Новая награда еще не получена, проверяем снова...');
+          setTimeout(checkNewReward, 100);
+        }
+      };
+      
+      // Запускаем проверку
+      setTimeout(checkNewReward, 50);
     }, 300);
   };
 
@@ -292,6 +341,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
   };
 
   if (!caseItem || !currentReward) {
+    console.log('Не рендерим: нет caseItem или currentReward');
     return null;
   }
 
@@ -304,13 +354,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
           <h2>{caseItem.name}</h2>
           <button className="case-close-button" onClick={handleClose}>✕</button>
         </div>
-        
-        {/* ДОБАВЛЕН БЛОК ДЛЯ ОШИБОК (если нужно) */}
-        {errorMessage && (
-          <div className="error-message">
-            {errorMessage}
-          </div>
-        )}
         
         <div className="case-info">
           <div className="case-emoji">{caseItem.emoji}</div>
@@ -330,9 +373,13 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
             >
               {rewardsList.map((reward, index) => {
                 const isFinal = reward.isFinal;
+                const isCurrentReward = currentReward && 
+                  reward.plantId === currentReward.plantId && 
+                  reward.rarity === currentReward.rarity;
+                
                 return (
                   <div 
-                    key={index} 
+                    key={`${index}-${reward.plantId}-${reward.rarity}`} 
                     className={`reward-item ${isFinal ? 'final-reward' : ''}`}
                     style={{ 
                       borderColor: getRarityColor(reward.rarity),
@@ -399,8 +446,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
             <button 
               className="case-button open-button"
               onClick={handleOpenCase}
+              disabled={isResetting}
             >
-              Открыть кейс
+              {isResetting ? 'Подготовка...' : 'Открыть кейс'}
             </button>
           ) : animationStage === 'spinning' ? (
             <div className="spinning-status">
@@ -412,8 +460,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
               <button 
                 className="case-button open-again-button"
                 onClick={handleOpenAgain}
+                disabled={isResetting}
               >
-                Открыть еще раз
+                {isResetting ? 'Обновление...' : 'Открыть еще раз'}
               </button>
               
               <button 
@@ -421,6 +470,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
                 onClick={() => {
                   handleTakeReward();
                 }}
+                disabled={isResetting}
               >
                 Забрать награду
               </button>
@@ -430,7 +480,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
           <button 
             className="case-button close-button"
             onClick={handleClose}
-            disabled={animationStage === 'spinning'}
+            disabled={animationStage === 'spinning' || isResetting}
           >
             {animationStage === 'ready' ? 'Закрыть' : 'Отмена'}
           </button>

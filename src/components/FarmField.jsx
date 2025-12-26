@@ -207,7 +207,7 @@ export default function FarmField({ user, updateGameData, availableSlots }) {
     <div className="fields-container">
       <h3 className="section-title">
         <span className="title-icon">🏞️</span>
-        Семена для посадки ({fields.filter(f => !f.harvested).length}/{availableSlots})
+        Полей доступных для посадки: ({fields.filter(f => !f.harvested).length}/{availableSlots})
       </h3>
       
       {fields.length === 0 ? (  
