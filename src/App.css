@@ -59,8 +59,8 @@
   min-height: 48px;
 }
 
-.stat-icon {
-  font-size: 13px;
+.stat-icon-header {
+  font-size: 11px;
   width: 28px;
   height: 28px;
   display: flex;

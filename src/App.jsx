@@ -82,7 +82,7 @@ function App() {
         
         <div className="stats-container">
           <div className="stat-item money">
-            <div className="stat-icon">💰</div>
+            <div className="stat-icon-header">💰</div>
             <div className="stat-details">
               <div className="stat-label-header">Деньги</div>
               <div className="stat-value-header">{user.game_data?.money || 0}</div>
@@ -90,7 +90,7 @@ function App() {
           </div>
           
           <div className="stat-item level">
-            <div className="stat-icon">🏆</div>
+            <div className="stat-icon-header">🏆</div>
             <div className="stat-details">
               <div className="stat-label-header">Уровень</div>
               <div className="stat-value-header">Ур. {user.game_data?.level || 1}</div>
@@ -98,7 +98,7 @@ function App() {
           </div>
           
           <div className="stat-item exp">
-            <div className="stat-icon">⭐</div>
+            <div className="stat-icon-header">⭐</div>
             <div className="stat-details">
               <div className="stat-label-header">Опыт</div>
               <div className="stat-value-header">{user.game_data?.experience || 0}</div>
