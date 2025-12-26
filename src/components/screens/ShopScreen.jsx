@@ -68,6 +68,9 @@ export default function ShopScreen({ user, updateGameData }) {
         alert('Недостаточно денег!');
         return;
       }
+
+      console.log('Case item:', caseItem);
+      console.log('Selected reward:', selectedReward);
       
       // 1. Рандомный выбор награды
       const random = Math.random() * 100;
@@ -84,35 +87,21 @@ export default function ShopScreen({ user, updateGameData }) {
       
       if (!selectedReward) selectedReward = caseItem.rewards[0];
       
-      // 2. Запускаем анимацию
-      setCurrentCase(caseItem);
-      setCaseResult(selectedReward);
-      setIsOpeningCase(true);
-      
-      // 3. Сразу списываем деньги (чтоб не читерили)
-      const newGameData = {
-        ...user.game_data,
-        money: user.game_data.money - caseItem.price
-      };
-      updateGameData(newGameData);
-    };
-
-    // Функция обработки окончания анимации
-    const handleCaseClosed = (reward) => {
-      if (!reward || !currentCase) return;
-      
-      // Добавляем награду в инвентарь
-      const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+      // // 2. Запускаем анимацию
+      // setCurrentCase(caseItem);
+      // setCaseResult(selectedReward);
+      // setIsOpeningCase(true);
+      const plant = GAME_CONFIG.plants.find(p => p.id === selectedReward.plantId);
       let quantity = 1;
       
-      if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
-        const [min, max] = reward.quantity.split('-').map(Number);
+      if (typeof selectedReward.quantity === 'string' && selectedReward.quantity.includes('-')) {
+        const [min, max] = selectedReward.quantity.split('-').map(Number);
         quantity = Math.floor(Math.random() * (max - min + 1)) + min;
       }
       
       const newInventory = [...(user.game_data.inventory || [])];
       const existingIndex = newInventory.findIndex(
-        item => item.type === 'seed' && item.plantId === reward.plantId
+        item => item.type === 'seed' && item.plantId === selectedReward.plantId
       );
       
       if (existingIndex >= 0) {
@@ -120,22 +109,21 @@ export default function ShopScreen({ user, updateGameData }) {
       } else {
         newInventory.push({
           type: 'seed',
-          plantId: reward.plantId,
-          name: plant?.name || `Семя #${reward.plantId}`,
+          plantId: selectedReward.plantId,
+          name: plant?.name || `Семя #${selectedReward.plantId}`,
           count: quantity,
-          rarity: reward.rarity
+          rarity: selectedReward.rarity
         });
       }
       
       const finalGameData = {
         ...user.game_data,
+        money: user.game_data.money - caseItem.price,
         inventory: newInventory
       };
       
       updateGameData(finalGameData);
-      setIsOpeningCase(false);
-      setCaseResult(null);
-      setCurrentCase(null);
+      alert(`Вы получили: ${plant?.name} ×${quantity} (${selectedReward.rarity})`);
     };
 
 
@@ -285,8 +273,8 @@ export default function ShopScreen({ user, updateGameData }) {
             <CaseOpeningAnimation
               isOpen={isOpeningCase}
               onClose={() => handleCaseClosed(caseResult)}
-              caseItem={currentCase}
-              reward={caseResult}
+              caseItem={currentCase}    // ← передаём caseItem
+              reward={caseResult}       // ← передаём reward
             />
           )}
     </div>

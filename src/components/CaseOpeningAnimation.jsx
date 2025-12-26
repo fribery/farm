@@ -1,17 +1,30 @@
-// src/components/CaseOpeningAnimation.jsx
 import { useState, useEffect, useRef } from 'react';
+import { GAME_CONFIG } from '../game/config'; // ← ДОБАВЬТЕ этот импорт
 import './CaseOpeningAnimation.css';
 
-export default function CaseOpeningAnimation({ isOpen, onClose, rewards, selectedReward }) {
+export default function CaseOpeningAnimation({ 
+  isOpen, 
+  onClose, 
+  caseItem,  // ← получаем caseItem вместо rewards
+  reward     // ← получаем reward вместо selectedReward
+}) {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const containerRef = useRef(null);
   
+  // Получаем rewards из caseItem
+  const rewards = caseItem?.rewards || [];
+  
+  // Находим индекс выбранной награды в rewards
+  const rewardIndex = rewards.findIndex(r => 
+    r.plantId === reward?.plantId && r.rarity === reward?.rarity
+  );
+  
   useEffect(() => {
-    if (isOpen && !isSpinning) {
+    if (isOpen && !isSpinning && rewards.length > 0) {
       startSpinAnimation();
     }
-  }, [isOpen]);
+  }, [isOpen, rewards.length]);
   
   const startSpinAnimation = () => {
     setIsSpinning(true);
@@ -32,8 +45,8 @@ export default function CaseOpeningAnimation({ isOpen, onClose, rewards, selecte
       // Остановка на выбранном предмете (фаза 3)
       if (speed < 0.5) {
         // Выравниваем на выбранном предмете
-        const itemWidth = 120; // ширина элемента
-        const targetPosition = selectedReward.index * itemWidth;
+        const itemWidth = 120;
+        const targetPosition = rewardIndex * itemWidth;
         
         // Плавная финальная остановка
         const diff = targetPosition - (position % (rewards.length * itemWidth));
@@ -41,7 +54,6 @@ export default function CaseOpeningAnimation({ isOpen, onClose, rewards, selecte
         
         setTimeout(() => {
           setIsSpinning(false);
-          setTimeout(onClose, 2000); // Закрыть через 2 сек после показа
         }, 1000);
         
         return;
@@ -53,13 +65,19 @@ export default function CaseOpeningAnimation({ isOpen, onClose, rewards, selecte
     requestAnimationFrame(spin);
   };
   
-  if (!isOpen) return null;
+  // Получаем растение для эмодзи
+  const getPlantEmoji = (plantId) => {
+    const plant = GAME_CONFIG.plants.find(p => p.id === plantId);
+    return plant?.name?.split(' ')[0] || '🌱';
+  };
+  
+  if (!isOpen || !caseItem || !reward) return null;
   
   return (
     <div className="case-overlay">
       <div className="case-animation-container">
         <div className="case-header">
-          <h2>🎰 Открытие кейса</h2>
+          <h2>🎰 Открытие: {caseItem.name}</h2>
           <div className="rarity-odds">
             <span className="common">Обычный 75%</span>
             <span className="rare">Редкий 20%</span>
@@ -74,16 +92,22 @@ export default function CaseOpeningAnimation({ isOpen, onClose, rewards, selecte
             ref={containerRef}
             style={{ transform: `translateX(-${scrollPosition}px)` }}
           >
-            {[...rewards, ...rewards, ...rewards].map((reward, idx) => (
-              <div 
-                key={idx} 
-                className={`reward-item ${reward.rarity} ${idx % rewards.length === selectedReward.index ? 'selected' : ''}`}
-              >
-                <div className="reward-emoji">{reward.emoji || '🌱'}</div>
-                <div className="reward-name">{reward.name}</div>
-                <div className="reward-rarity">{reward.rarity}</div>
-              </div>
-            ))}
+            {[...rewards, ...rewards, ...rewards].map((item, idx) => {
+              const isSelected = !isSpinning && 
+                idx % rewards.length === rewardIndex &&
+                idx >= rewards.length && idx < rewards.length * 2;
+              
+              return (
+                <div 
+                  key={idx} 
+                  className={`reward-item ${item.rarity} ${isSelected ? 'selected' : ''}`}
+                >
+                  <div className="reward-emoji">{getPlantEmoji(item.plantId)}</div>
+                  <div className="reward-name">{item.name}</div>
+                  <div className="reward-rarity">{item.rarity}</div>
+                </div>
+              );
+            })}
           </div>
           
           {/* Указатель (как в CS2) */}
@@ -91,14 +115,16 @@ export default function CaseOpeningAnimation({ isOpen, onClose, rewards, selecte
         </div>
         
         {/* Финальный результат */}
-        {!isSpinning && (
-          <div className={`final-result ${selectedReward.rarity}`}>
-            <div className="result-emoji">{selectedReward.emoji}</div>
+        {!isSpinning && reward && (
+          <div className={`final-result ${reward.rarity}`}>
+            <div className="result-emoji">{getPlantEmoji(reward.plantId)}</div>
             <div className="result-text">
               <h3>Вы получили!</h3>
-              <div className="result-name">{selectedReward.name}</div>
-              <div className="result-rarity">{selectedReward.rarity.toUpperCase()}</div>
-              <div className="result-quantity">{selectedReward.quantity} шт</div>
+              <div className="result-name">{reward.name}</div>
+              <div className="result-rarity">{reward.rarity.toUpperCase()}</div>
+              <div className="result-quantity">
+                {typeof reward.quantity === 'string' ? reward.quantity : `${reward.quantity} шт`}
+              </div>
             </div>
             <button onClick={onClose} className="close-btn">Забрать</button>
           </div>
