@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import './CaseOpeningAnimation.css';
 
-const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
+const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
   const [animationStage, setAnimationStage] = useState('closed'); // closed, spinning, ready
   const [selectedReward, setSelectedReward] = useState(null);
   const [rewardsList, setRewardsList] = useState([]);
@@ -27,7 +27,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
     const list = [];
     const allRewards = [...caseItem.rewards];
     
-    // Добавляем случайные награды для эффекта прокрутки (15-20 шт)
+    // Добавляем случайные награды для эффекта прокрутки
     for (let i = 0; i < 18; i++) {
       const randomIndex = Math.floor(Math.random() * allRewards.length);
       list.push({
@@ -74,7 +74,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
     // Анимация прокрутки
     if (caseRef.current) {
       const totalRewards = rewardsList.length;
-      const finalPosition = -(totalRewards - 5) * 200; // 200px - ширина одного элемента
+      const finalPosition = -(totalRewards - 5) * 200;
       
       caseRef.current.style.transition = 'transform 3s cubic-bezier(0.1, 0.8, 0.2, 1)';
       caseRef.current.style.transform = `translateX(${finalPosition}px)`;
@@ -90,12 +90,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
     if (animationStage !== 'ready' || !selectedReward) return;
     
     try {
-      // Вызываем колбэк после получения награды
       if (onRewardTaken) {
         onRewardTaken(selectedReward);
       }
       
-      // Закрываем кейс
       handleClose();
     } catch (error) {
       console.error('Ошибка при получении награды:', error);
@@ -131,23 +129,34 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
     }
   };
 
+  // Функция для получения эмодзи растения
+  const getPlantEmoji = (plantId) => {
+    if (!plants || !Array.isArray(plants)) return '🌱';
+    const plant = plants.find(p => p.id === plantId);
+    if (!plant) return '🌱';
+    return plant.name.split(' ')[0] || '🌱';
+  };
+
+  // Функция для получения названия растения
+  const getPlantName = (plantId) => {
+    if (!plants || !Array.isArray(plants)) return 'Семена';
+    const plant = plants.find(p => p.id === plantId);
+    return plant?.name || 'Семена';
+  };
+
   // Если нет кейса, не рендерим
   if (!caseItem) return null;
 
   return (
     <div className="case-opening-modal">
-      {/* Фон с затемнением */}
       <div className="case-modal-backdrop" onClick={handleClose}></div>
       
-      {/* Модальное окно */}
       <div className="case-modal-content">
-        {/* Заголовок с кнопкой закрытия */}
         <div className="case-modal-header">
           <h2>{caseItem.name}</h2>
           <button className="case-close-button" onClick={handleClose}>✕</button>
         </div>
         
-        {/* Информация о кейсе */}
         <div className="case-info">
           <div className="case-emoji">{caseItem.emoji}</div>
           <p className="case-description">{caseItem.description}</p>
@@ -158,7 +167,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
           </div>
         </div>
         
-        {/* Область с анимацией прокрутки */}
         <div className="case-viewport-container">
           <div className="case-viewport">
             <div 
@@ -178,10 +186,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
                   }}
                 >
                   <div className="reward-icon">
-                    {GAME_CONFIG.plants?.find(p => p.id === reward.plantId)?.name.split(' ')[0] || '🌱'}
+                    {getPlantEmoji(reward.plantId)}
                   </div>
                   <div className="reward-name">
-                    {GAME_CONFIG.plants?.find(p => p.id === reward.plantId)?.name || 'Семена'}
+                    {getPlantName(reward.plantId)}
                   </div>
                   <div 
                     className="reward-rarity"
@@ -196,12 +204,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
               ))}
             </div>
             
-            {/* Индикатор выбора (центр) */}
             <div className="selection-indicator"></div>
           </div>
         </div>
         
-        {/* Отображение выбранной награды */}
         {animationStage === 'ready' && selectedReward && (
           <div className="selected-reward-container">
             <div 
@@ -212,10 +218,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
               }}
             >
               <div className="reward-card-icon">
-                {GAME_CONFIG.plants?.find(p => p.id === selectedReward.plantId)?.name.split(' ')[0] || '🌱'}
+                {getPlantEmoji(selectedReward.plantId)}
               </div>
               <h3 className="reward-card-name">
-                {GAME_CONFIG.plants?.find(p => p.id === selectedReward.plantId)?.name || 'Семена'}
+                {getPlantName(selectedReward.plantId)}
               </h3>
               <div 
                 className="reward-card-rarity"
@@ -233,7 +239,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
           </div>
         )}
         
-        {/* Кнопки управления */}
         <div className="case-controls">
           {animationStage === 'closed' ? (
             <button 
@@ -268,8 +273,5 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem }) => {
     </div>
   );
 };
-
-// Нужно импортировать GAME_CONFIG или передавать как пропс
-import { GAME_CONFIG } from '../../game/config';
 
 export default CaseOpeningAnimation;

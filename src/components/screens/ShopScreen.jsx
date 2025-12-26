@@ -265,6 +265,7 @@ export default function ShopScreen({ user, updateGameData }) {
           onClose={handleCloseCase}
           onRewardTaken={handleRewardTaken}
           caseItem={currentCase}
+          plants={GAME_CONFIG.plants}
         />
       )}
     </div>
