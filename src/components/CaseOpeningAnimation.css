@@ -138,9 +138,9 @@
   margin: 0 auto 20px auto;
   border-radius: 15px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.1) !important; /* Делаем светлее! Было 0.4 */
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1) !important;
-  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.05) !important; /* Белый полупрозрачный */
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  box-shadow: none !important; /* Убираем все тени */
 }
 
 /* ФИКС: Убираем градиентный фон который мешает */
