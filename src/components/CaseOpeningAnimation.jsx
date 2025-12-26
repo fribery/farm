@@ -220,6 +220,8 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         </div>
         
         {animationStage === 'ready' && selectedReward && (
+            console.log('=== РЕНДЕРИМ ФИНАЛЬНУЮ КАРТОЧКУ ===', selectedReward),
+            console.log('Данные в карточке: plantId=', selectedReward.plantId, 'name=', selectedReward.name),
           <div className="selected-reward-container">
             <div 
               className="reward-card"
