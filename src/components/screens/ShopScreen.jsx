@@ -48,6 +48,19 @@ export default function ShopScreen({ user, updateGameData }) {
     updateGameData(newGameData)
   }
 
+    const selectRewardFromCase = (caseItem) => {
+      const random = Math.random() * 100;
+      let accumulatedChance = 0;
+      
+      for (const reward of caseItem.rewards) {
+        accumulatedChance += reward.chance;
+        if (random <= accumulatedChance) {
+          return reward;
+        }
+      }
+      return caseItem.rewards[0];
+    };
+
     const handleOpenCase = (caseItem) => {
       if (!user) {
         alert('Ошибка загрузки данных пользователя');
