@@ -5,7 +5,7 @@ import FarmScreen from './components/screens/FarmScreen.jsx'
 import ShopScreen from './components/screens/ShopScreen.jsx'
 import StatsScreen from './components/screens/StatsScreen.jsx'
 import ProfileScreen from './components/screens/ProfileScreen.jsx'
-import ToastNotification from './ToastNotification';
+import ToastNotification from './components/ToastNotification';
 import './App.css'
 
 function App() {
