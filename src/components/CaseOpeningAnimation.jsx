@@ -66,7 +66,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     
     // Сразу снимаем деньги
     if (onRewardTaken) {
-      onRewardTaken(selectedReward); 
+      onRewardTaken({ type: 'payment', price: caseItem.price });
     }
     
     // Анимация прокрутки
