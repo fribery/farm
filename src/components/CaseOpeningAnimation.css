@@ -597,3 +597,25 @@
     margin-bottom: 5px !important;
   }
 }
+
+.error-message {
+  background: rgba(244, 67, 54, 0.9);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: center;
+  font-weight: bold;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

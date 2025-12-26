@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'; // Добавлен useEffect
+import { useState, useEffect } from 'react';
 import { GAME_CONFIG } from '../../game/config'
 import CaseOpeningAnimation from '../CaseOpeningAnimation';
 import './Screens.css'
@@ -8,7 +8,6 @@ export default function ShopScreen({ user, updateGameData }) {
   const [currentCase, setCurrentCase] = useState(null);
   const [selectedReward, setSelectedReward] = useState(null);
 
-  // Отслеживаем изменения selectedReward для логирования
   useEffect(() => {
     if (selectedReward) {
       console.log('🔄 selectedReward обновлен:', selectedReward);
@@ -93,19 +92,17 @@ export default function ShopScreen({ user, updateGameData }) {
       return;
     }
 
-    // ВЫБИРАЕМ НАГРАДУ
     const reward = selectRewardFromCase(caseItem);
     
     console.log('=== ПРОВЕРКА ДАННЫХ ===');
     console.log('Выбрана награда:', reward);
     
-    // Сохраняем кейс и награду
     setCurrentCase(caseItem);
     setSelectedReward(reward);
     setIsCaseOpen(true);
   };
 
-  // Обработчик кнопки "Открыть еще раз"
+  // Обработчик кнопки "Открыть еще раз" - ТЕПЕРЬ ЗАКРЫВАЕТ КЕЙС ПРИ НЕХВАТКЕ ДЕНЕГ
   const handleOpenAgain = () => {
     console.log('=== ОБРАБОТКА "ОТКРЫТЬ ЕЩЕ РАЗ" ===');
     
@@ -117,10 +114,12 @@ export default function ShopScreen({ user, updateGameData }) {
     // Проверяем хватает ли денег
     if (user.game_data.money < currentCase.price) {
       alert('Недостаточно денег для открытия еще раз!');
+      
+      // ЗАКРЫВАЕМ КЕЙС ПРИ НЕХВАТКЕ ДЕНЕГ
+      handleCloseCase();
       return;
     }
     
-    // Выбираем новую случайную награду из того же кейса
     const newReward = selectRewardFromCase(currentCase);
     
     if (!newReward) {
@@ -135,7 +134,6 @@ export default function ShopScreen({ user, updateGameData }) {
     };
     updateGameData(newGameData);
     
-    // ОБНОВЛЯЕМ награду - это вызовет перерендер рулетки
     setSelectedReward(newReward);
     
     console.log('Новая награда установлена, деньги списаны:', newReward);
@@ -161,7 +159,6 @@ export default function ShopScreen({ user, updateGameData }) {
       return;
     }
     
-    // Выдача реальной награды
     console.log('Выдача награды:', reward);
     
     const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
@@ -175,7 +172,6 @@ export default function ShopScreen({ user, updateGameData }) {
     const quantity = parseInt(reward.quantity, 10) || 1;
     console.log('Финальное количество из награды:', quantity);
     
-    // Обновляем инвентарь
     const newInventory = [...(user.game_data.inventory || [])];
     const existingIndex = newInventory.findIndex(
       item => item.type === 'seed' && item.plantId === reward.plantId
@@ -286,6 +282,11 @@ export default function ShopScreen({ user, updateGameData }) {
               <div className="item-info">
                 <h4>{caseItem.name}</h4>
                 <p className="case-description">{caseItem.description}</p>
+                <div className="case-odds">
+                  <div className="odds-item common">Обычные: 75%</div>
+                  <div className="odds-item rare">Редкие: 20%</div>
+                  <div className="odds-item epic">Эпические: 5%</div>
+                </div>
               </div>
               <button
                 onClick={() => handleOpenCase(caseItem)}
@@ -338,7 +339,7 @@ export default function ShopScreen({ user, updateGameData }) {
           onRewardTaken={handleRewardTaken}
           onOpenAgain={handleOpenAgain}
           caseItem={currentCase}
-          selectedReward={selectedReward} // Передаем новую награду при каждом обновлении
+          selectedReward={selectedReward}
           plants={GAME_CONFIG.plants}
         />
       )}
