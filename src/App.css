@@ -60,7 +60,7 @@
 }
 
 .stat-icon-header {
-  font-size: 11px;
+  font-size: 14px;
   width: 28px;
   height: 28px;
   display: flex;
@@ -76,7 +76,7 @@
 }
 
 .stat-value-header {
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   color: rgb(255, 255, 255);
   line-height: 1.2;
@@ -87,7 +87,7 @@
 }
 
 .stat-label-header {
-  font-size: 7px;
+  font-size: 9px;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
