@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { GAME_CONFIG } from '../../game/config'
 import CaseOpeningAnimation from '../CaseOpeningAnimation';
 import './Screens.css'
