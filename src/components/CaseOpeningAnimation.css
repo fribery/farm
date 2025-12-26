@@ -154,8 +154,8 @@
   background: linear-gradient(
     to right,
     rgba(0, 0, 0, 0.7) 0%,
-    rgba(0, 0, 0, 0.3) 20%,
-    rgba(0, 0, 0, 0.3) 80%,
+    transparent 20%,
+    transparent 80%,
     rgba(0, 0, 0, 0.7) 100%
   );
   pointer-events: none;
@@ -197,7 +197,6 @@
   box-sizing: border-box;
   position: relative;
 }
-
 .reward-item[style*="border-color: #8B8B8B"] { /* common */
   border-color: #8B8B8B !important;
   box-shadow: 0 4px 8px rgba(139, 139, 139, 0.2);
