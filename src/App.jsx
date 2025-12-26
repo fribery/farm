@@ -11,6 +11,14 @@ function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
   const [activeScreen, setActiveScreen] = useState('farm')
 
+  useEffect(() => {
+  // Добавьте проверку, если её нет
+  if (window.Telegram?.WebApp) {
+      window.Telegram.WebApp.expand();
+      window.Telegram.WebApp.enableClosingConfirmation();
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="App">
