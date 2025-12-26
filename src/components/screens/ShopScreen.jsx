@@ -47,6 +47,95 @@ export default function ShopScreen({ user, updateGameData }) {
 //    alert(`Куплены семена: ${plant.name}`)
   }
 
+  const openCase = (caseId) => {
+    if (!user) {
+      console.error('user is not defined in ShopScreen');
+      alert('Ошибка загрузки данных пользователя');
+      return;
+    }
+    
+    const caseItem = GAME_CONFIG.cases?.find(c => c.id === caseId);
+    if (!caseItem) {
+      alert('Кейс не найден!');
+      return;
+    }
+    
+    // Проверка денег
+    if (user.game_data.money < caseItem.price) {
+      alert('Недостаточно денег!');
+      return;
+    }
+    
+    // 1. Рандомный выбор награды
+    const random = Math.random() * 100;
+    let accumulatedChance = 0;
+    let selectedReward = null;
+    
+    for (const reward of caseItem.rewards) {
+      accumulatedChance += reward.chance;
+      if (random <= accumulatedChance) {
+        selectedReward = reward;
+        break;
+      }
+    }
+    
+    // Если ничего не выбралось (на всякий случай)
+    if (!selectedReward) {
+      selectedReward = caseItem.rewards[0];
+    }
+    
+    // 2. Разбор количества (поддержка формата "1-3")
+    let quantity = 1;
+    if (typeof selectedReward.quantity === 'string' && selectedReward.quantity.includes('-')) {
+      const [min, max] = selectedReward.quantity.split('-').map(Number);
+      quantity = Math.floor(Math.random() * (max - min + 1)) + min;
+    } else {
+      quantity = Number(selectedReward.quantity) || 1;
+    }
+    
+    // 3. Обновление инвентаря
+    const plant = GAME_CONFIG.plants.find(p => p.id === selectedReward.plantId);
+    if (!plant) {
+      alert('Ошибка: растение не найдено!');
+      return;
+    }
+    
+    const newInventory = [...(user.game_data.inventory || [])];
+    const existingIndex = newInventory.findIndex(
+      item => item.type === 'seed' && item.plantId === selectedReward.plantId
+    );
+    
+    if (existingIndex >= 0) {
+      // Увеличиваем количество
+      newInventory[existingIndex] = {
+        ...newInventory[existingIndex],
+        count: (newInventory[existingIndex].count || 0) + quantity
+      };
+    } else {
+      // Добавляем новую запись
+      newInventory.push({
+        type: 'seed',
+        plantId: selectedReward.plantId,
+        name: plant.name,
+        count: quantity,
+        rarity: selectedReward.rarity
+      });
+    }
+    
+    // 4. Обновление данных
+    const newGameData = {
+      ...user.game_data,
+      money: user.game_data.money - caseItem.price,
+      inventory: newInventory
+    };
+    
+    updateGameData(newGameData);
+    
+    // 5. Показ результата (пока простой alert, потом добавим анимацию)
+    alert(`🎉 Вы открыли кейс "${caseItem.name}" и получили: ${plant.name} ×${quantity}! (${selectedReward.rarity})`);
+  };
+
+
   const buySlot = () => {
     const SLOT_PRICE = user.game_data?.slotPrice || 500; // Цена улучшения
     const SLOTS_TO_ADD = 3; // Сколько слотов добавляет покупка

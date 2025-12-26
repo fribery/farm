@@ -50,7 +50,6 @@ export const GAME_CONFIG = {
         
         // Редкие (20% суммарно)
         { plantId: 3, name: "🍅 Помидор", rarity: "rare", chance: 15, quantity: "1-3" },
-        { plantId: 4, name: "🌻 Подсолнух", rarity: "rare", chance: 5, quantity: "1-2" },
         
         // Эпические (5%)
         { plantId: 4, name: "🌻 Подсолнух", rarity: "epic", chance: 5, quantity: "1", special: "Золотой" }
