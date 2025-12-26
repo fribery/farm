@@ -20,19 +20,20 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     };
   }, [caseItem]);
 
-  const generateRewardsList = () => {
+    const generateRewardsList = () => {
     if (!caseItem?.rewards) return;
     
     const list = [];
     const allRewards = [...caseItem.rewards];
     
-    // Добавляем случайные награды для эффекта прокрутки
-    for (let i = 0; i < 30; i++) { // Больше элементов для плавной прокрутки
-      const randomIndex = Math.floor(Math.random() * allRewards.length);
-      list.push({
+    // Добавляем БОЛЬШЕ элементов для плавной прокрутки
+    for (let i = 0; i < 50; i++) { // УВЕЛИЧИЛ с 30 до 50
+        const randomIndex = Math.floor(Math.random() * allRewards.length);
+        list.push({
         ...allRewards[randomIndex],
-        isFinal: false
-      });
+        isFinal: false,
+        id: i // Добавляем уникальный ID
+        });
     }
     
     // Выбираем финальную награду
@@ -41,69 +42,111 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     let finalReward = null;
     
     for (const reward of caseItem.rewards) {
-      accumulatedChance += reward.chance;
-      if (finalRoll <= accumulatedChance) {
+        accumulatedChance += reward.chance;
+        if (finalRoll <= accumulatedChance) {
         finalReward = {
-          ...reward,
-          isFinal: true
+            ...reward,
+            isFinal: true,
+            id: 50 // ID после всех обычных элементов
         };
         break;
-      }
+        }
     }
     
     if (!finalReward) {
-      finalReward = {
+        finalReward = {
         ...allRewards[0],
-        isFinal: true
-      };
+        isFinal: true,
+        id: 50
+        };
     }
     
     // Добавляем финальную награду в конец
     list.push(finalReward);
     
+    // Добавляем ещё несколько элементов ПОСЛЕ финальной награды
+    // чтобы дорожка не заканчивалась резко
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * allRewards.length);
+        list.push({
+        ...allRewards[randomIndex],
+        isFinal: false,
+        id: 51 + i
+        });
+    }
+    
     setRewardsList(list);
     setSelectedReward(finalReward);
-  };
+    
+    // Возвращаем индекс финальной награды для использования в анимации
+    return list.findIndex(r => r.isFinal);
+    };
 
-  const handleOpenCase = () => {
-    if (animationStage !== 'closed') return;
-    
-    setAnimationStage('spinning');
-    setIsSpinning(true);
-    
-    // Сразу снимаем деньги
-    if (onRewardTaken) {
-      onRewardTaken({ type: 'payment', price: caseItem.price });
+    // Добавьте state для хранения индекса финальной награды
+    const [finalRewardIndex, setFinalRewardIndex] = useState(0);
+
+    // Обновите useEffect:
+    useEffect(() => {
+    if (caseItem) {
+        const index = generateRewardsList();
+        setFinalRewardIndex(index);
     }
-    
-    // Анимация прокрутки
-    if (caseRef.current) {
-      const totalRewards = rewardsList.length;
-      // Останавливаемся на последнем элементе (финальная награда)
-      const finalRewardIndex = rewardsList.findIndex(r => r.isFinal);
-      // Позиция для остановки финальной награды в центре
-      const centerOffset = 2;
-      const finalPosition = -((finalRewardIndex - centerOffset) * 185); // 185 = ширина элемента + gap
-      
-      // Сбрасываем transform перед началом
-      caseRef.current.style.transition = 'none';
-      caseRef.current.style.transform = 'translateX(0)';
-      
-      // Даем время на сброс
-      setTimeout(() => {
-        if (caseRef.current) {
-          caseRef.current.style.transition = 'transform 2.5s cubic-bezier(0.1, 0.8, 0.2, 1)';
-          caseRef.current.style.transform = `translateX(${finalPosition}px)`;
+    return () => {
+        if (animationTimeoutRef.current) {
+        clearTimeout(animationTimeoutRef.current);
         }
-      }, 10);
-    }
-    
-    // Завершение анимации
-    animationTimeoutRef.current = setTimeout(() => {
-      setIsSpinning(false);
-      setAnimationStage('ready');
-    }, 2500);
-  };
+    };
+    }, [caseItem]);
+
+        const handleOpenCase = () => {
+        if (animationStage !== 'closed') return;
+        
+        setAnimationStage('spinning');
+        setIsSpinning(true);
+        
+        // Сразу снимаем деньги
+        if (onRewardTaken) {
+            onRewardTaken({ type: 'payment', price: caseItem.price });
+        }
+        
+        // Анимация прокрутки
+        if (caseRef.current) {
+            const elementWidth = 160; // Ширина одного элемента
+            const gap = 20; // Расстояние между элементами
+            const totalElementWidth = elementWidth + gap;
+            
+            // Центральная позиция (где должен оказаться финальный элемент)
+            const viewportWidth = 400; // Примерная ширина видимой области
+            const centerPosition = viewportWidth / 2 - elementWidth / 2;
+            
+            // Позиция финального элемента в дорожке
+            const finalElementPosition = finalRewardIndex * totalElementWidth;
+            
+            // Смещение, чтобы финальный элемент оказался в центре
+            const finalScrollPosition = -finalElementPosition + centerPosition;
+            
+            // Сбрасываем transform перед началом
+            caseRef.current.style.transition = 'none';
+            caseRef.current.style.transform = 'translateX(0)';
+            
+            // Даем время на сброс
+            requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                if (caseRef.current) {
+                // Плавная анимация с замедлением в конце
+                caseRef.current.style.transition = 'transform 3s cubic-bezier(0.2, 0.8, 0.3, 1)';
+                caseRef.current.style.transform = `translateX(${finalScrollPosition}px)`;
+                }
+            });
+            });
+        }
+        
+        // Завершение анимации
+        animationTimeoutRef.current = setTimeout(() => {
+            setIsSpinning(false);
+            setAnimationStage('ready');
+        }, 3000);
+        };
 
   const handleTakeReward = async () => {
     if (animationStage !== 'ready' || !selectedReward) return;
