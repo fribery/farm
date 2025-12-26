@@ -86,29 +86,39 @@
 
 /* === ИСПРАВЛЕНИЯ ДЛЯ КАРТОЧЕК ПОЛЕЙ === */
 
-/* 1. Изменяем вертикальное расположение на сетку - ФИКСИРОВАННОЕ ЧИСЛО КОЛОНОК */
+/* 1. Изменяем вертикальное расположение на сетку - УНИВЕРСАЛЬНОЕ РЕШЕНИЕ */
 .fields-grid-compact {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* По умолчанию 3 в ряд */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 12px;
   margin-top: 15px;
   width: 100%;
+}
+
+/* УБЕДИТЕЛЬНАЯ ПРОВЕРКА: принудительно убираем flex/column */
+.fields-grid-compact {
+  display: grid !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
 }
 
 /* 2. Уменьшаем карточки полей */
 .field-card-compact {
   background: white;
   border-radius: 12px;
-  padding: 12px; /* Уменьшил padding */
+  padding: 12px;
   box-shadow: 0 3px 8px rgba(0,0,0,0.05);
   border: 2px solid #f0f0f0;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  min-height: 170px; /* Уменьшил высоту */
+  min-height: 170px;
   max-height: 200px;
   overflow: hidden;
-  width: 100%; /* Гарантируем полную ширину ячейки */
+  width: 100%;
+  /* Гарантируем, что карточка не растянется */
+  flex-shrink: 0;
+  flex-grow: 0;
 }
 
 .field-card-compact:hover {
@@ -143,7 +153,7 @@
 
 .field-name {
   margin: 0;
-  font-size: 0.95rem; /* Уменьшил шрифт */
+  font-size: 0.95rem;
   color: #2c3e50;
   display: flex;
   align-items: center;
@@ -165,7 +175,7 @@
   display: flex;
   align-items: center;
   gap: 3px;
-  font-size: 0.7rem; /* Уменьшил шрифт */
+  font-size: 0.7rem;
   color: #666;
   background: #f8f9fa;
   padding: 2px 6px;
@@ -188,7 +198,7 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 6px;
-  font-size: 0.8rem; /* Уменьшил */
+  font-size: 0.8rem;
 }
 
 .stage-icon {
@@ -201,7 +211,7 @@
   margin-left: 6px;
   font-weight: 500;
   color: #333;
-  font-size: 0.8rem; /* Уменьшил */
+  font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -214,7 +224,7 @@
   padding: 2px 6px;
   border-radius: 10px;
   border: 1px solid #4CAF50;
-  font-size: 0.75rem; /* Уменьшил */
+  font-size: 0.75rem;
   white-space: nowrap;
 }
 
@@ -228,7 +238,7 @@
   padding: 6px;
   background: #f8f9fa;
   border-radius: 6px;
-  font-size: 0.8rem; /* Уменьшил */
+  font-size: 0.8rem;
 }
 
 .timer-icon {
@@ -237,7 +247,7 @@
 
 .timer-value {
   font-family: 'Courier New', monospace;
-  font-size: 1rem; /* Уменьшил */
+  font-size: 1rem;
   font-weight: 700;
   color: #e65100;
 }
@@ -245,7 +255,7 @@
 .timer-ready {
   font-weight: 700;
   color: #4CAF50;
-  font-size: 0.9rem; /* Уменьшил */
+  font-size: 0.9rem;
 }
 
 /* 7. Простой прогресс-бар */
@@ -319,7 +329,7 @@
   color: #4CAF50;
   border: 2px solid #4CAF50;
   border-radius: 6px;
-  font-size: 0.85rem; /* Уменьшил */
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -339,7 +349,7 @@
 }
 
 .harvest-icon {
-  font-size: 0.6rem;
+  font-size: 0.9rem;
 }
 
 .harvested-badge {
@@ -443,7 +453,7 @@
 /* 10. Стили для семян в линию */
 .seeds-row {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Фиксировано 3 в ряд */
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 10px;
   margin-top: 15px;
   width: 100%;
@@ -584,10 +594,10 @@
   font-size: 1.2rem;
 }
 
-/* === КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ ДЛЯ МОБИЛЬНЫХ (iPhone 12 Pro: 390px) === */
+/* === УНИВЕРСАЛЬНЫЕ МЕДИА-ЗАПРОСЫ ДЛЯ ВСЕХ УСТРОЙСТВ === */
 
-/* Десктоп (большие экраны) - 3 в ряд */
-@media (min-width: 992px) {
+/* Десктоп (больше 1024px) - 3 в ряд */
+@media screen and (min-width: 1024px) {
   .fields-grid-compact {
     grid-template-columns: repeat(3, 1fr);
   }
@@ -596,8 +606,8 @@
   }
 }
 
-/* Планшеты и маленькие ноутбуки (768px - 991px) */
-@media (min-width: 768px) and (max-width: 991px) {
+/* Планшеты в альбомной ориентации и маленькие ноутбуки (768px - 1023px) */
+@media screen and (min-width: 768px) and (max-width: 1023px) {
   .fields-grid-compact {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -606,67 +616,34 @@
   }
 }
 
-/* iPhone 12 Pro и подобные (390px - 767px) - 2 КАРТОЧКИ В РЯД! */
-@media (max-width: 767px) {
+/* ВСЕ МОБИЛЬНЫЕ УСТРОЙСТВА (до 767px) - 2 В РЯД НА ВСЕХ! */
+@media screen and (max-width: 767px) {
   .fields-grid-compact {
-    grid-template-columns: repeat(2, 1fr) !important; /* 2 В РЯД НА iPhone! */
-    gap: 10px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    display: grid !important;
   }
   
-  /* Делаем карточки еще компактнее для 2 в ряд */
+  /* Гарантируем, что карточки занимают правильную ширину */
   .field-card-compact {
-    padding: 10px;
-    min-height: 160px;
-    max-height: 190px;
-  }
-  
-  .field-name {
-    font-size: 0.9rem;
-  }
-  
-  .field-stat {
-    font-size: 0.65rem;
-    padding: 2px 5px;
+    width: 100%;
+    max-width: none;
+    min-width: 0;
   }
   
   .seeds-row {
-    grid-template-columns: repeat(2, 1fr) !important; /* 2 в ряд для семян */
-    gap: 8px;
-  }
-  
-  .seed-card-inline {
-    padding: 8px;
-  }
-  
-  .seed-inline-emoji {
-    width: 40px;
-    height: 40px;
-    font-size: 1.3rem;
-  }
-  
-  .seed-inline-name {
-    font-size: 0.8rem;
-  }
-  
-  .stats-grid-compact {
-    flex-direction: column;
-    gap: 8px;
-  }
-  
-  .section-title {
-    font-size: 1.1rem;
-    margin: 20px 0 10px 0;
+    grid-template-columns: repeat(2, 1fr) !important;
+    display: grid !important;
   }
 }
 
-/* Очень маленькие телефоны (до 389px) - 1 в ряд */
-@media (max-width: 389px) {
+/* Очень маленькие телефоны (до 400px) - 1 в ряд */
+@media screen and (max-width: 400px) {
   .fields-grid-compact {
-    grid-template-columns: 1fr !important; /* 1 в ряд на очень маленьких */
+    grid-template-columns: 1fr !important;
   }
   
   .seeds-row {
-    grid-template-columns: repeat(2, 1fr) !important; /* но семена все равно 2 в ряд */
+    grid-template-columns: repeat(2, 1fr) !important;
   }
   
   .field-card-compact {
@@ -686,5 +663,39 @@
   
   .field-stats {
     justify-content: center;
+  }
+}
+
+/* === ДОПОЛНИТЕЛЬНЫЕ ГАРАНТИИ ДЛЯ SAMSUNG И ДРУГИХ ANDROID === */
+
+/* Принудительно сбрасываем возможные наследования */
+.fields-grid-compact {
+  display: -webkit-grid !important;
+  display: -moz-grid !important;
+  display: -ms-grid !important;
+  display: grid !important;
+  
+  -webkit-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  -moz-grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  -ms-grid-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+/* Для очень старых браузеров - fallback */
+@supports not (display: grid) {
+  .fields-grid-compact {
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+  
+  .field-card-compact {
+    flex: 0 0 calc(50% - 12px) !important;
+    margin: 6px !important;
+  }
+  
+  @media (max-width: 400px) {
+    .field-card-compact {
+      flex: 0 0 100% !important;
+    }
   }
 }
