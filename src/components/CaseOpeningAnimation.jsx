@@ -77,7 +77,7 @@ export default function CaseOpeningAnimation({
     <div className="case-overlay">
       <div className="case-animation-container">
         <div className="case-header">
-          <h2>🎰 Открытие: {caseItem.name}</h2>
+          <h2>🎰 Открываем кейсик:</h2>
           <div className="rarity-odds">
             <span className="common">Обычный 75%</span>
             <span className="rare">Редкий 20%</span>
@@ -126,7 +126,13 @@ export default function CaseOpeningAnimation({
                 {typeof reward.quantity === 'string' ? reward.quantity : `${reward.quantity} шт`}
               </div>
             </div>
-            <button onClick={onClose} className="close-btn">Забрать</button>
+            <button 
+            className="take-button" 
+            onClick={handleTakeReward}
+            disabled={!isCaseScrolled} // Опционально: сделать активной только после прокрутки
+            >
+            Забрать приз!
+            </button>
           </div>
         )}
       </div>

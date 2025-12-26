@@ -108,3 +108,28 @@
   70% { transform: scale(1.05); }
   100% { transform: scale(1); opacity: 1; }
 }
+
+
+/* Пример стилей для кнопки "Забрать" */
+.take-button {
+  background: linear-gradient(45deg, #FFD700, #FFA500);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 12px;
+  z-index: 100;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.take-button:hover {
+  background: linear-gradient(45deg, #FFA500, #FF8C00);
+  transform: scale(1.05);
+}
+
+.take-button:active {
+  transform: scale(0.95);
+}
