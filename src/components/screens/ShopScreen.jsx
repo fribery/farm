@@ -125,6 +125,35 @@ export default function ShopScreen({ user, updateGameData }) {
         </div>
       </section>
       
+      {/* Секция кейсов */}
+      <section className="shop-section">
+        <h3>🎰 Кейсы с семенами</h3>
+        <div className="items-grid">
+          {GAME_CONFIG.cases.map((caseItem) => (
+            <div key={caseItem.id} className="shop-item">
+              <div className="item-emoji">{caseItem.emoji}</div>
+              <div className="item-info">
+                <h4>{caseItem.name}</h4>
+                <p className="case-description">{caseItem.description}</p>
+                <div className="case-odds">
+                  <div className="odds-item common">Обычные: 75%</div>
+                  <div className="odds-item rare">Редкие: 20%</div>
+                  <div className="odds-item epic">Эпические: 5%</div>
+                </div>
+              </div>
+              <button
+                onClick={() => openCase(caseItem.id)}
+                disabled={!user || user.game_data.money < caseItem.price}
+                className={`buy-btn case-btn ${user && user.game_data.money >= caseItem.price ? '' : 'disabled'}`}
+              >
+                Открыть за {caseItem.price}💰
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+
       {/* Дополнительные слоты фермы */}
       <section className="shop-section">
         <h3>🏗️ Улучшения фермы</h3>
