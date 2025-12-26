@@ -282,11 +282,6 @@ export default function ShopScreen({ user, updateGameData }) {
               <div className="item-info">
                 <h4>{caseItem.name}</h4>
                 <p className="case-description">{caseItem.description}</p>
-                <div className="case-odds">
-                  <div className="odds-item common">Обычные: 75%</div>
-                  <div className="odds-item rare">Редкие: 20%</div>
-                  <div className="odds-item epic">Эпические: 5%</div>
-                </div>
               </div>
               <button
                 onClick={() => handleOpenCase(caseItem)}
