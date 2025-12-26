@@ -82,8 +82,15 @@ export default function ShopScreen({ user, updateGameData }) {
       setIsCaseOpen(true);
     };
 
+    const handleCloseCase = () => {
+    setIsCaseOpen(false);
+    setCurrentCase(null);
+    setSelectedReward(null);
+    };
+
+
   // Функция выбора награды (такая же как была в handleRewardTaken)
-const handleRewardTaken = (reward) => {
+  const handleRewardTaken = (reward) => {
   console.log('Получена награда:', reward);
   
   if (reward.type === 'payment') {
