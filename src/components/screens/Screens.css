@@ -91,13 +91,14 @@
 }
 
 .shop-item-count{
-  font-size: 1em;
+  width: 60%;
+  font-size: 0.8em;
   color: white;
   background-color: #64da68;
   border: #368139 3px;
   border-radius: 15px;
   margin-bottom: 4px;
-  padding: 8px 6px 6px 8px;
+  padding: 6px 4px 4px 6px;
   min-height: 14px;
 }
 
