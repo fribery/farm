@@ -1,4 +1,4 @@
-/* Модальное окно для кейса - фиксированная высота */
+/* Модальное окно для кейса */
 .case-opening-modal {
   position: fixed;
   top: 0;
@@ -18,20 +18,18 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(3px);
 }
 
-/* Окно кейса - меньше по высоте */
 .case-modal-content {
   position: relative;
   width: 95%;
-  max-width: 600px;
-  max-height: 70vh; /* УМЕНЬШЕНО с 90vh */
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  max-width: 500px; /* Уже чем было */
+  max-height: 75vh;
+  background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-  border: 3px solid #4a90e2;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  border: 3px solid #3949ab;
   z-index: 1001;
   animation: modalAppear 0.3s ease-out;
   overflow-y: auto;
@@ -48,6 +46,7 @@
   }
 }
 
+/* Заголовок */
 .case-modal-header {
   display: flex;
   justify-content: space-between;
@@ -59,7 +58,7 @@
 
 .case-modal-header h2 {
   color: #fff;
-  font-size: 22px;
+  font-size: 20px;
   margin: 0;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -73,9 +72,6 @@
   border-radius: 50%;
   font-size: 18px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all 0.3s;
 }
 
@@ -84,13 +80,14 @@
   transform: rotate(90deg);
 }
 
+/* Информация о кейсе */
 .case-info {
   text-align: center;
   margin-bottom: 15px;
 }
 
 .case-emoji {
-  font-size: 50px;
+  font-size: 45px;
   margin-bottom: 8px;
 }
 
@@ -104,15 +101,15 @@
 .case-rarity-chances {
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
 .rarity-chance {
-  padding: 6px 12px;
-  border-radius: 15px;
+  padding: 5px 10px;
+  border-radius: 12px;
   font-weight: bold;
-  font-size: 12px;
+  font-size: 11px;
   text-transform: uppercase;
 }
 
@@ -131,15 +128,16 @@
   color: white;
 }
 
+/* КОНТЕЙНЕР ПРОКРУТКИ - БЕЗ БЛЮРА И ЗАТЕМНЕНИЯ */
 .case-viewport-container {
   position: relative;
-  width: 200px; /* ФИКСИРОВАННАЯ ШИРИНА - только для одного элемента! */
-  height: 220px;
-  margin: 0 auto 20px auto; /* Центрируем */
+  width: 100%;
+  height: 200px;
+  margin-bottom: 20px;
   border-radius: 12px;
   overflow: hidden;
-  background: rgba(0, 0, 0, 0.4);
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 .case-viewport {
@@ -147,138 +145,133 @@
   width: 100%;
   height: 100%;
   overflow: hidden;
+  /* УБИРАЕМ маску и градиенты */
 }
 
-/* ДОРОЖКА - элементы шире */
+/* ДОРОЖКА - все элементы видны четко */
 .case-rewards-track {
   display: flex;
-  gap: 25px; /* БОЛЬШЕ расстояние между элементами */
+  gap: 20px;
   height: 100%;
-  padding: 20px 60px; /* Больше паддинг по бокам */
+  padding: 20px;
   width: max-content;
-  transition: transform 0.1s linear;
+  transition: transform 2.5s cubic-bezier(0.1, 0.8, 0.2, 1);
 }
 
-/* КАРТОЧКА НАГРАДЫ - ШИРОКАЯ, чтобы занимала всю видимую область */
+/* КАРТОЧКА НАГРАДЫ - БЕЗ блюра и прозрачности */
 .reward-item {
-  flex: 0 0 180px; /* ШИРОКИЙ элемент */
-  height: 180px;
-  border: 3px solid;
-  border-radius: 12px;
+  flex: 0 0 160px; /* Фиксированная ширина */
+  height: 160px;
+  border: 2px solid;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 15px;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(5px);
+  /* УБИРАЕМ backdrop-filter: blur() */
   transition: all 0.3s ease;
-  /* Делаем НЕвидимыми все элементы кроме тех, что в центре */
-  opacity: 0.3;
-  transform: scale(0.9);
+  /* ВСЕ элементы одинаково видны */
+  opacity: 1 !important;
+  filter: none !important;
+  transform: scale(1) !important;
 }
 
-/* Элементы вне индикатора должны быть скрыты */
-.reward-item:not(.final-reward) {
-  filter: blur(1px);
-}
-
-/* Только финальная награда (та, что в центре) видна полностью */
+/* Только финальная награда подсвечена */
 .reward-item.final-reward {
-  opacity: 1;
-  transform: scale(1);
+  border-width: 3px;
   animation: pulseGlow 2s infinite;
+  background: rgba(255, 255, 255, 0.15);
 }
 
-/* Анимация для финальной награды */
 @keyframes pulseGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
   }
   50% {
-    box-shadow: 0 0 40px rgba(255, 255, 255, 0.6);
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.7);
   }
 }
 
-.reward-icon {
-  font-size: 50px;
-  margin-bottom: 10px;
-}
-
-.reward-name {
-  color: white;
-  font-size: 16px;
-  font-weight: bold;
-  margin-bottom: 5px;
-  text-align: center;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-}
-
-.reward-rarity {
-  font-size: 14px;
-  font-weight: bold;
-  margin-bottom: 5px;
-  text-transform: uppercase;
-}
-
-.reward-quantity {
-  color: #FFD700;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-
-/* ИНДИКАТОР - ТОЧНО по размеру одного элемента */
+/* ИНДИКАТОР - ТОЛЬКО рамка, БЕЗ фона */
 .selection-indicator {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 190px; /* Чуть больше элемента */
-  height: 190px;
+  width: 170px; /* Чуть больше элемента */
+  height: 170px;
   border: 3px solid #FFD700;
-  border-radius: 15px;
-  box-shadow: 
-    0 0 30px #FFD700,
-    inset 0 0 30px rgba(255, 215, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
   pointer-events: none;
   z-index: 10;
-  /* Градиентные края для красоты */
-  background: linear-gradient(
-    to right,
-    transparent 0%,
-    rgba(255, 215, 0, 0.1) 20%,
-    rgba(255, 215, 0, 0.1) 80%,
-    transparent 100%
-  );
+  /* УБИРАЕМ градиентный фон */
+  background: transparent !important;
 }
 
-/* Оверлей с анимацией прокрутки */
-.spinning-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.7);
+/* УБИРАЕМ все псевдоэлементы и маски */
+.case-viewport::before,
+.case-viewport::after,
+.case-viewport-container::before {
+  display: none !important;
+}
+
+.reward-icon {
+  font-size: 45px;
+  margin-bottom: 8px;
+}
+
+.reward-name {
+  color: white;
+  font-size: 15px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-align: center;
+  min-height: 35px;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 20;
-  border-radius: 12px;
 }
 
-.spinning-overlay .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+.reward-rarity {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.reward-quantity {
+  color: #FFD700;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* УБИРАЕМ spinning-overlay (текст поверх анимации) */
+.spinning-overlay {
+  display: none !important;
+}
+
+/* Статус прокрутки под кейсом */
+.spinning-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.spinner-small {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: #3498db;
+  border-top-color: #4fc3f7;
   animation: spin 1s linear infinite;
-  margin-bottom: 15px;
 }
 
 @keyframes spin {
@@ -287,12 +280,7 @@
   }
 }
 
-.spinning-overlay span {
-  color: white;
-  font-size: 18px;
-  font-weight: bold;
-}
-
+/* Карточка выбранной награды */
 .selected-reward-container {
   margin: 15px 0;
   animation: slideUp 0.5s ease-out;
@@ -317,7 +305,6 @@
   padding: 20px;
   text-align: center;
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
   animation: cardReveal 0.8s ease-out;
 }
 
@@ -376,7 +363,7 @@
   line-height: 1.3;
 }
 
-/* Контролы - компактнее */
+/* Кнопки */
 .case-controls {
   display: flex;
   justify-content: center;
@@ -386,7 +373,7 @@
 }
 
 .case-button {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
   border-radius: 10px;
   font-size: 14px;
@@ -395,7 +382,7 @@
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 130px;
+  min-width: 140px;
 }
 
 .case-button:disabled {
@@ -404,20 +391,20 @@
 }
 
 .open-button {
-  background: linear-gradient(45deg, #3498db, #2980b9);
+  background: linear-gradient(45deg, #2196f3, #1976d2);
   color: white;
-  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.4);
 }
 
 .open-button:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(52, 152, 219, 0.6);
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.6);
 }
 
 .take-reward-button {
-  background: linear-gradient(45deg, #2ECC71, #27AE60);
+  background: linear-gradient(45deg, #4caf50, #388e3c);
   color: white;
-  box-shadow: 0 4px 12px rgba(46, 204, 113, 0.4);
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
   animation: pulseButton 1.5s infinite;
 }
 
@@ -432,7 +419,7 @@
 
 .take-reward-button:hover:not(:disabled) {
   transform: scale(1.1);
-  box-shadow: 0 8px 20px rgba(46, 204, 113, 0.6);
+  box-shadow: 0 8px 20px rgba(76, 175, 80, 0.6);
 }
 
 .close-button {
@@ -446,58 +433,30 @@
   border-color: rgba(255, 255, 255, 0.5);
 }
 
-.spinning-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  color: white;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.spinner-small {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #3498db;
-  animation: spin 1s linear infinite;
-}
-
 /* Адаптивность */
 @media (max-width: 768px) {
   .case-modal-content {
-    max-height: 65vh;
+    max-height: 70vh;
     padding: 15px;
   }
   
   .case-viewport-container {
-    height: 150px;
+    height: 170px;
   }
   
   .reward-item {
-    flex: 0 0 120px;
-    height: 130px;
+    flex: 0 0 140px;
+    height: 140px;
   }
   
   .reward-icon {
-    font-size: 30px;
-  }
-  
-  .reward-name {
-    font-size: 12px;
-    min-height: 28px;
+    font-size: 40px;
   }
   
   .case-button {
-    padding: 8px 16px;
-    font-size: 12px;
-    min-width: 110px;
-  }
-  
-  .case-modal-header h2 {
-    font-size: 18px;
+    padding: 10px 20px;
+    font-size: 13px;
+    min-width: 120px;
   }
 }
 
@@ -511,32 +470,4 @@
     width: 100%;
     min-width: auto;
   }
-  
-  .rarity-chance {
-    padding: 4px 8px;
-    font-size: 10px;
-  }
-  
-  .case-emoji {
-    font-size: 40px;
-  }
-}
-
-/* Маска для скрытия боковых элементов */
-.case-viewport::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    rgba(30, 60, 114, 1) 0%,
-    rgba(30, 60, 114, 0) 20%,
-    rgba(30, 60, 114, 0) 80%,
-    rgba(30, 60, 114, 1) 100%
-  );
-  pointer-events: none;
-  z-index: 5;
 }
