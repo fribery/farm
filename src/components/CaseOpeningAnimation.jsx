@@ -357,7 +357,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         
         <div className="case-info">
           <div className="case-emoji">{caseItem.emoji}</div>
-          <p className="case-description">{caseItem.description}</p>
           <div className="case-rarity-chances">
             <span className="rarity-chance common">Обычный 75%</span>
             <span className="rarity-chance rare">Редкий 20%</span>
