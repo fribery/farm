@@ -52,80 +52,82 @@ export default function ShopScreen({ user, updateGameData }) {
 //    alert(`Куплены семена: ${plant.name}`)
   }
 
-  const openCase = (caseId) => {
-      if (!user) {
-        alert('Ошибка загрузки данных пользователя');
-        return;
-      }
-      
-      const caseItem = GAME_CONFIG.cases?.find(c => c.id === caseId);
-      if (!caseItem) {
-        alert('Кейс не найден!');
-        return;
-      }
-      
-      if (user.game_data.money < caseItem.price) {
-        alert('Недостаточно денег!');
-        return;
-      }
+const openCase = (caseId) => {
+  if (!user) {
+    alert('Ошибка загрузки данных пользователя');
+    return;
+  }
+  
+  const caseItem = GAME_CONFIG.cases?.find(c => c.id === caseId);
+  if (!caseItem) {
+    alert('Кейс не найден!');
+    return;
+  }
+  
+  if (user.game_data.money < caseItem.price) {
+    alert('Недостаточно денег!');
+    return;
+  }
 
-      console.log('Case item:', caseItem);
-      console.log('Selected reward:', selectedReward);
-      
-      // 1. Рандомный выбор награды
-      const random = Math.random() * 100;
-      let accumulatedChance = 0;
-      let selectedReward = null;
-      
-      for (const reward of caseItem.rewards) {
-        accumulatedChance += reward.chance;
-        if (random <= accumulatedChance) {
-          selectedReward = reward;
-          break;
-        }
-      }
-      
-      if (!selectedReward) selectedReward = caseItem.rewards[0];
-      
-      // // 2. Запускаем анимацию
-      // setCurrentCase(caseItem);
-      // setCaseResult(selectedReward);
-      // setIsOpeningCase(true);
-      const plant = GAME_CONFIG.plants.find(p => p.id === selectedReward.plantId);
-      let quantity = 1;
-      
-      if (typeof selectedReward.quantity === 'string' && selectedReward.quantity.includes('-')) {
-        const [min, max] = selectedReward.quantity.split('-').map(Number);
-        quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-      }
-      
-      const newInventory = [...(user.game_data.inventory || [])];
-      const existingIndex = newInventory.findIndex(
-        item => item.type === 'seed' && item.plantId === selectedReward.plantId
-      );
-      
-      if (existingIndex >= 0) {
-        newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
-      } else {
-        newInventory.push({
-          type: 'seed',
-          plantId: selectedReward.plantId,
-          name: plant?.name || `Семя #${selectedReward.plantId}`,
-          count: quantity,
-          rarity: selectedReward.rarity
-        });
-      }
-      
-      const finalGameData = {
-        ...user.game_data,
-        money: user.game_data.money - caseItem.price,
-        inventory: newInventory
-      };
-      
-      updateGameData(finalGameData);
-      alert(`Вы получили: ${plant?.name} ×${quantity} (${selectedReward.rarity})`);
-    };
-
+  console.log('Case item:', caseItem);
+  
+  // 1. Рандомный выбор награды
+  const random = Math.random() * 100;
+  let accumulatedChance = 0;
+  let selectedReward = null;
+  
+  for (const reward of caseItem.rewards) {
+    accumulatedChance += reward.chance;
+    if (random <= accumulatedChance) {
+      selectedReward = reward;
+      break;
+    }
+  }
+  
+  if (!selectedReward) selectedReward = caseItem.rewards[0];
+  
+  console.log('Selected reward:', selectedReward); // ← ПЕРЕМЕСТИЛ сюда
+  
+  // 2. Запускаем анимацию (РАСКОММЕНТИРУЙТЕ когда будет работать)
+  // setCurrentCase(caseItem);
+  // setCaseResult(selectedReward);
+  // setIsOpeningCase(true);
+  
+  // 3. Добавляем награду в инвентарь
+  const plant = GAME_CONFIG.plants.find(p => p.id === selectedReward.plantId);
+  let quantity = 1;
+  
+  if (typeof selectedReward.quantity === 'string' && selectedReward.quantity.includes('-')) {
+    const [min, max] = selectedReward.quantity.split('-').map(Number);
+    quantity = Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+  
+  const newInventory = [...(user.game_data.inventory || [])];
+  const existingIndex = newInventory.findIndex(
+    item => item.type === 'seed' && item.plantId === selectedReward.plantId
+  );
+  
+  if (existingIndex >= 0) {
+    newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
+  } else {
+    newInventory.push({
+      type: 'seed',
+      plantId: selectedReward.plantId,
+      name: plant?.name || `Семя #${selectedReward.plantId}`,
+      count: quantity,
+      rarity: selectedReward.rarity
+    });
+  }
+  
+  const finalGameData = {
+    ...user.game_data,
+    money: user.game_data.money - caseItem.price,
+    inventory: newInventory
+  };
+  
+  updateGameData(finalGameData);
+  alert(`Вы получили: ${plant?.name} ×${quantity} (${selectedReward.rarity})`);
+};
 
   const buySlot = () => {
     const SLOT_PRICE = user.game_data?.slotPrice || 500; // Цена улучшения
