@@ -189,50 +189,41 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
         </div>
         
         <div className="case-viewport-container">
-          <div className="case-viewport">
-            <div 
-              className="case-rewards-track" 
-              ref={caseRef}
-              style={{ 
-                display: 'flex',
-                gap: '15px',
-                padding: '20px',
-                width: 'max-content'
-              }}
-            >
-              {rewardsList.map((reward, index) => (
+            <div className="case-viewport">
                 <div 
-                  key={index} 
-                  className={`reward-item ${reward.isFinal ? 'final-reward' : ''}`}
-                  style={{ 
-                    borderColor: getRarityColor(reward.rarity),
-                    backgroundColor: reward.isFinal ? `${getRarityColor(reward.rarity)}20` : 'transparent',
-                    flex: '0 0 160px',
-                    height: '160px',
-                    opacity: reward.isFinal ? 1: 0.7
-                  }}
+                className="case-rewards-track" 
+                ref={caseRef}
                 >
-                  <div className="reward-icon">
-                    {getPlantEmoji(reward.plantId)}
-                  </div>
-                  <div className="reward-name">
-                    {getPlantName(reward.plantId)}
-                  </div>
-                  <div 
-                    className="reward-rarity"
-                    style={{ color: getRarityColor(reward.rarity) }}
-                  >
-                    {getRarityName(reward.rarity)}
-                  </div>
-                  <div className="reward-quantity">
-                    {reward.quantity ? `×${reward.quantity}` : '×1'}
-                  </div>
+                {rewardsList.map((reward, index) => (
+                    <div 
+                    key={index} 
+                    className={`reward-item ${reward.isFinal ? 'final-reward' : ''}`}
+                    style={{ 
+                        borderColor: getRarityColor(reward.rarity),
+                        backgroundColor: reward.isFinal ? `${getRarityColor(reward.rarity)}20` : 'transparent',
+                    }}
+                    >
+                    <div className="reward-icon">
+                        {getPlantEmoji(reward.plantId)}
+                    </div>
+                    <div className="reward-name">
+                        {getPlantName(reward.plantId)}
+                    </div>
+                    <div 
+                        className="reward-rarity"
+                        style={{ color: getRarityColor(reward.rarity) }}
+                    >
+                        {getRarityName(reward.rarity)}
+                    </div>
+                    <div className="reward-quantity">
+                        {reward.quantity ? `×${reward.quantity}` : '×1'}
+                    </div>
+                    </div>
+                ))}
                 </div>
-              ))}
+                
+                <div className="selection-indicator"></div>
             </div>
-            
-            <div className="selection-indicator"></div>
-          </div>
         </div>
         
         {isSpinning && (
