@@ -84,8 +84,8 @@ function App() {
           <div className="stat-item money">
             <div className="stat-icon">💰</div>
             <div className="stat-details">
-              <div className="stat-value">{user.game_data?.money || 0}</div>
               <div className="stat-label">Деньги</div>
+              <div className="stat-value">{user.game_data?.money || 0}</div>
             </div>
           </div>
           
