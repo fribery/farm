@@ -73,6 +73,17 @@ export default function ShopScreen({ user, updateGameData }) {
     return caseItem.rewards[0];
   };
 
+  // ДОБАВЛЕНО: Функция для выбора новой награды из того же кейса
+  const selectNewRewardFromSameCase = () => {
+    if (!currentCase) return null;
+    
+    console.log('=== ВЫБОР НОВОЙ НАГРАДЫ ИЗ ТОГО ЖЕ КЕЙСА ===');
+    const newReward = selectRewardFromCase(currentCase);
+    console.log('Новая награда:', newReward);
+    
+    return newReward;
+  };
+
   const handleOpenCase = (caseItem) => {
     console.log('=== ОТКРЫТИЕ КЕЙСА ===');
     
@@ -91,19 +102,47 @@ export default function ShopScreen({ user, updateGameData }) {
     
     console.log('=== ПРОВЕРКА ДАННЫХ ===');
     console.log('Выбрана награда:', reward);
-    console.log('plantId:', reward.plantId);
-    console.log('name:', reward.name);
-    console.log('quantity из конфига:', reward.quantity);
-    
-    const plantFromConfig = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
-    console.log('Растение в конфиге:', plantFromConfig?.name);
     
     // Сохраняем кейс и награду
     setCurrentCase(caseItem);
     setSelectedReward(reward);
     setIsCaseOpen(true);
+  };
+
+  // ДОБАВЛЕНО: Обработчик кнопки "Открыть еще раз"
+  const handleOpenAgain = () => {
+    console.log('=== ОБРАБОТКА "ОТКРЫТЬ ЕЩЕ РАЗ" ===');
     
-    console.log('Состояния установлены. isCaseOpen:', true);
+    if (!user || !currentCase) {
+      console.log('Нет данных для повторного открытия');
+      return;
+    }
+    
+    // Проверяем хватает ли денег
+    if (user.game_data.money < currentCase.price) {
+      alert('Недостаточно денег для открытия еще раз!');
+      return;
+    }
+    
+    // Выбираем новую случайную награду из того же кейса
+    const newReward = selectNewRewardFromSameCase();
+    
+    if (!newReward) {
+      console.error('Не удалось выбрать новую награду');
+      return;
+    }
+    
+    // Сразу списываем деньги за новое открытие
+    const newGameData = {
+      ...user.game_data,
+      money: user.game_data.money - currentCase.price
+    };
+    updateGameData(newGameData);
+    
+    // Обновляем состояние с новой наградой
+    setSelectedReward(newReward);
+    
+    console.log('Новая награда установлена, деньги списаны');
   };
 
   const handleCloseCase = () => {
@@ -143,7 +182,6 @@ export default function ShopScreen({ user, updateGameData }) {
       return;
     }
     
-    // КОЛИЧЕСТВО УЖЕ РАССЧИТАНО В CaseOpeningAnimation
     const quantity = parseInt(reward.quantity, 10) || 1;
     console.log('Финальное количество из награды:', quantity);
     
@@ -171,7 +209,7 @@ export default function ShopScreen({ user, updateGameData }) {
     };
     
     updateGameData(newGameData);
-    alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
+    console.log(`Награда добавлена: ${plant.name} ×${quantity} (${reward.rarity})`);
   };
 
   const buySlot = () => {
@@ -313,6 +351,7 @@ export default function ShopScreen({ user, updateGameData }) {
         <CaseOpeningAnimation
           onClose={handleCloseCase}
           onRewardTaken={handleRewardTaken}
+          onOpenAgain={handleOpenAgain} // ДОБАВЛЕН ПРОПС
           caseItem={currentCase}
           selectedReward={selectedReward}
           plants={GAME_CONFIG.plants}

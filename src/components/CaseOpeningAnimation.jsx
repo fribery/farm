@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import './CaseOpeningAnimation.css';
 
-const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward, plants }) => {
+const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward, plants, onOpenAgain }) => {
   const [animationStage, setAnimationStage] = useState('closed');
   const [rewardsList, setRewardsList] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [actualQuantity, setActualQuantity] = useState(1); // ДОБАВЛЕНО
+  const [actualQuantity, setActualQuantity] = useState(1);
   const caseRef = useRef(null);
   const animationTimeoutRef = useRef(null);
 
@@ -26,7 +26,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     };
   }, [caseItem, selectedReward, plants]);
 
-  // ДОБАВЛЕНА ФУНКЦИЯ ДЛЯ РАСЧЕТА КОЛИЧЕСТВА
+  // Функция для расчета количества
   const calculateActualQuantity = (reward) => {
     if (!reward || !reward.quantity) return 1;
     
@@ -40,9 +40,31 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       }
     }
     
-    // Если quantity это число
     const quantityNum = parseInt(reward.quantity, 10);
     return !isNaN(quantityNum) ? quantityNum : 1;
+  };
+
+  // ДОБАВЛЕНО: Функция сброса состояния для повторного открытия
+  const resetForNewOpening = () => {
+    console.log('Сброс состояния для нового открытия');
+    
+    // Сбрасываем анимацию
+    setAnimationStage('closed');
+    setIsSpinning(false);
+    setActualQuantity(1);
+    
+    // Сбрасываем позицию прокрутки
+    if (caseRef.current) {
+      caseRef.current.style.transition = 'none';
+      caseRef.current.style.transform = 'translateX(0)';
+    }
+    
+    // Генерируем новый список наград
+    if (caseItem && selectedReward && plants) {
+      setTimeout(() => {
+        generateRewardsList();
+      }, 50);
+    }
   };
 
   const generateRewardsList = () => {
@@ -57,20 +79,19 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     
     const list = [];
     
-    // ВАЖНО: МЕНЬШЕ ЭЛЕМЕНТОВ! Только 15 перед финальной наградой
+    // 15 элементов перед финальной наградой
     for (let i = 0; i < 15; i++) {
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
       const rarities = ['common', 'rare', 'epic'];
       const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
       
-      // Рандомное количество для обычных элементов
       const randomQuantity = Math.floor(Math.random() * 5) + 1;
       
       list.push({
         plantId: randomPlant.id,
         name: randomPlant.name,
         rarity: randomRarity,
-        quantity: randomQuantity.toString(), // Теперь число, а не диапазон
+        quantity: randomQuantity.toString(),
         isFinal: false
       });
     }
@@ -78,7 +99,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     // Финальная награда на позиции 16 с РЕАЛЬНЫМ количеством
     list.push({
       ...selectedReward,
-      quantity: finalQuantity.toString(), // ЗАМЕНЯЕМ на реальное количество
+      quantity: finalQuantity.toString(),
       isFinal: true
     });
     
@@ -103,7 +124,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal));
     
     setRewardsList(list);
-    setActualQuantity(finalQuantity); // СОХРАНЯЕМ КОЛИЧЕСТВО
+    setActualQuantity(finalQuantity);
   };
 
   const handleOpenCase = () => {
@@ -124,7 +145,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       console.log('Финальный индекс:', finalIndex);
       console.log('Финальная награда:', rewardsList[finalIndex]);
       
-      // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Ждем рендера DOM
       setTimeout(() => {
         if (!caseRef.current) return;
         
@@ -133,11 +153,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         
         if (!container) return;
         
-        // 1. Измеряем реальные размеры
         const containerRect = container.getBoundingClientRect();
         const containerWidth = containerRect.width;
         
-        // 2. Находим финальный элемент
         const finalElement = track.children[finalIndex];
         if (!finalElement) {
           console.error('Финальный элемент не найден!');
@@ -147,27 +165,17 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         const elementRect = finalElement.getBoundingClientRect();
         const elementWidth = elementRect.width;
         
-        // 3. Рассчитываем позицию для центрирования
         const centerOffset = containerWidth / 2;
         const elementLeft = finalElement.offsetLeft;
-        const elementCenter = elementLeft + elementWidth / 2;
         
-        // 4. Смещение для центрирования элемента
         const finalPosition = -elementLeft + (centerOffset - elementWidth / 2);
         
-        console.log('=== РАСЧЕТ ПОЗИЦИИ ===');
-        console.log('Ширина контейнера:', containerWidth);
-        console.log('Ширина элемента:', elementWidth);
-        console.log('Позиция элемента:', elementLeft);
-        console.log('Центр контейнера:', centerOffset);
         console.log('Финальная позиция:', finalPosition);
-        console.log('Должен быть в центре:', rewardsList[finalIndex]?.name);
         
-        // 5. Сброс и запуск анимации
+        // Сброс и запуск анимации
         track.style.transition = 'none';
         track.style.transform = 'translateX(0)';
         
-        // 6. Даем время на сброс
         setTimeout(() => {
           if (caseRef.current) {
             caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
@@ -197,11 +205,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     }
     
     try {
-      // Отправляем награду с РЕАЛЬНЫМ количеством
       if (onRewardTaken) {
         onRewardTaken({
           ...selectedReward,
-          quantity: actualQuantity // ОТПРАВЛЯЕМ РАССЧИТАННОЕ КОЛИЧЕСТВО
+          quantity: actualQuantity
         });
       }
       
@@ -209,6 +216,27 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     } catch (error) {
       console.error('Ошибка при получении награды:', error);
       alert('Ошибка при получении награды. Попробуйте снова.');
+    }
+  };
+
+  // ДОБАВЛЕНО: Обработчик кнопки "Открыть еще раз"
+  const handleOpenAgain = () => {
+    console.log('=== НАЖАТА "ОТКРЫТЬ ЕЩЕ РАЗ" ===');
+    
+    // 1. Сначала сохраняем текущую награду
+    if (onRewardTaken) {
+      onRewardTaken({
+        ...selectedReward,
+        quantity: actualQuantity
+      });
+    }
+    
+    // 2. Если передан пропс onOpenAgain, вызываем его
+    if (onOpenAgain) {
+      onOpenAgain();
+    } else {
+      // 3. Иначе сбрасываем состояние локально
+      resetForNewOpening();
     }
   };
 
@@ -308,7 +336,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
                       {getRarityName(reward.rarity)}
                     </div>
                     <div className="reward-quantity">
-                      ×{reward.quantity} {/* ВСЕГДА ПОКАЗЫВАЕМ ЧИСЛО */}
+                      ×{reward.quantity}
                     </div>
                   </div>
                 );
@@ -341,7 +369,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
                 {getRarityName(selectedReward.rarity)}
               </div>
               <div className="reward-card-quantity">
-                Количество: ×{actualQuantity} {/* ПОКАЗЫВАЕМ РАССЧИТАННОЕ КОЛИЧЕСТВО */}
+                Количество: ×{actualQuantity}
               </div>
               <div className="reward-card-message">
                 Поздравляем! Вы получили награду!
@@ -364,15 +392,25 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
               <span>Идёт прокрутка...</span>
             </div>
           ) : animationStage === 'ready' ? (
-            <button 
-              className="case-button take-reward-button"
-              onClick={() => {
-                console.log('Клик по кнопке "Забрать"');
-                handleTakeReward();
-              }}
-            >
-              Забрать награду
-            </button>
+            <>
+              {/* ДОБАВЛЕНА КНОПКА "ОТКРЫТЬ ЕЩЕ РАЗ" */}
+              <button 
+                className="case-button open-again-button"
+                onClick={handleOpenAgain}
+              >
+                Открыть еще раз
+              </button>
+              
+              <button 
+                className="case-button take-reward-button"
+                onClick={() => {
+                  console.log('Клик по кнопке "Забрать"');
+                  handleTakeReward();
+                }}
+              >
+                Забрать награду
+              </button>
+            </>
           ) : null}
           
           <button 

@@ -566,3 +566,34 @@
     height: 45px;
   }
 }
+
+/* Добавьте в конец файла */
+
+/* Стиль для кнопки "Открыть еще раз" */
+.open-again-button {
+  background: linear-gradient(45deg, #ff9800, #f57c00) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.4) !important;
+}
+
+.open-again-button:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 16px rgba(255, 152, 0, 0.6) !important;
+  background: linear-gradient(45deg, #ffa726, #f57c00) !important;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 480px) {
+  .case-controls {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .open-again-button,
+  .take-reward-button,
+  .close-button {
+    width: 100% !important;
+    min-width: auto !important;
+    margin-bottom: 5px !important;
+  }
+}
