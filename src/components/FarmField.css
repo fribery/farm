@@ -89,7 +89,7 @@
 /* 1. Изменяем вертикальное расположение на сетку */
 .fields-grid-compact {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 15px;
   margin-top: 15px;
   width: 100%;
@@ -574,19 +574,44 @@
   font-size: 1.2rem;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
+/* === КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ ДЛЯ МОБИЛЬНЫХ === */
+
+/* Десктоп (по умолчанию) - 3 в ряд */
+@media (min-width: 1024px) {
   .fields-grid-compact {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Планшеты и маленькие десктопы - 2-3 в ряд */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .fields-grid-compact {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .seeds-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Мобильные телефоны - 1-2 в ряд в зависимости от ширины */
+@media (max-width: 767px) {
+  .fields-grid-compact {
+    /* На маленьких телефонах (до 400px) - 1 в ряд, на побольше - 2 в ряд */
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+  
+  /* Убеждаемся, что карточки не растягиваются на всю ширину */
+  .field-card-compact {
+    min-width: 0; /* Важно для предотвращения растягивания */
+    max-width: 100%;
   }
   
   .seeds-row {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .stats-grid-compact {
-    grid-template-rows: repeat(1, 3fr);
+    flex-direction: column;
     gap: 8px;
   }
   
@@ -595,31 +620,12 @@
   }
 }
 
-@media (max-width: 480px) {
+/* Очень маленькие телефоны (до 400px) */
+@media (max-width: 400px) {
   .fields-grid-compact {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 10px;
+    grid-template-columns: 1fr; /* Только 1 в ряд */
   }
   
-  .seeds-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .stats-grid-compact {
-    grid-template-columns: 1fr;
-  }
-  
-  .field-header-compact {
-    flex-direction: column;
-    text-align: center;
-  }
-  
-  .field-stats {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 360px) {
   .seeds-row {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
@@ -633,5 +639,18 @@
     width: 45px;
     height: 45px;
     font-size: 1.5rem;
+  }
+  
+  .field-header-compact {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .field-stats {
+    justify-content: center;
+  }
+  
+  .section-title {
+    font-size: 1rem;
   }
 }
