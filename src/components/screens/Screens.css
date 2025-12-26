@@ -90,6 +90,14 @@
   margin-top: 12px;
 }
 
+.shop-item-count{
+  font-size: 1.8em;
+  color: white;
+  background-color: #64da68;
+  border: #64da68 3px;
+  border-radius: 25px;
+}
+
 .shop-item:hover {
   transform: translateY(-5px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
