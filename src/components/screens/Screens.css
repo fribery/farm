@@ -91,13 +91,14 @@
 }
 
 .shop-item-count{
+  font-size: 1.2em;
   color: white;
   background-color: #64da68;
   border: #368139 3px;
   border-radius: 15px;
   margin-bottom: 4px;
-  padding-left: 8px;
-  min-height: 35px;
+  padding: 8px;
+  min-height: 25px;
 }
 
 .shop-item:hover {
