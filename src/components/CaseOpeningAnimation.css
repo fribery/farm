@@ -7,8 +7,7 @@
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start; /* Меняем center на flex-start */
-  padding-top: 60px; /* Добавляем отступ сверху */
+  align-items: center; /* Возвращаем center */
   z-index: 1000;
 }
 
@@ -18,14 +17,14 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
 }
 
 .case-modal-content {
   position: relative;
   width: 95%;
   max-width: 500px;
-  max-height: 90vh; /* УВЕЛИЧИЛИ с 85vh */
+  max-height: 85vh; /* Оптимальная высота */
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
   border-radius: 20px;
   padding: 25px;
@@ -33,7 +32,7 @@
   border: 3px solid #3949ab;
   z-index: 1001;
   animation: modalAppear 0.3s ease-out;
-  overflow-y: auto; /* Можно поменять на 'hidden' если хотим совсем убрать скролл */
+  overflow-y: auto; /* Оставляем скролл на случай очень маленьких экранов */
 }
 
 @keyframes modalAppear {
@@ -84,7 +83,7 @@
 /* Информация о кейсе */
 .case-info {
   text-align: center;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
 .case-emoji {
@@ -129,86 +128,77 @@
   color: white;
 }
 
-/* КОНТЕЙНЕР ПРОКРУТКИ - БЕЗ БЛЮРА И ЗАТЕМНЕНИЯ */
+/* КОНТЕЙНЕР ПРОКРУТКИ - ФИКС ОБРЕЗАНИЯ ИКОНОК */
 .case-viewport-container {
-  height: 260px;
+  position: relative;
+  width: 100%;
+  height: 220px; /* Нормальная высота */
+  margin: 0 auto 20px auto;
+  border-radius: 15px;
+  overflow: hidden; /* Оставляем hidden для анимации */
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.25);
+}
+
+/* ФИКС: Убираем градиентный фон который мешает */
+.case-viewport-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: linear-gradient(
     to right,
-    rgba(0, 0, 0, 0.4) 0%,
-    rgba(0, 0, 0, 0.6) 20%,
-    rgba(0, 0, 0, 0.6) 80%,
-    rgba(0, 0, 0, 0.4) 100%
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.3) 20%,
+    rgba(0, 0, 0, 0.3) 80%,
+    rgba(0, 0, 0, 0.7) 100%
   );
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    inset 0 0 30px rgba(0, 0, 0, 0.5),
-    0 5px 20px rgba(0, 0, 0, 0.3);
-  margin-bottom: 30px;
-  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: 15px;
 }
 
 .case-viewport {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: visible !important;
+  overflow: hidden;
 }
 
-/* ДОРОЖКА - все элементы видны четко */
+/* ДОРОЖКА */
 .case-rewards-track {
   display: flex;
-  gap: 20px;
+  gap: 15px;
   height: 100%;
-  padding: 25px 60px;
+  padding: 20px 40px; /* Уменьшил отступы по бокам */
   width: max-content;
-  min-width: 2000px;
-  align-items: center;
   transition: transform 2.5s cubic-bezier(0.1, 0.8, 0.2, 1);
+  align-items: center; /* Центрируем по вертикали */
 }
 
-/* КАРТОЧКА НАГРАДЫ - БЕЗ блюра и прозрачности */
+/* КАРТОЧКА НАГРАДЫ - ФИКС РАЗМЕРОВ */
 .reward-item {
-  flex: 0 0 180px !important; /* Фиксированная ширина */
-  height: 180px !important; /* Фиксированная высота */
-  width: 170px !important;
+  flex: 0 0 160px; /* Нормальная ширина */
+  height: 160px; /* Нормальная высота */
   border: 2px solid;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px; /* Увеличиваем паддинг */
+  padding: 15px;
   background: rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
   box-sizing: border-box;
-  overflow: visible !important;
-}
-
-@keyframes finalGlow {
-  0% {
-    box-shadow: 
-      0 0 20px rgba(255, 255, 255, 0.4),
-      0 0 40px currentColor;
-  }
-  100% {
-    box-shadow: 
-      0 0 30px rgba(255, 255, 255, 0.6),
-      0 0 60px currentColor;
-  }
-}
-
-/* Только финальная награда подсвечена */
-.reward-item.final-reward {
   position: relative;
-  z-index: 5;
-  animation: finalGlow 2s infinite alternate;
-  transform: scale(1.05);
 }
 
-.reward-item:not(.final-reward) {
-  opacity: 0.6;
-  filter: saturate(0.7);
-  transition: opacity 0.3s, filter 0.3s;
+/* Финальная награда */
+.reward-item.final-reward {
+  animation: pulseGlow 2s infinite;
+  background: rgba(255, 255, 255, 0.15);
 }
 
 @keyframes pulseGlow {
@@ -220,13 +210,19 @@
   }
 }
 
+.reward-item:not(.final-reward) {
+  opacity: 0.7;
+  filter: brightness(0.9);
+}
+
+/* ВЕРТИКАЛЬНАЯ ЛИНИЯ ПО ЦЕНТРУ */
 .center-line {
   position: absolute;
-  top: -5%;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
-  height: 110%;
+  height: 100%;
   background: linear-gradient(to bottom, 
     transparent 0%,
     #FFD700 20%,
@@ -237,28 +233,9 @@
     0 0 15px #FFD700,
     0 0 30px rgba(255, 215, 0, 0.5);
   pointer-events: none;
-  z-index: 10;
-}
-.center-line {
-  animation: linePulse 2s infinite alternate;
+  z-index: 5;
 }
 
-@keyframes linePulse {
-  0% {
-    opacity: 0.7;
-    box-shadow: 
-      0 0 10px #FFD700,
-      0 0 20px rgba(255, 215, 0, 0.3);
-  }
-  100% {
-    opacity: 1;
-    box-shadow: 
-      0 0 20px #FFD700,
-      0 0 40px rgba(255, 215, 0, 0.6);
-  }
-}
-
-/* Добавить треугольные указатели сверху и снизу */
 .center-line::before,
 .center-line::after {
   content: '';
@@ -267,86 +244,59 @@
   transform: translateX(-50%);
   width: 0;
   height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
 }
 
 .center-line::before {
   top: 0;
-  border-bottom: 10px solid #FFD700;
+  border-bottom: 8px solid #FFD700;
 }
 
 .center-line::after {
   bottom: 0;
-  border-top: 10px solid #FFD700;
+  border-top: 8px solid #FFD700;
 }
 
-.case-viewport-container:hover .reward-item:not(.final-reward) {
-  opacity: 0.8;
-  filter: saturate(1);
-}
-/* УБИРАЕМ все псевдоэлементы и маски */
-.case-viewport::before,
-.case-viewport::after,
-.case-viewport-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    to right,
-    rgba(30, 60, 114, 0.9) 0%,
-    transparent 15%,
-    transparent 85%,
-    rgba(30, 60, 114, 0.9) 100%
-  );
-  pointer-events: none;
-  z-index: 2;
-  border-radius: 15px;
-}
-
+/* ИКОНКИ - ФИКС ОБРЕЗАНИЯ */
 .reward-icon {
-  font-size: 65px !important; /* Еще больше для красоты */
+  font-size: 50px; /* Оптимальный размер */
+  margin-bottom: 10px;
   line-height: 1;
-  margin-bottom: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 70px; /* Фиксированная высота для иконки */
+  height: 55px; /* Фиксированная высота */
+  overflow: visible !important; /* Разрешаем выходить за границы */
 }
 
 .reward-name {
   color: white;
-  font-size: 16px; /* Увеличиваем шрифт */
+  font-size: 15px;
   font-weight: bold;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   text-align: center;
-  min-height: 45px;
+  min-height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
+  line-height: 1.2;
 }
 
 .reward-rarity {
-  font-size: 13px; /* Увеличиваем шрифт */
+  font-size: 12px;
   font-weight: bold;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   text-transform: uppercase;
 }
 
 .reward-quantity {
   color: #FFD700;
-  font-size: 14px; /* Увеличиваем шрифт */
+  font-size: 13px;
   font-weight: bold;
 }
-/* УБИРАЕМ spinning-overlay (текст поверх анимации) */
-.spinning-overlay {
-  display: none !important;
-}
 
-/* Статус прокрутки под кейсом */
+/* Статус прокрутки */
 .spinning-status {
   display: flex;
   align-items: center;
@@ -391,11 +341,11 @@
 }
 
 .reward-card {
-  max-width: 280px; /* Увеличиваем */
+  max-width: 280px;
   margin: 0 auto;
   border: 3px solid;
   border-radius: 14px;
-  padding: 25px; /* Увеличиваем паддинг */
+  padding: 20px;
   text-align: center;
   background: rgba(255, 255, 255, 0.12);
   animation: cardReveal 0.8s ease-out;
@@ -417,7 +367,7 @@
 
 .reward-card-icon {
   font-size: 60px;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
   animation: float 3s ease-in-out infinite;
 }
 
@@ -426,20 +376,20 @@
     transform: translateY(0);
   }
   50% {
-    transform: translateY(-6px);
+    transform: translateY(-8px);
   }
 }
 
 .reward-card-name {
   color: white;
   font-size: 20px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 .reward-card-rarity {
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   text-transform: uppercase;
 }
 
@@ -447,13 +397,13 @@
   color: #FFD700;
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 12px;
+  margin-bottom: 15px;
 }
 
 .reward-card-message {
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   font-size: 14px;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 /* Кнопки */
@@ -461,21 +411,21 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 25px;
+  margin-top: 20px;
   flex-wrap: wrap;
 }
 
 .case-button {
-  padding: 14px 28px; /* Увеличиваем паддинг */
+  padding: 12px 24px;
   border: none;
-  border-radius: 12px;
-  font-size: 15px; /* Увеличиваем шрифт */
+  border-radius: 10px;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 150px; /* Увеличиваем минимальную ширину */
+  min-width: 140px;
 }
 
 .case-button:disabled {
@@ -529,21 +479,28 @@
 /* Адаптивность */
 @media (max-width: 768px) {
   .case-modal-content {
-    max-height: 70vh;
-    padding: 15px;
+    max-height: 80vh;
+    padding: 20px;
   }
   
   .case-viewport-container {
-    height: 170px;
+    height: 190px;
   }
   
   .reward-item {
     flex: 0 0 140px;
     height: 140px;
+    padding: 12px;
   }
   
   .reward-icon {
-    font-size: 40px;
+    font-size: 45px;
+    height: 50px;
+  }
+  
+  .reward-name {
+    font-size: 14px;
+    min-height: 35px;
   }
   
   .case-button {
@@ -562,5 +519,19 @@
   .case-button {
     width: 100%;
     min-width: auto;
+  }
+  
+  .case-viewport-container {
+    height: 170px;
+  }
+  
+  .reward-item {
+    flex: 0 0 130px;
+    height: 130px;
+  }
+  
+  .reward-icon {
+    font-size: 40px;
+    height: 45px;
   }
 }
