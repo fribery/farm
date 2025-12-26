@@ -1,5 +1,5 @@
 import { GAME_CONFIG } from '../../game/config'
-import CaseOpeningAnimation from './CaseOpeningAnimation';
+import CaseOpeningAnimation from './components/CaseOpeningAnimation';
 import './Screens.css'
 
 export default function ShopScreen({ user, updateGameData }) {
