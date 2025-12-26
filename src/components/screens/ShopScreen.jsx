@@ -49,123 +49,137 @@ export default function ShopScreen({ user, updateGameData }) {
     updateGameData(newGameData)
   }
 
-    const selectRewardFromCase = (caseItem) => {
-      const random = Math.random() * 100;
-      let accumulatedChance = 0;
+  const selectRewardFromCase = (caseItem) => {
+    console.log('=== ВЫБОР НАГРАДЫ ===');
+    console.log('Кейс:', caseItem.name);
+    console.log('Все награды кейса:', caseItem.rewards);
+    
+    const random = Math.random() * 100;
+    console.log('Случайное число:', random.toFixed(2));
+    
+    let accumulatedChance = 0;
+    
+    for (const reward of caseItem.rewards) {
+      accumulatedChance += reward.chance;
+      console.log(`Проверка: ${reward.name} (шанс: ${reward.chance}%, накоплено: ${accumulatedChance}%)`);
       
-      for (const reward of caseItem.rewards) {
-        accumulatedChance += reward.chance;
-        if (random <= accumulatedChance) {
-          return reward;
-        }
+      if (random <= accumulatedChance) {
+        console.log('✅ ВЫБРАНО:', reward);
+        return reward;
       }
-      return caseItem.rewards[0];
-    };
+    }
+    
+    console.log('⚡ Выбрана первая награда по умолчанию');
+    return caseItem.rewards[0];
+  };
 
-    const handleOpenCase = (caseItem) => {
-      if (!user) {
-        alert('Ошибка загрузки данных пользователя');
-        return;
-      }
-      
-      if (user.game_data.money < caseItem.price) {
-        alert('Недостаточно денег!');
-        return;
-      }
+  const handleOpenCase = (caseItem) => {
+    console.log('=== ОТКРЫТИЕ КЕЙСА ===');
+    
+    if (!user) {
+      alert('Ошибка загрузки данных пользователя');
+      return;
+    }
+    
+    if (user.game_data.money < caseItem.price) {
+      alert('Недостаточно денег!');
+      return;
+    }
 
+    // ВЫБИРАЕМ НАГРАДУ
+    const reward = selectRewardFromCase(caseItem);
+    
+    console.log('=== ПРОВЕРКА ДАННЫХ ===');
+    console.log('Выбрана награда:', reward);
+    console.log('plantId:', reward.plantId);
+    console.log('name:', reward.name);
+    
+    const plantFromConfig = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+    console.log('Растение в конфиге:', plantFromConfig?.name);
+    console.log('Совпадение имен:', plantFromConfig?.name === reward.name ? '✅ Да' : '❌ Нет');
+    
+    // Сохраняем кейс и награду
+    setCurrentCase(caseItem);
+    setSelectedReward(reward);
+    setIsCaseOpen(true);
+    
+    console.log('Состояния установлены. isCaseOpen:', true);
+  };
 
-      // ВЫБИРАЕМ НАГРАДУ ПРЯМО ЗДЕСЬ
-      const reward = selectRewardFromCase(caseItem);
-        console.log('=== ВАЖНАЯ ПРОВЕРКА ===');
-        console.log('Выбранная награда:', reward);
-        console.log('plantId:', reward.plantId);
-        console.log('name:', reward.name);
-
-        const plantFromConfig = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
-        console.log('Растение из plants по этому id:', plantFromConfig?.name);
-        console.log('Совпадают ли имена?', plantFromConfig?.name === reward.name);
-      
-      // Сохраняем кейс и ВЫБРАННУЮ НАГРАДУ
-      setCurrentCase(caseItem);
-      setSelectedReward(reward); // Сохраняем выбранную награду
-      setIsCaseOpen(true);
-    };
-
-    const handleCloseCase = () => {
+  const handleCloseCase = () => {
+    console.log('Закрытие кейса');
     setIsCaseOpen(false);
     setCurrentCase(null);
     setSelectedReward(null);
-    };
+  };
 
-
-  // Функция выбора награды (такая же как была в handleRewardTaken)
-const handleRewardTaken = (reward) => {
-  console.log('Получена награда в handleRewardTaken:', reward);
-  
-  if (reward.type === 'payment') {
-    // Только списание денег за кейс
-    console.log('Списываем деньги:', reward.price);
+  const handleRewardTaken = (reward) => {
+    console.log('=== ПОЛУЧЕНИЕ НАГРАДЫ ===');
+    console.log('Пришла награда:', reward);
+    
+    if (reward.type === 'payment') {
+      console.log('Списание денег:', reward.price);
+      const newGameData = {
+        ...user.game_data,
+        money: user.game_data.money - reward.price
+      };
+      updateGameData(newGameData);
+      return;
+    }
+    
+    // Выдача реальной награды
+    console.log('Выдача награды:', {
+      plantId: reward.plantId,
+      name: reward.name,
+      rarity: reward.rarity,
+      quantity: reward.quantity
+    });
+    
+    const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+    
+    if (!plant) {
+      console.error('❌ Растение не найдено для plantId:', reward.plantId);
+      alert('Ошибка: награда не найдена');
+      return;
+    }
+    
+    // Определяем количество
+    let quantity = 1;
+    if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
+      const [min, max] = reward.quantity.split('-').map(Number);
+      quantity = Math.floor(Math.random() * (max - min + 1)) + min;
+    } else if (typeof reward.quantity === 'number') {
+      quantity = reward.quantity;
+    }
+    
+    console.log('Финальное количество:', quantity);
+    
+    // Обновляем инвентарь
+    const newInventory = [...(user.game_data.inventory || [])];
+    const existingIndex = newInventory.findIndex(
+      item => item.type === 'seed' && item.plantId === reward.plantId
+    );
+    
+    if (existingIndex >= 0) {
+      newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
+    } else {
+      newInventory.push({
+        type: 'seed',
+        plantId: reward.plantId,
+        name: plant.name,
+        count: quantity,
+        rarity: reward.rarity
+      });
+    }
+    
     const newGameData = {
       ...user.game_data,
-      money: user.game_data.money - reward.price
+      inventory: newInventory
     };
+    
     updateGameData(newGameData);
-    return;
-  }
-  
-  // reward - это ТА ЖЕ награда, что была выбрана в handleOpenCase
-  // НЕ выбираем заново, используем готовую!
-  console.log('Выдаем награду из handleRewardTaken:', {
-    plantId: reward.plantId,
-    rarity: reward.rarity,
-    quantity: reward.quantity
-  });
-  
-  const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
-  
-  if (!plant) {
-    console.error('Растение не найдено для plantId:', reward.plantId);
-    alert('Ошибка: награда не найдена');
-    return;
-  }
-  
-  // Определяем количество
-  let quantity = 1;
-  if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
-    const [min, max] = reward.quantity.split('-').map(Number);
-    quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-  } else if (typeof reward.quantity === 'number') {
-    quantity = reward.quantity;
-  }
-  
-  console.log('Количество награды:', quantity);
-  
-  // Обновляем инвентарь
-  const newInventory = [...(user.game_data.inventory || [])];
-  const existingIndex = newInventory.findIndex(
-    item => item.type === 'seed' && item.plantId === reward.plantId
-  );
-  
-  if (existingIndex >= 0) {
-    newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
-  } else {
-    newInventory.push({
-      type: 'seed',
-      plantId: reward.plantId,
-      name: plant.name,
-      count: quantity,
-      rarity: reward.rarity
-    });
-  }
-  
-  const newGameData = {
-    ...user.game_data,
-    inventory: newInventory
+    alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
   };
-  
-  updateGameData(newGameData);
-  alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
-};
 
   const buySlot = () => {
     const SLOT_PRICE = user.game_data?.slotPrice || 500;
@@ -173,13 +187,13 @@ const handleRewardTaken = (reward) => {
     const PRICE_INCREASE_RATE = 1.2;
 
     if (!user) {
-        console.error('user is not defined in ShopScreen');
-        alert('Ошибка загрузки данных пользователя');
-        return;
+      console.error('user is not defined in ShopScreen');
+      alert('Ошибка загрузки данных пользователя');
+      return;
     }
     if (user.game_data.money < SLOT_PRICE) {
-        alert('Недостаточно денег!');
-        return;
+      alert('Недостаточно денег!');
+      return;
     }
 
     const currentSlots = user.game_data.availableSlots || 5;
@@ -187,10 +201,10 @@ const handleRewardTaken = (reward) => {
     const newPrice = Math.floor(SLOT_PRICE * PRICE_INCREASE_RATE);
 
     const newGameData = {
-        ...user.game_data,
-        money: user.game_data.money - SLOT_PRICE,
-        availableSlots: newSlots,
-        slotPrice: newPrice
+      ...user.game_data,
+      money: user.game_data.money - SLOT_PRICE,
+      availableSlots: newSlots,
+      slotPrice: newPrice
     };
 
     updateGameData(newGameData);
@@ -201,7 +215,6 @@ const handleRewardTaken = (reward) => {
     <div className="shop-screen">
       <h2>🛒 Магазин</h2>
       
-      {/* Растения для покупки */}
       <section className="shop-section">
         <div className="items-grid">
           {GAME_CONFIG.plants.map((plant) => (
@@ -243,7 +256,6 @@ const handleRewardTaken = (reward) => {
         </div>
       </section>
       
-      {/* Секция кейсов */}
       <section className="shop-section">
         <h3>🎰 Кейсы с семенами</h3>
         <div className="items-grid">
@@ -271,7 +283,6 @@ const handleRewardTaken = (reward) => {
         </div>
       </section>
 
-      {/* Дополнительные слоты фермы */}
       <section className="shop-section">
         <h3>🏗️ Улучшения фермы</h3>
         <div className="items-grid">
@@ -285,9 +296,7 @@ const handleRewardTaken = (reward) => {
                   <strong>{user.game_data?.slotPrice || 500}💰</strong>
                 </div>
                 <div className="stat">
-                  <span>
-                    Текущие слоты: 
-                  </span>
+                  <span>Текущие слоты:</span>
                   <strong>{user?.game_data?.availableSlots ? `${user.game_data.availableSlots} шт` : '5/5'}</strong>
                 </div>
                 <div className="stat">
@@ -307,16 +316,15 @@ const handleRewardTaken = (reward) => {
         </div>
       </section>
 
-      {/* Компонент анимации открытия кейса */}
       {isCaseOpen && currentCase && selectedReward && (
-      <CaseOpeningAnimation
-        onClose={handleCloseCase}
-        onRewardTaken={handleRewardTaken}
-        caseItem={currentCase}
-        selectedReward={selectedReward} // Передаем УЖЕ ВЫБРАННУЮ награду
-        plants={GAME_CONFIG.plants}
-      />
-    )}
+        <CaseOpeningAnimation
+          onClose={handleCloseCase}
+          onRewardTaken={handleRewardTaken}
+          caseItem={currentCase}
+          selectedReward={selectedReward}
+          plants={GAME_CONFIG.plants}
+        />
+      )}
     </div>
-  )
+  );
 }

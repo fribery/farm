@@ -15,7 +15,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     console.log('plantId в награде:', selectedReward?.plantId);
     console.log('Всего растений в пропсах:', plants?.length);
     
-    if (caseItem && selectedReward) {
+    if (caseItem && selectedReward && plants) {
       generateRewardsList();
     }
     return () => {
@@ -23,32 +23,31 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         clearTimeout(animationTimeoutRef.current);
       }
     };
-  }, [caseItem, selectedReward]);
+  }, [caseItem, selectedReward, plants]);
 
   const generateRewardsList = () => {
-    if (!caseItem?.rewards || !selectedReward) return;
+    if (!caseItem?.rewards || !selectedReward || !plants) return;
+    
     console.log('=== ГЕНЕРАЦИЯ СПИСКА ДЛЯ ПРОКРУТКИ ===');
     console.log('Финальная награда:', selectedReward);
     
     const list = [];
-    const allRewards = [...caseItem.rewards];
     
     // Добавляем 40 случайных элементов ПЕРЕД финальной наградой
-    // Берем из ВСЕХ растений, а не только из наград кейса!
     for (let i = 0; i < 40; i++) {
-        // Случайное растение из всех доступных
-        const randomPlant = plants[Math.floor(Math.random() * plants.length)];
-        // Случайная редкость
-        const rarities = ['common', 'rare', 'epic'];
-        const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
-        
-        list.push({
+      // Случайное растение из всех доступных
+      const randomPlant = plants[Math.floor(Math.random() * plants.length)];
+      // Случайная редкость
+      const rarities = ['common', 'rare', 'epic'];
+      const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
+      
+      list.push({
         plantId: randomPlant.id,
         name: randomPlant.name,
         rarity: randomRarity,
-        quantity: '1-3', // или любое другое значение
+        quantity: '1-3',
         isFinal: false
-        });
+      });
     }
     
     // Добавляем ПЕРЕДАННУЮ награду (isFinal: true)
@@ -59,13 +58,21 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     
     // Добавляем 10 случайных элементов ПОСЛЕ финальной награды
     for (let i = 0; i < 10; i++) {
-      const randomIndex = Math.floor(Math.random() * allRewards.length);
+      const randomPlant = plants[Math.floor(Math.random() * plants.length)];
+      const rarities = ['common', 'rare', 'epic'];
+      const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
+      
       list.push({
-        ...allRewards[randomIndex],
+        plantId: randomPlant.id,
+        name: randomPlant.name,
+        rarity: randomRarity,
+        quantity: '1-3',
         isFinal: false
       });
     }
     
+    console.log('Сгенерировано элементов:', list.length);
+    console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal));
     setRewardsList(list);
   };
 
@@ -85,45 +92,61 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       const finalIndex = rewardsList.findIndex(item => item.isFinal);
       if (finalIndex === -1) return;
       
+      console.log('=== ЗАПУСК АНИМАЦИИ ===');
+      console.log('Финальный индекс:', finalIndex);
+      console.log('Финальная награда:', rewardsList[finalIndex]);
+      
       const elementWidth = 170;
       const gap = 20;
       const totalWidth = elementWidth + gap;
-      const finalPosition = -(finalIndex * totalWidth) + 200;
+      
+      // КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: правильный расчет позиции
+      // Центр видимой области (ширина контейнера примерно 400px, середина 200px)
+      const centerOffset = 200; // Центр контейнера
+      const finalPosition = -(finalIndex * totalWidth) + centerOffset;
+      
+      console.log('Финальная позиция:', finalPosition);
       
       caseRef.current.style.transition = 'none';
       caseRef.current.style.transform = 'translateX(0)';
       
-      setTimeout(() => {
+      // Даем время на сброс
+      requestAnimationFrame(() => {
         if (caseRef.current) {
           caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
           caseRef.current.style.transform = `translateX(${finalPosition}px)`;
         }
-      }, 10);
+      });
     }
     
     animationTimeoutRef.current = setTimeout(() => {
+      console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
       setIsSpinning(false);
       setAnimationStage('ready');
     }, 2800);
   };
 
-    const handleTakeReward = async () => {
-    if (animationStage !== 'ready' || !selectedReward) return;
+  const handleTakeReward = async () => {
+    console.log('=== НАЖАТА "ЗАБРАТЬ НАГРАДУ" ===');
+    console.log('Текущий stage:', animationStage);
+    console.log('Награда для отправки:', selectedReward);
     
-    console.log('=== Нажата "Забрать награду" ===');
-    console.log('Отправляемая награда:', selectedReward);
+    if (animationStage !== 'ready' || !selectedReward) {
+      console.log('Не могу забрать: stage=', animationStage, 'hasReward=', !!selectedReward);
+      return;
+    }
     
     try {
-        if (onRewardTaken) {
+      if (onRewardTaken) {
         onRewardTaken(selectedReward);
-        }
-        
-        handleClose();
+      }
+      
+      handleClose();
     } catch (error) {
-        console.error('Ошибка при получении награды:', error);
-        alert('Ошибка при получении награды. Попробуйте снова.');
+      console.error('Ошибка при получении награды:', error);
+      alert('Ошибка при получении награды. Попробуйте снова.');
     }
-    };
+  };
 
   const handleClose = () => {
     if (animationTimeoutRef.current) {
@@ -160,17 +183,16 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     return plant.name.split(' ')[0] || '🌱';
   };
 
-    const getPlantName = (plantId, rewardName) => {
-    // Сначала используем name из награды, если он есть
-    if (rewardName) return rewardName;
-    
-    // Иначе ищем в plants
+  const getPlantName = (plantId) => {
     if (!plants || !Array.isArray(plants)) return 'Семена';
     const plant = plants.find(p => p.id === plantId);
     return plant?.name || 'Семена';
-    };
+  };
 
-  if (!caseItem || !selectedReward) return null;
+  if (!caseItem || !selectedReward) {
+    console.log('Не рендерим: нет caseItem или selectedReward');
+    return null;
+  }
 
   return (
     <div className="case-opening-modal">
@@ -198,32 +220,49 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
               className="case-rewards-track" 
               ref={caseRef}
             >
-              {rewardsList.map((reward, index) => (
-                <div 
-                  key={index} 
-                  className={`reward-item ${reward.isFinal ? 'final-reward' : ''}`}
-                  style={{ 
-                    borderColor: getRarityColor(reward.rarity),
-                    backgroundColor: reward.isFinal ? `${getRarityColor(reward.rarity)}20` : 'rgba(255, 255, 255, 0.05)',
-                  }}
-                >
-                  <div className="reward-icon">
-                    {getPlantEmoji(reward.plantId)}
-                  </div>
-                  <div className="reward-name">
-                    {getPlantName(reward.plantId)}
-                  </div>
+              {rewardsList.map((reward, index) => {
+                const isFinal = reward.isFinal;
+                return (
                   <div 
-                    className="reward-rarity"
-                    style={{ color: getRarityColor(reward.rarity) }}
+                    key={index} 
+                    className={`reward-item ${isFinal ? 'final-reward' : ''}`}
+                    style={{ 
+                      borderColor: getRarityColor(reward.rarity),
+                      backgroundColor: isFinal ? `${getRarityColor(reward.rarity)}20` : 'rgba(255, 255, 255, 0.05)',
+                    }}
                   >
-                    {getRarityName(reward.rarity)}
+                    <div className="reward-icon">
+                      {getPlantEmoji(reward.plantId)}
+                    </div>
+                    <div className="reward-name">
+                      {getPlantName(reward.plantId)}
+                    </div>
+                    <div 
+                      className="reward-rarity"
+                      style={{ color: getRarityColor(reward.rarity) }}
+                    >
+                      {getRarityName(reward.rarity)}
+                    </div>
+                    <div className="reward-quantity">
+                      {reward.quantity ? `×${reward.quantity}` : '×1'}
+                    </div>
+                    {isFinal && (
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '5px',
+                        right: '5px',
+                        background: 'gold',
+                        color: 'black',
+                        fontSize: '10px',
+                        padding: '2px 5px',
+                        borderRadius: '3px'
+                      }}>
+                        FINAL
+                      </div>
+                    )}
                   </div>
-                  <div className="reward-quantity">
-                    {reward.quantity ? `×${reward.quantity}` : '×1'}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             
             <div className="selection-indicator"></div>
@@ -231,8 +270,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
         </div>
         
         {animationStage === 'ready' && selectedReward && (
-            console.log('=== РЕНДЕРИМ ФИНАЛЬНУЮ КАРТОЧКУ ===', selectedReward),
-            console.log('Данные в карточке: plantId=', selectedReward.plantId, 'name=', selectedReward.name),
           <div className="selected-reward-container">
             <div 
               className="reward-card"
@@ -279,7 +316,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
           ) : animationStage === 'ready' ? (
             <button 
               className="case-button take-reward-button"
-              onClick={handleTakeReward}
+              onClick={() => {
+                console.log('Клик по кнопке "Забрать"');
+                handleTakeReward();
+              }}
             >
               Забрать награду
             </button>
