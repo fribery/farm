@@ -33,11 +33,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     
     const list = [];
     
-    // Добавляем 40 случайных элементов ПЕРЕД финальной наградой
-    for (let i = 0; i < 40; i++) {
-      // Случайное растение из всех доступных
+    // ВАЖНО: МЕНЬШЕ ЭЛЕМЕНТОВ! Только 15 перед финальной наградой
+    for (let i = 0; i < 15; i++) {
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
-      // Случайная редкость
       const rarities = ['common', 'rare', 'epic'];
       const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
       
@@ -50,14 +48,14 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       });
     }
     
-    // Добавляем ПЕРЕДАННУЮ награду (isFinal: true)
+    // Финальная награда на позиции 16
     list.push({
       ...selectedReward,
       isFinal: true
     });
     
-    // Добавляем 10 случайных элементов ПОСЛЕ финальной награды
-    for (let i = 0; i < 10; i++) {
+    // 5 элементов после
+    for (let i = 0; i < 5; i++) {
       const randomPlant = plants[Math.floor(Math.random() * plants.length)];
       const rarities = ['common', 'rare', 'epic'];
       const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
@@ -71,67 +69,72 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
       });
     }
     
-    console.log('Сгенерировано элементов:', list.length);
-    console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal));
+    console.log('Сгенерировано элементов:', list.length); // Должно быть 21
+    console.log('Индекс финальной награды:', list.findIndex(item => item.isFinal)); // Должно быть 15
+    
+    // Визуальная проверка
+    console.log('Последние 5 элементов:');
+    for (let i = Math.max(0, list.length - 5); i < list.length; i++) {
+      console.log(`[${i}] ${list[i].name} ${list[i].isFinal ? '(FINAL)' : ''}`);
+    }
+    
     setRewardsList(list);
   };
 
-const handleOpenCase = () => {
-  if (animationStage !== 'closed') return;
-  
-  setAnimationStage('spinning');
-  setIsSpinning(true);
-  
-  // Сразу снимаем деньги
-  if (onRewardTaken) {
-    onRewardTaken({ type: 'payment', price: caseItem.price });
-  }
-  
-  // Анимация прокрутки
-  if (caseRef.current && rewardsList.length > 0) {
-    const finalIndex = rewardsList.findIndex(item => item.isFinal);
-    if (finalIndex === -1) return;
+  const handleOpenCase = () => {
+    if (animationStage !== 'closed') return;
     
-    console.log('=== ЗАПУСК АНИМАЦИИ ===');
-    console.log('Финальный индекс:', finalIndex);
-    console.log('Финальная награда:', rewardsList[finalIndex]);
+    setAnimationStage('spinning');
+    setIsSpinning(true);
     
-    const elementWidth = 170;
-    const gap = 20;
-    const totalWidth = elementWidth + gap;
+    // Сразу снимаем деньги
+    if (onRewardTaken) {
+      onRewardTaken({ type: 'payment', price: caseItem.price });
+    }
     
-    // ВАЖНОЕ ИСПРАВЛЕНИЕ: 
-    // 1. Берем не весь индекс, а только последние 5 элементов
-    // 2. Останавливаемся на предпоследнем элементе
-    const visibleElements = 5; // Сколько элементов видно в окне
-    const stopIndex = Math.max(0, finalIndex - visibleElements);
+    // Анимация прокрутки
+    if (caseRef.current && rewardsList.length > 0) {
+      const finalIndex = rewardsList.findIndex(item => item.isFinal);
+      if (finalIndex === -1) return;
+      
+      console.log('=== ЗАПУСК АНИМАЦИИ ===');
+      console.log('Финальный индекс:', finalIndex);
+      console.log('Финальная награда:', rewardsList[finalIndex]);
+      
+      const elementWidth = 170;
+      const gap = 20;
+      const totalWidth = elementWidth + gap;
+      
+      // ВАЖНОЕ ИСПРАВЛЕНИЕ 2.0:
+      // Останавливаемся НА финальном элементе, а не перед ним
+      const finalPosition = -(finalIndex * totalWidth) + 200;
+      
+      console.log('Всего элементов:', rewardsList.length);
+      console.log('Финальная позиция:', finalPosition);
+      console.log('Должен остановиться на:', rewardsList[finalIndex]?.name);
+      
+      // Проверим, что показывается в центре ДО анимации
+      const centerIndex = Math.floor((200 - finalPosition) / totalWidth);
+      console.log('В центре до анимации будет:', rewardsList[centerIndex]?.name);
+      
+      caseRef.current.style.transition = 'none';
+      caseRef.current.style.transform = 'translateX(0)';
+      
+      // Даем время на сброс
+      requestAnimationFrame(() => {
+        if (caseRef.current) {
+          caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
+          caseRef.current.style.transform = `translateX(${finalPosition}px)`;
+        }
+      });
+    }
     
-    // Позиция для остановки (предпоследний элемент из видимых)
-    const finalPosition = -(stopIndex * totalWidth) + 100;
-    
-    console.log('Видимых элементов:', visibleElements);
-    console.log('Индекс остановки:', stopIndex);
-    console.log('Финальная позиция:', finalPosition);
-    console.log('Всего элементов:', rewardsList.length);
-    
-    caseRef.current.style.transition = 'none';
-    caseRef.current.style.transform = 'translateX(0)';
-    
-    // Даем время на сброс
-    requestAnimationFrame(() => {
-      if (caseRef.current) {
-        caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
-        caseRef.current.style.transform = `translateX(${finalPosition}px)`;
-      }
-    });
-  }
-  
-  animationTimeoutRef.current = setTimeout(() => {
-    console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
-    setIsSpinning(false);
-    setAnimationStage('ready');
-  }, 2800);
-};
+    animationTimeoutRef.current = setTimeout(() => {
+      console.log('=== АНИМАЦИЯ ЗАВЕРШЕНА ===');
+      setIsSpinning(false);
+      setAnimationStage('ready');
+    }, 2800);
+  };
 
   const handleTakeReward = async () => {
     console.log('=== НАЖАТА "ЗАБРАТЬ НАГРАДУ" ===');
