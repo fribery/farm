@@ -149,11 +149,15 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
     return plant.name.split(' ')[0] || '🌱';
   };
 
-  const getPlantName = (plantId) => {
+    const getPlantName = (plantId, rewardName) => {
+    // Сначала используем name из награды, если он есть
+    if (rewardName) return rewardName;
+    
+    // Иначе ищем в plants
     if (!plants || !Array.isArray(plants)) return 'Семена';
     const plant = plants.find(p => p.id === plantId);
     return plant?.name || 'Семена';
-  };
+    };
 
   if (!caseItem || !selectedReward) return null;
 

@@ -73,8 +73,17 @@ export default function ShopScreen({ user, updateGameData }) {
         return;
       }
 
+
       // ВЫБИРАЕМ НАГРАДУ ПРЯМО ЗДЕСЬ
       const reward = selectRewardFromCase(caseItem);
+        console.log('=== ВАЖНАЯ ПРОВЕРКА ===');
+        console.log('Выбранная награда:', reward);
+        console.log('plantId:', reward.plantId);
+        console.log('name:', reward.name);
+
+        const plantFromConfig = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+        console.log('Растение из plants по этому id:', plantFromConfig?.name);
+        console.log('Совпадают ли имена?', plantFromConfig?.name === reward.name);
       
       // Сохраняем кейс и ВЫБРАННУЮ НАГРАДУ
       setCurrentCase(caseItem);
