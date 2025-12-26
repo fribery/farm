@@ -13,7 +13,7 @@ const ToastNotification = () => {
       visible: true
     };
     
-    setNotifications(prev => [newNotification, ...prev]); // Новые сверху
+    setNotifications(prev => [newNotification, ...prev]);
     
     setTimeout(() => {
       setNotifications(prev => 
@@ -87,7 +87,6 @@ const ToastNotification = () => {
             ×
           </button>
           
-          {/* Прогресс-бар таймера */}
           <div className="toast-progress-container">
             <div className="toast-progress"></div>
           </div>
