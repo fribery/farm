@@ -71,11 +71,6 @@ function App() {
     
     <div className="App">
       <ToastNotification />
-      <button onClick={() => {
-  if (window.showSuccess) window.showSuccess('Тестовое уведомление!');
-}}>
-  Тест Toast
-</button>
     <header className="app-header">
       <div className="header-content">
         <div className="app-logo">
