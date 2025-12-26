@@ -78,7 +78,7 @@
 .stat-value {
   font-size: 14px;
   font-weight: 700;
-  color: white;
+  color: rgb(0, 0, 0);
   line-height: 1.2;
   margin-bottom: 1px;
   white-space: nowrap;
@@ -89,24 +89,24 @@
 .stat-label {
   font-size: 10px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(0, 0, 0, 0.9);
   text-transform: uppercase;
   letter-spacing: 0.2px;
 }
 
 /* Цвета иконок */
 .stat-item.money .stat-icon {
-  background: rgba(255, 193, 7, 0.25);
+  background: rgba(255, 255, 255, 0.25);
   color: #FFC107;
 }
 
 .stat-item.level .stat-icon {
-  background: rgba(33, 150, 243, 0.25);
+  background: rgba(255, 255, 255, 0.25);
   color: #2196F3;
 }
 
 .stat-item.exp .stat-icon {
-  background: rgba(156, 39, 176, 0.25);
+  background: rgba(255, 255, 255, 0.25);
   color: #9C27B0;
 }
 
@@ -386,7 +386,7 @@
 }
 
 .stat-card {
-  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, #1906c5 0%, #a0088c94 100%);
   padding: 20px;
   border-radius: 12px;
   text-align: center;
@@ -406,10 +406,16 @@
 }
 
 .stat-value {
-  font-size: 2.2rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #0d47a1;
+  color: #000000;
 }
+.stat-value-fixed {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #000000;
+}
+
 
 /* Достижения */
 .achievements-grid {
@@ -691,12 +697,14 @@
 .inventory-section {
   margin-top: 25px;
   padding: 20px;
+  border: 2px solid #bec7d1;
   background: #f8f9fa;
   border-radius: 20px;
 }
 
 .inventory-grid-square {
   display: grid;
+  
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 15px;
   margin-top: 15px;

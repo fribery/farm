@@ -8,16 +8,11 @@ export const GAME_CONFIG = {
     energy: 100
   },
   
-  // Уровни
-  levels: [
-    { level: 1, expRequired: 0, energyMax: 100 },
-    { level: 2, expRequired: 100, energyMax: 120 },
-    { level: 3, expRequired: 250, energyMax: 150 },
-    { level: 4, expRequired: 500, energyMax: 200 },
-    { level: 5, expRequired: 1000, energyMax: 300 }
-  ],
-  
-
+  levels: {
+    baseXP: 100, // Опыт для 1-го уровня
+    growthFactor: 1.5, // Множитель для каждого следующего уровня
+    maxLevel: 50 // Максимальный уровень
+  },
   
   // Растения
   plants: [

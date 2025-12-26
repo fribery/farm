@@ -2,14 +2,14 @@ import { useState, useEffect } from 'react'
 import { GAME_CONFIG } from '../game/config'
 import './FarmField.css'
 
-export default function FarmField({ user, updateGameData }) {
+export default function FarmField({ user, updateGameData, availableSlots }) {
   const [fields, setFields] = useState(user.game_data?.farm || [])
   const [timeLeft, setTimeLeft] = useState({})
 
   // Посадка растения из инвентаря
   const plantSeed = (plantId, plantName) => {
   // Проверяем свободные слоты
-  if (fields.filter(f => !f.harvested).length >= 5) {
+  if (fields.filter(f => !f.harvested).length >= availableSlots) {
     alert('Все слоты фермы заняты! Освободите место или купите дополнительные слоты.')
     return
   }
@@ -73,16 +73,30 @@ export default function FarmField({ user, updateGameData }) {
     updatedFields[fieldIndex] = { ...updatedFields[fieldIndex], harvested: true }
 
     const newGameData = {
-      ...user.game_data,
-      money: (user.game_data.money || 0) + plant.yield,
-      experience: (user.game_data.experience || 0) + plant.exp,
-      plantsHarvested: (user.game_data.plantsHarvested || 0) + 1,
-      totalEarned: (user.game_data.totalEarned || 0) + plant.yield,
-      farm: updatedFields.filter(f => !f.harvested)
-    }
+    ...user.game_data,
+    money: (user.game_data.money || 0) + plant.yield,
+    experience: (user.game_data.experience || 0) + plant.exp, // опыт уже начисляется
+    plantsHarvested: (user.game_data.plantsHarvested || 0) + 1,
+    totalEarned: (user.game_data.totalEarned || 0) + plant.yield,
+    farm: updatedFields.filter(f => !f.harvested)
+  }
+    const checkLevelUp = (gameData) => {
+      const level = gameData.level || 1;
+      const exp = gameData.experience || 0;
+      const nextLevelExp = [0, 100, 250, 500, 1000, 2000, 3500, 5000, 7500, 10000, 15000, 22500, 35000]; // Тот же массив
+      const neededExp = nextLevelExp[level] || 2000; // Опыт для следующего уровня
+      
+      if (exp >= neededExp) {
+        const newLevel = level + 1;
+        alert(`🎉 Уровень UP! Теперь вы ${newLevel} уровня!`);
+        return { ...gameData, level: newLevel };
+      }
+      return gameData;
+    };
 
-    setFields(updatedFields.filter(f => !f.harvested))
-    updateGameData(newGameData)
+    // Примените проверку:
+    const updatedGameData = checkLevelUp(newGameData);
+    updateGameData(updatedGameData);
   }
 
   // Обновление таймеров
@@ -165,16 +179,16 @@ export default function FarmField({ user, updateGameData }) {
         <span className="stat-icon">💰</span>
         <div className="stat-content">
           <div className="stat-label-small">Баланс</div>
-          <div className="stat-value">{user.game_data?.money || 0}</div>
+          <div className="stat-value-fixed">{user.game_data?.money || 0}</div>
         </div>
       </div>
       <div className="stat-item-compact">
         <span className="stat-icon">🌱</span>
         <div className="stat-content">
           <div className="stat-label-small">Слоты</div>
-          <div className="stat-value">
-            {fields.filter(f => !f.harvested).length}/5
-            {fields.filter(f => !f.harvested).length >= 5 && (
+          <div className="stat-value-fixed">
+            {fields.filter(f => !f.harvested).length}/{availableSlots}
+            {fields.filter(f => !f.harvested).length >= availableSlots && (
               <span style={{ fontSize: '0.7rem', color: '#f44336', marginLeft: '5px' }}>заполнено</span>
             )}
           </div>
@@ -184,7 +198,7 @@ export default function FarmField({ user, updateGameData }) {
         <span className="stat-icon">⭐</span>
         <div className="stat-content">
           <div className="stat-label-small">Уровень</div>
-          <div className="stat-value">{user.game_data?.level || 1}</div>
+          <div className="stat-value-fixed">{user.game_data?.level || 1}</div>
         </div>
       </div>
     </div>
@@ -193,10 +207,10 @@ export default function FarmField({ user, updateGameData }) {
     <div className="fields-container">
       <h3 className="section-title">
         <span className="title-icon">🏞️</span>
-        Активные поля: {fields.filter(f => !f.harvested).length}
+        Семена для посадки ({fields.filter(f => !f.harvested).length}/{availableSlots})
       </h3>
       
-      {fields.length === 0 ? (
+      {fields.length === 0 ? (  
         <div className="empty-state">
           <div className="empty-icon">🌱</div>
           <p className="empty-title">Пока нет растений</p>
@@ -305,89 +319,88 @@ export default function FarmField({ user, updateGameData }) {
       <div className="seeds-container">
         <h3 className="section-title">
           <span className="title-icon">🌱</span>
-          Семена для посадки ({fields.filter(f => !f.harvested).length}/5)
+          Семена для посадки ({fields.filter(f => !f.harvested).length}/{availableSlots})
         </h3>
         
         {/* Сообщение если слотов нет */}
-        {fields.filter(f => !f.harvested).length >= 5 && (
+        {fields.filter(f => !f.harvested).length >= availableSlots && (
           <div className="slots-full-message">
             <span className="warning-icon">⚠️</span>
             <span>Все слоты заняты! Освободите место или купите дополнительные слоты в магазине.</span>
           </div>
         )}
         
-        <div className="seeds-grid-square">
-          {(() => {
-            // Группируем семена по типу
-            const seedGroups = {}
-            user.game_data.inventory
-              .filter(item => item.type === 'seed' && (item.count || 0) > 0)
-              .forEach(item => {
-                const key = item.plantId
-                if (!seedGroups[key]) {
-                  seedGroups[key] = {
-                    plantId: item.plantId,
-                    name: item.name,
-                    count: 0,
-                    price: item.price,
-                    items: []
-                  }
-                }
-                seedGroups[key].count += (item.count || 1)
-                seedGroups[key].items.push(item)
-              })
+        <div className="seeds-row">
+  {(() => {
+    const seedGroups = {};
+    user.game_data.inventory
+      .filter(item => item.type === 'seed' && (item.count || 0) > 0)
+      .forEach(item => {
+        const key = item.plantId;
+        if (!seedGroups[key]) {
+          seedGroups[key] = {
+            plantId: item.plantId,
+            name: item.name,
+            count: 0,
+            price: item.price,
+            items: []
+          };
+        }
+        seedGroups[key].count += (item.count || 1);
+        seedGroups[key].items.push(item);
+      });
 
-            return Object.values(seedGroups).map((group, index) => {
-              const plant = GAME_CONFIG.plants.find(p => p.id === group.plantId)
-              const canPlant = fields.filter(f => !f.harvested).length < 5
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`seed-card-square ${!canPlant ? 'disabled' : ''}`}
-                  title={!canPlant ? 'Нет свободных слотов' : `Посадить ${group.name}`}
-                >
-                  <div className="seed-square-top">
-                    <div className="seed-square-emoji">
-                      {plant?.name?.split(' ')[0] || '🌱'}
-                    </div>
-                    {group.count > 1 && (
-                      <div className="seed-count-badge">
-                        ×{group.count}
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div className="seed-square-info">
-                    <div className="seed-square-name">{group.name}</div>
-                    <div className="seed-square-details">
-                      <div className="seed-detail">
-                        <span className="detail-icon">⏱️</span>
-                        <span>{plant?.growthTime || 30}с</span>
-                      </div>
-                      <div className="seed-detail">
-                        <span className="detail-icon">💰</span>
-                        <span>+{plant?.yield || 0}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <button
-                    onClick={() => {
-                      if (canPlant) {
-                        plantSeed(group.plantId, group.name)
-                      }
-                    }}
-                    disabled={!canPlant}
-                    className={`plant-btn-square ${canPlant ? '' : 'disabled'}`}
-                  >
-                    {canPlant ? 'Посадить' : 'Нет места'}
-                  </button>
-                </div>
-              )
-            })
-          })()}
+    return Object.values(seedGroups).map((group, index) => {
+      const plant = GAME_CONFIG.plants.find(p => p.id === group.plantId);
+      const canPlant = fields.filter(f => !f.harvested).length < availableSlots;
+      
+      return (
+        <div 
+          key={index} 
+          className={`seed-card-inline ${!canPlant ? 'disabled' : ''}`}
+          title={!canPlant ? 'Нет свободных слотов' : `Посадить ${group.name}`}
+        >
+          <div className="seed-inline-top">
+            <div className="seed-inline-emoji">
+              {plant?.name?.split(' ')[0] || '🌱'}
+            </div>
+            {group.count > 1 && (
+              <div className="seed-count-inline">
+                ×{group.count}
+              </div>
+            )}
+          </div>
+          
+          <div className="seed-inline-info">
+            <div className="seed-inline-name">{group.name}</div>
+            <div className="seed-inline-details">
+              <div className="seed-detail">
+                <span className="detail-icon">⏱️</span>
+                <span>{plant?.growthTime || 30}с</span>
+              </div>
+              <div className="seed-detail">
+                <span className="detail-icon">💰</span>
+                <span>+{plant?.yield || 0}</span>
+              </div>
+            </div>
+          </div>
+          
+          <button
+            onClick={() => {
+              if (canPlant) {
+                plantSeed(group.plantId, group.name);
+              }
+            }}
+            disabled={!canPlant}
+            className={`plant-btn-inline ${canPlant ? '' : 'disabled'}`}
+          >
+            {canPlant ? 'Посадить' : 'Нет места'}
+          </button>
         </div>
+      );
+    });
+  })()}
+</div>
       </div>
     )}
   </div> // <-- Этот закрывающий div должен быть ТОЛЬКО ОДИН!
