@@ -5,6 +5,7 @@ import FarmScreen from './components/screens/FarmScreen.jsx'
 import ShopScreen from './components/screens/ShopScreen.jsx'
 import StatsScreen from './components/screens/StatsScreen.jsx'
 import ProfileScreen from './components/screens/ProfileScreen.jsx'
+import ToastNotification from './ToastNotification';
 import './App.css'
 
 function App() {
@@ -64,8 +65,17 @@ function App() {
     }
   }
 
+  
+
   return (
+    
     <div className="App">
+      <ToastNotification />
+      <button onClick={() => {
+  if (window.showSuccess) window.showSuccess('Тестовое уведомление!');
+}}>
+  Тест Toast
+</button>
     <header className="app-header">
       <div className="header-content">
         <div className="app-logo">
