@@ -25,16 +25,15 @@
   position: relative;
   width: 95%;
   max-width: 500px;
-  max-height: 85vh; /* УВЕЛИЧИВАЕМ с 75vh до 85vh */
+  max-height: 90vh; /* УВЕЛИЧИЛИ с 85vh */
   background: linear-gradient(135deg, #1a237e 0%, #283593 100%);
   border-radius: 20px;
-  padding: 25px; /* Увеличиваем паддинг */
+  padding: 25px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
   border: 3px solid #3949ab;
   z-index: 1001;
   animation: modalAppear 0.3s ease-out;
-  overflow-y: auto;
-  margin-top: 20px; /* Добавляем отступ сверху */
+  overflow-y: auto; /* Можно поменять на 'hidden' если хотим совсем убрать скролл */
 }
 
 @keyframes modalAppear {
@@ -85,7 +84,7 @@
 /* Информация о кейсе */
 .case-info {
   text-align: center;
-  margin-bottom: 15px;
+  margin-bottom: 25px;
 }
 
 .case-emoji {
@@ -132,6 +131,7 @@
 
 /* КОНТЕЙНЕР ПРОКРУТКИ - БЕЗ БЛЮРА И ЗАТЕМНЕНИЯ */
 .case-viewport-container {
+  height: 260px;
   background: linear-gradient(
     to right,
     rgba(0, 0, 0, 0.4) 0%,
@@ -143,14 +143,15 @@
   box-shadow: 
     inset 0 0 30px rgba(0, 0, 0, 0.5),
     0 5px 20px rgba(0, 0, 0, 0.3);
+  margin-bottom: 30px;
+  overflow: visible;
 }
 
 .case-viewport {
   position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  /* УБИРАЕМ маску и градиенты */
+  overflow: visible !important;
 }
 
 /* ДОРОЖКА - все элементы видны четко */
@@ -158,16 +159,17 @@
   display: flex;
   gap: 20px;
   height: 100%;
-  padding: 20px;
+  padding: 25px 60px;
   width: max-content;
   min-width: 2000px;
+  align-items: center;
   transition: transform 2.5s cubic-bezier(0.1, 0.8, 0.2, 1);
 }
 
 /* КАРТОЧКА НАГРАДЫ - БЕЗ блюра и прозрачности */
 .reward-item {
-  flex: 0 0 170px !important; /* Фиксированная ширина */
-  height: 170px !important; /* Фиксированная высота */
+  flex: 0 0 180px !important; /* Фиксированная ширина */
+  height: 180px !important; /* Фиксированная высота */
   width: 170px !important;
   border: 2px solid;
   border-radius: 12px;
@@ -175,9 +177,11 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 18px; /* Увеличиваем паддинг */
+  padding: 20px; /* Увеличиваем паддинг */
   background: rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  box-sizing: border-box;
+  overflow: visible !important;
 }
 
 @keyframes finalGlow {
@@ -218,11 +222,11 @@
 
 .center-line {
   position: absolute;
-  top: 0;
+  top: -5%;
   left: 50%;
   transform: translateX(-50%);
   width: 4px;
-  height: 100%;
+  height: 110%;
   background: linear-gradient(to bottom, 
     transparent 0%,
     #FFD700 20%,
@@ -285,13 +289,32 @@
 .case-viewport::before,
 .case-viewport::after,
 .case-viewport-container::before {
-  display: none !important;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to right,
+    rgba(30, 60, 114, 0.9) 0%,
+    transparent 15%,
+    transparent 85%,
+    rgba(30, 60, 114, 0.9) 100%
+  );
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 15px;
 }
 
 .reward-icon {
-  font-size: 50px;
-  margin-bottom: 10px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  font-size: 65px !important; /* Еще больше для красоты */
+  line-height: 1;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70px; /* Фиксированная высота для иконки */
 }
 
 .reward-name {
@@ -300,7 +323,7 @@
   font-weight: bold;
   margin-bottom: 6px;
   text-align: center;
-  min-height: 40px;
+  min-height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,7 +375,7 @@
 
 /* Карточка выбранной награды */
 .selected-reward-container {
-  margin: 15px 0;
+  margin: 20px 0;
   animation: slideUp 0.5s ease-out;
 }
 
@@ -438,7 +461,7 @@
   display: flex;
   justify-content: center;
   gap: 12px;
-  margin-top: 15px;
+  margin-top: 25px;
   flex-wrap: wrap;
 }
 
