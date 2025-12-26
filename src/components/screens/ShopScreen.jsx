@@ -178,7 +178,7 @@ export default function ShopScreen({ user, updateGameData }) {
     };
     
     updateGameData(newGameData);
-    alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
+//    alert(`🎉 Вы получили: ${plant.name} ×${quantity} (${reward.rarity})`);
   };
 
   const buySlot = () => {
