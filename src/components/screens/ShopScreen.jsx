@@ -4,9 +4,9 @@ import CaseOpeningAnimation from '../CaseOpeningAnimation';
 import './Screens.css'
 
 export default function ShopScreen({ user, updateGameData }) {
-  const [isOpeningCase, setIsOpeningCase] = useState(false);
-  const [caseResult, setCaseResult] = useState(null);
+  const [isCaseOpen, setIsCaseOpen] = useState(false);
   const [currentCase, setCurrentCase] = useState(null);
+
   const buySeeds = (plant) => {
     if (!user) {
       console.error('user is not defined in ShopScreen')
@@ -18,7 +18,6 @@ export default function ShopScreen({ user, updateGameData }) {
       return
     }
 
-    // Ищем уже существующие семена этого типа
     const existingIndex = user.game_data.inventory?.findIndex(
       item => item.type === 'seed' && item.plantId === plant.id
     ) || -1
@@ -26,13 +25,11 @@ export default function ShopScreen({ user, updateGameData }) {
     let newInventory = [...(user.game_data.inventory || [])]
     
     if (existingIndex >= 0) {
-      // Увеличиваем количество в существующей записи
       newInventory[existingIndex] = {
         ...newInventory[existingIndex],
         count: (newInventory[existingIndex].count || 1) + 1
       }
     } else {
-      // Добавляем новую запись
       newInventory.push({
         type: 'seed',
         plantId: plant.id,
@@ -49,90 +46,83 @@ export default function ShopScreen({ user, updateGameData }) {
     }
 
     updateGameData(newGameData)
-//    alert(`Куплены семена: ${plant.name}`)
   }
 
-const openCase = (caseId) => {
-  if (!user) {
-    alert('Ошибка загрузки данных пользователя');
-    return;
-  }
-  
-  const caseItem = GAME_CONFIG.cases?.find(c => c.id === caseId);
-  if (!caseItem) {
-    alert('Кейс не найден!');
-    return;
-  }
-  
-  if (user.game_data.money < caseItem.price) {
-    alert('Недостаточно денег!');
-    return;
-  }
-
-  console.log('Case item:', caseItem);
-  
-  // 1. Рандомный выбор награды
-  const random = Math.random() * 100;
-  let accumulatedChance = 0;
-  let selectedReward = null;
-  
-  for (const reward of caseItem.rewards) {
-    accumulatedChance += reward.chance;
-    if (random <= accumulatedChance) {
-      selectedReward = reward;
-      break;
+  const handleOpenCase = (caseItem) => {
+    if (!user) {
+      alert('Ошибка загрузки данных пользователя');
+      return;
     }
-  }
-  
-  if (!selectedReward) selectedReward = caseItem.rewards[0];
-  
-  console.log('Selected reward:', selectedReward); // ← ПЕРЕМЕСТИЛ сюда
-  
-  // 2. Запускаем анимацию (РАСКОММЕНТИРУЙТЕ когда будет работать)
-  setCurrentCase(caseItem);
-  setCaseResult(selectedReward);
-  setIsOpeningCase(true);
-  
-  // 3. Добавляем награду в инвентарь
-  const plant = GAME_CONFIG.plants.find(p => p.id === selectedReward.plantId);
-  let quantity = 1;
-  
-  if (typeof selectedReward.quantity === 'string' && selectedReward.quantity.includes('-')) {
-    const [min, max] = selectedReward.quantity.split('-').map(Number);
-    quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-  }
-  
-  const newInventory = [...(user.game_data.inventory || [])];
-  const existingIndex = newInventory.findIndex(
-    item => item.type === 'seed' && item.plantId === selectedReward.plantId
-  );
-  
-  if (existingIndex >= 0) {
-    newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
-  } else {
-    newInventory.push({
-      type: 'seed',
-      plantId: selectedReward.plantId,
-      name: plant?.name || `Семя #${selectedReward.plantId}`,
-      count: quantity,
-      rarity: selectedReward.rarity
-    });
-  }
-  
-  const finalGameData = {
-    ...user.game_data,
-    money: user.game_data.money - caseItem.price,
-    inventory: newInventory
+    
+    if (user.game_data.money < caseItem.price) {
+      alert('Недостаточно денег!');
+      return;
+    }
+
+    // Сохраняем выбранный кейс для анимации
+    setCurrentCase(caseItem);
+    setIsCaseOpen(true);
+    
+    // НЕ списываем деньги и не выдаем награду здесь!
+    // Это будет сделано в колбэке CaseOpeningAnimation
   };
-  
-  updateGameData(finalGameData);
-  //alert(`Вы получили: ${plant?.name} ×${quantity} (${selectedReward.rarity})`);
-};
+
+  const handleCloseCase = () => {
+    setIsCaseOpen(false);
+    setCurrentCase(null);
+  };
+
+  const handleRewardTaken = (reward) => {
+    if (!user || !currentCase) return;
+
+    // 1. Списываем деньги за кейс
+    const newGameData = {
+      ...user.game_data,
+      money: user.game_data.money - currentCase.price
+    };
+
+    // 2. Получаем растение из награды
+    const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+    let quantity = 1;
+    
+    // Если количество указано как диапазон (например, "1-3")
+    if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
+      const [min, max] = reward.quantity.split('-').map(Number);
+      quantity = Math.floor(Math.random() * (max - min + 1)) + min;
+    } else if (typeof reward.quantity === 'number') {
+      quantity = reward.quantity;
+    }
+    
+    // 3. Добавляем награду в инвентарь
+    const newInventory = [...(newGameData.inventory || [])];
+    const existingIndex = newInventory.findIndex(
+      item => item.type === 'seed' && item.plantId === reward.plantId
+    );
+    
+    if (existingIndex >= 0) {
+      newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
+    } else {
+      newInventory.push({
+        type: 'seed',
+        plantId: reward.plantId,
+        name: plant?.name || `Семя #${reward.plantId}`,
+        count: quantity,
+        rarity: reward.rarity
+      });
+    }
+    
+    // 4. Обновляем данные
+    newGameData.inventory = newInventory;
+    updateGameData(newGameData);
+    
+    // 5. Показываем уведомление (опционально)
+    alert(`🎉 Вы получили: ${plant?.name || 'Семена'} ×${quantity} (${reward.rarity})`);
+  };
 
   const buySlot = () => {
-    const SLOT_PRICE = user.game_data?.slotPrice || 500; // Цена улучшения
-    const SLOTS_TO_ADD = 3; // Сколько слотов добавляет покупка
-    const PRICE_INCREASE_RATE = 1.2; // Цена увеличивается на 20% (1.2 раза)
+    const SLOT_PRICE = user.game_data?.slotPrice || 500;
+    const SLOTS_TO_ADD = 3;
+    const PRICE_INCREASE_RATE = 1.2;
 
     if (!user) {
         console.error('user is not defined in ShopScreen');
@@ -144,21 +134,20 @@ const openCase = (caseId) => {
         return;
     }
 
-    // Вычисляем новые значения
     const currentSlots = user.game_data.availableSlots || 5;
     const newSlots = currentSlots + SLOTS_TO_ADD;
-    const newPrice = Math.floor(SLOT_PRICE * PRICE_INCREASE_RATE); // Новая цена (округляем вниз)
+    const newPrice = Math.floor(SLOT_PRICE * PRICE_INCREASE_RATE);
 
     const newGameData = {
         ...user.game_data,
-        money: user.game_data.money - SLOT_PRICE, // Вычитаем цену
-        availableSlots: newSlots, // Увеличиваем слоты
-        slotPrice: newPrice // Сохраняем новую цену для следующей покупки
+        money: user.game_data.money - SLOT_PRICE,
+        availableSlots: newSlots,
+        slotPrice: newPrice
     };
 
     updateGameData(newGameData);
     alert(`Поздравляем! Куплено +${SLOTS_TO_ADD} слота за ${SLOT_PRICE}💰. Следующий слот будет стоить ${newPrice}💰.`);
-};
+  };
 
   return (
     <div className="shop-screen">
@@ -187,7 +176,6 @@ const openCase = (caseId) => {
                   </div>
                 </div>
                 
-                {/* Отображение количества в инвентаре */}
                 {user?.game_data?.inventory?.find(item => item.type === 'seed' && item.plantId === plant.id)?.count > 0 && (
                   <div className="shop-item-count">
                     В инвентаре: {user.game_data.inventory.find(item => item.type === 'seed' && item.plantId === plant.id).count} шт
@@ -224,7 +212,7 @@ const openCase = (caseId) => {
                 </div>
               </div>
               <button
-                onClick={() => openCase(caseItem.id)}
+                onClick={() => handleOpenCase(caseItem)}
                 disabled={!user || user.game_data.money < caseItem.price}
                 className={`buy-btn case-btn ${user && user.game_data.money >= caseItem.price ? '' : 'disabled'}`}
               >
@@ -234,7 +222,6 @@ const openCase = (caseId) => {
           ))}
         </div>
       </section>
-
 
       {/* Дополнительные слоты фермы */}
       <section className="shop-section">
@@ -271,14 +258,15 @@ const openCase = (caseId) => {
           </div>
         </div>
       </section>
-          {isOpeningCase && currentCase && caseResult && (
-            <CaseOpeningAnimation
-              isOpen={isOpeningCase}
-              //onClose={() => handleCaseClosed(caseResult)}
-              caseItem={currentCase}    // ← передаём caseItem
-              reward={caseResult}       // ← передаём reward
-            />
-          )}
+
+      {/* Компонент анимации открытия кейса */}
+      {isCaseOpen && currentCase && (
+        <CaseOpeningAnimation
+          onClose={handleCloseCase}
+          onRewardTaken={handleRewardTaken}
+          caseItem={currentCase}
+        />
+      )}
     </div>
   )
 }
