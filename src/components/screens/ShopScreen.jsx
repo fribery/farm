@@ -89,9 +89,9 @@ const openCase = (caseId) => {
   console.log('Selected reward:', selectedReward); // ← ПЕРЕМЕСТИЛ сюда
   
   // 2. Запускаем анимацию (РАСКОММЕНТИРУЙТЕ когда будет работать)
-  // setCurrentCase(caseItem);
-  // setCaseResult(selectedReward);
-  // setIsOpeningCase(true);
+  setCurrentCase(caseItem);
+  setCaseResult(selectedReward);
+  setIsOpeningCase(true);
   
   // 3. Добавляем награду в инвентарь
   const plant = GAME_CONFIG.plants.find(p => p.id === selectedReward.plantId);
@@ -126,7 +126,7 @@ const openCase = (caseId) => {
   };
   
   updateGameData(finalGameData);
-  alert(`Вы получили: ${plant?.name} ×${quantity} (${selectedReward.rarity})`);
+  //alert(`Вы получили: ${plant?.name} ×${quantity} (${selectedReward.rarity})`);
 };
 
   const buySlot = () => {
@@ -274,7 +274,7 @@ const openCase = (caseId) => {
           {isOpeningCase && currentCase && caseResult && (
             <CaseOpeningAnimation
               isOpen={isOpeningCase}
-              onClose={() => handleCaseClosed(caseResult)}
+              //onClose={() => handleCaseClosed(caseResult)}
               caseItem={currentCase}    // ← передаём caseItem
               reward={caseResult}       // ← передаём reward
             />
