@@ -1,17 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import './CaseOpeningAnimation.css';
 
-const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
+const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward, plants }) => {
   const [animationStage, setAnimationStage] = useState('closed');
-  const [selectedReward, setSelectedReward] = useState(null);
   const [rewardsList, setRewardsList] = useState([]);
   const [isSpinning, setIsSpinning] = useState(false);
-  const [finalRewardIndex, setFinalRewardIndex] = useState(0);
   const caseRef = useRef(null);
   const animationTimeoutRef = useRef(null);
 
   useEffect(() => {
-    if (caseItem) {
+    if (caseItem && selectedReward) {
       generateRewardsList();
     }
     return () => {
@@ -19,34 +17,15 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
         clearTimeout(animationTimeoutRef.current);
       }
     };
-  }, [caseItem]);
+  }, [caseItem, selectedReward]);
 
   const generateRewardsList = () => {
-    if (!caseItem?.rewards) return;
+    if (!caseItem?.rewards || !selectedReward) return;
     
     const list = [];
     const allRewards = [...caseItem.rewards];
     
-    // 1. Сначала выбираем финальную награду
-    const finalRoll = Math.random() * 100;
-    let accumulatedChance = 0;
-    let finalReward = null;
-    
-    for (const reward of caseItem.rewards) {
-      accumulatedChance += reward.chance;
-      if (finalRoll <= accumulatedChance) {
-        finalReward = { ...reward, isFinal: true };
-        break;
-      }
-    }
-    
-    if (!finalReward) {
-      finalReward = { ...allRewards[0], isFinal: true };
-    }
-    
-    setSelectedReward(finalReward);
-    
-    // 2. Добавляем 40 случайных элементов ПЕРЕД финальной наградой
+    // Добавляем 40 случайных элементов ПЕРЕД финальной наградой
     for (let i = 0; i < 40; i++) {
       const randomIndex = Math.floor(Math.random() * allRewards.length);
       list.push({
@@ -55,10 +34,13 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
       });
     }
     
-    // 3. Добавляем финальную награду
-    list.push(finalReward);
+    // Добавляем ПЕРЕДАННУЮ награду (isFinal: true)
+    list.push({
+      ...selectedReward,
+      isFinal: true
+    });
     
-    // 4. Добавляем 10 случайных элементов ПОСЛЕ финальной награды
+    // Добавляем 10 случайных элементов ПОСЛЕ финальной награды
     for (let i = 0; i < 10; i++) {
       const randomIndex = Math.floor(Math.random() * allRewards.length);
       list.push({
@@ -67,12 +49,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
       });
     }
     
-    // Сохраняем индекс финальной награды
-    const finalIndex = list.findIndex(item => item.isFinal);
-    setFinalRewardIndex(finalIndex);
     setRewardsList(list);
-    
-    return finalIndex;
   };
 
   const handleOpenCase = () => {
@@ -88,18 +65,17 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     
     // Анимация прокрутки
     if (caseRef.current && rewardsList.length > 0) {
-      const elementWidth = 160; // Ширина карточки
-      const gap = 20; // Расстояние между карточками
+      const finalIndex = rewardsList.findIndex(item => item.isFinal);
+      if (finalIndex === -1) return;
+      
+      const elementWidth = 170;
+      const gap = 20;
       const totalWidth = elementWidth + gap;
+      const finalPosition = -(finalIndex * totalWidth) + 200;
       
-      // Позиция для остановки финальной награды в центре
-      const finalPosition = -(finalRewardIndex * totalWidth) + 200; // 200px - смещение для центрирования
-      
-      // Сбрасываем анимацию
       caseRef.current.style.transition = 'none';
       caseRef.current.style.transform = 'translateX(0)';
       
-      // Запускаем анимацию
       setTimeout(() => {
         if (caseRef.current) {
           caseRef.current.style.transition = 'transform 2.8s cubic-bezier(0.1, 0.8, 0.2, 1)';
@@ -108,7 +84,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
       }, 10);
     }
     
-    // Завершение анимации
     animationTimeoutRef.current = setTimeout(() => {
       setIsSpinning(false);
       setAnimationStage('ready');
@@ -120,7 +95,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     
     try {
       if (onRewardTaken) {
-        onRewardTaken(selectedReward);
+        onRewardTaken(selectedReward); // Отправляем ту же награду
       }
       
       handleClose();
@@ -171,7 +146,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     return plant?.name || 'Семена';
   };
 
-  if (!caseItem) return null;
+  if (!caseItem || !selectedReward) return null;
 
   return (
     <div className="case-opening-modal">

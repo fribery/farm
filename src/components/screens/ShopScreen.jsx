@@ -48,34 +48,30 @@ export default function ShopScreen({ user, updateGameData }) {
     updateGameData(newGameData)
   }
 
-  const handleOpenCase = (caseItem) => {
-    if (!user) {
-      alert('Ошибка загрузки данных пользователя');
-      return;
-    }
-    
-    if (user.game_data.money < caseItem.price) {
-      alert('Недостаточно денег!');
-      return;
-    }
+    const handleOpenCase = (caseItem) => {
+      if (!user) {
+        alert('Ошибка загрузки данных пользователя');
+        return;
+      }
+      
+      if (user.game_data.money < caseItem.price) {
+        alert('Недостаточно денег!');
+        return;
+      }
 
-    // Сохраняем выбранный кейс для анимации
-    setCurrentCase(caseItem);
-    setIsCaseOpen(true);
-    
-    // НЕ списываем деньги и не выдаем награду здесь!
-    // Это будет сделано в колбэке CaseOpeningAnimation
-  };
+      // ВЫБИРАЕМ НАГРАДУ ПРЯМО ЗДЕСЬ
+      const reward = selectRewardFromCase(caseItem);
+      
+      // Сохраняем кейс и ВЫБРАННУЮ НАГРАДУ
+      setCurrentCase(caseItem);
+      setSelectedReward(reward); // Сохраняем выбранную награду
+      setIsCaseOpen(true);
+    };
 
-  const handleCloseCase = () => {
-    setIsCaseOpen(false);
-    setCurrentCase(null);
-  };
-
-  const handleRewardTaken = (reward) => {
-  if (!user || !currentCase) return;
+  // Функция выбора награды (такая же как была в handleRewardTaken)
+const handleRewardTaken = (reward) => {
+  console.log('Получена награда:', reward);
   
-  // Проверяем тип награды
   if (reward.type === 'payment') {
     // Только списание денег за кейс
     const newGameData = {
@@ -86,7 +82,7 @@ export default function ShopScreen({ user, updateGameData }) {
     return;
   }
   
-  // Выдача награды (после прокрутки)
+  // reward - это ТА ЖЕ награда, что была выбрана в handleOpenCase
   const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
   let quantity = 1;
   
@@ -264,14 +260,15 @@ export default function ShopScreen({ user, updateGameData }) {
       </section>
 
       {/* Компонент анимации открытия кейса */}
-      {isCaseOpen && currentCase && (
-        <CaseOpeningAnimation
-          onClose={handleCloseCase}
-          onRewardTaken={handleRewardTaken}
-          caseItem={currentCase}
-          plants={GAME_CONFIG.plants}
-        />
-      )}
+      {isCaseOpen && currentCase && selectedReward && (
+      <CaseOpeningAnimation
+        onClose={handleCloseCase}
+        onRewardTaken={handleRewardTaken}
+        caseItem={currentCase}
+        selectedReward={selectedReward} // Передаем УЖЕ ВЫБРАННУЮ награду
+        plants={GAME_CONFIG.plants}
+      />
+    )}
     </div>
   )
 }
