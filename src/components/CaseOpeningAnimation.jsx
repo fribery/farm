@@ -9,6 +9,12 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
   const animationTimeoutRef = useRef(null);
 
   useEffect(() => {
+    console.log('=== DEBUG CaseOpeningAnimation ===');
+    console.log('Получен caseItem:', caseItem?.name);
+    console.log('Получена selectedReward:', selectedReward);
+    console.log('plantId в награде:', selectedReward?.plantId);
+    console.log('Всего растений в пропсах:', plants?.length);
+    
     if (caseItem && selectedReward) {
       generateRewardsList();
     }
