@@ -73,51 +73,55 @@ export default function ShopScreen({ user, updateGameData }) {
   };
 
   const handleRewardTaken = (reward) => {
-    if (!user || !currentCase) return;
-
-    // 1. Списываем деньги за кейс
+  if (!user || !currentCase) return;
+  
+  // Проверяем тип награды
+  if (reward.type === 'payment') {
+    // Только списание денег за кейс
     const newGameData = {
       ...user.game_data,
-      money: user.game_data.money - currentCase.price
+      money: user.game_data.money - reward.price
     };
-
-    // 2. Получаем растение из награды
-    const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
-    let quantity = 1;
-    
-    // Если количество указано как диапазон (например, "1-3")
-    if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
-      const [min, max] = reward.quantity.split('-').map(Number);
-      quantity = Math.floor(Math.random() * (max - min + 1)) + min;
-    } else if (typeof reward.quantity === 'number') {
-      quantity = reward.quantity;
-    }
-    
-    // 3. Добавляем награду в инвентарь
-    const newInventory = [...(newGameData.inventory || [])];
-    const existingIndex = newInventory.findIndex(
-      item => item.type === 'seed' && item.plantId === reward.plantId
-    );
-    
-    if (existingIndex >= 0) {
-      newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
-    } else {
-      newInventory.push({
-        type: 'seed',
-        plantId: reward.plantId,
-        name: plant?.name || `Семя #${reward.plantId}`,
-        count: quantity,
-        rarity: reward.rarity
-      });
-    }
-    
-    // 4. Обновляем данные
-    newGameData.inventory = newInventory;
     updateGameData(newGameData);
-    
-    // 5. Показываем уведомление (опционально)
-    alert(`🎉 Вы получили: ${plant?.name || 'Семена'} ×${quantity} (${reward.rarity})`);
+    return;
+  }
+  
+  // Выдача награды (после прокрутки)
+  const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
+  let quantity = 1;
+  
+  if (typeof reward.quantity === 'string' && reward.quantity.includes('-')) {
+    const [min, max] = reward.quantity.split('-').map(Number);
+    quantity = Math.floor(Math.random() * (max - min + 1)) + min;
+  } else if (typeof reward.quantity === 'number') {
+    quantity = reward.quantity;
+  }
+  
+  const newInventory = [...(user.game_data.inventory || [])];
+  const existingIndex = newInventory.findIndex(
+    item => item.type === 'seed' && item.plantId === reward.plantId
+  );
+  
+  if (existingIndex >= 0) {
+    newInventory[existingIndex].count = (newInventory[existingIndex].count || 0) + quantity;
+  } else {
+    newInventory.push({
+      type: 'seed',
+      plantId: reward.plantId,
+      name: plant?.name || `Семя #${reward.plantId}`,
+      count: quantity,
+      rarity: reward.rarity
+    });
+  }
+  
+  const newGameData = {
+    ...user.game_data,
+    inventory: newInventory
   };
+  
+  updateGameData(newGameData);
+  alert(`🎉 Вы получили: ${plant?.name || 'Семена'} ×${quantity} (${reward.rarity})`);
+};
 
   const buySlot = () => {
     const SLOT_PRICE = user.game_data?.slotPrice || 500;

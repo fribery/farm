@@ -5,6 +5,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
   const [animationStage, setAnimationStage] = useState('closed'); // closed, spinning, ready
   const [selectedReward, setSelectedReward] = useState(null);
   const [rewardsList, setRewardsList] = useState([]);
+  const [isSpinning, setIsSpinning] = useState(false);
   const caseRef = useRef(null);
   const animationTimeoutRef = useRef(null);
 
@@ -28,7 +29,7 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     const allRewards = [...caseItem.rewards];
     
     // Добавляем случайные награды для эффекта прокрутки
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 25; i++) {
       const randomIndex = Math.floor(Math.random() * allRewards.length);
       list.push({
         ...allRewards[randomIndex],
@@ -70,30 +71,49 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     if (animationStage !== 'closed') return;
     
     setAnimationStage('spinning');
+    setIsSpinning(true);
+    
+    // Сразу снимаем деньги (вызываем колбэк)
+    if (onRewardTaken) {
+      // Вызываем колбэк с флагом "только списание денег"
+      onRewardTaken({ type: 'payment', price: caseItem.price });
+    }
     
     // Анимация прокрутки
     if (caseRef.current) {
       const totalRewards = rewardsList.length;
       const finalPosition = -(totalRewards - 5) * 200;
       
-      caseRef.current.style.transition = 'transform 3s cubic-bezier(0.1, 0.8, 0.2, 1)';
-      caseRef.current.style.transform = `translateX(${finalPosition}px)`;
+      // Сбрасываем transform перед началом
+      caseRef.current.style.transition = 'none';
+      caseRef.current.style.transform = 'translateX(0)';
+      
+      // Даем время на сброс
+      setTimeout(() => {
+        if (caseRef.current) {
+          caseRef.current.style.transition = 'transform 2.5s cubic-bezier(0.1, 0.8, 0.2, 1)';
+          caseRef.current.style.transform = `translateX(${finalPosition}px)`;
+        }
+      }, 10);
     }
     
     // Завершение анимации
     animationTimeoutRef.current = setTimeout(() => {
+      setIsSpinning(false);
       setAnimationStage('ready');
-    }, 3000);
+    }, 2500);
   };
 
   const handleTakeReward = async () => {
     if (animationStage !== 'ready' || !selectedReward) return;
     
     try {
+      // Вызываем колбэк для выдачи награды
       if (onRewardTaken) {
         onRewardTaken(selectedReward);
       }
       
+      // Закрываем кейс
       handleClose();
     } catch (error) {
       console.error('Ошибка при получении награды:', error);
@@ -129,7 +149,6 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     }
   };
 
-  // Функция для получения эмодзи растения
   const getPlantEmoji = (plantId) => {
     if (!plants || !Array.isArray(plants)) return '🌱';
     const plant = plants.find(p => p.id === plantId);
@@ -137,14 +156,12 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     return plant.name.split(' ')[0] || '🌱';
   };
 
-  // Функция для получения названия растения
   const getPlantName = (plantId) => {
     if (!plants || !Array.isArray(plants)) return 'Семена';
     const plant = plants.find(p => p.id === plantId);
     return plant?.name || 'Семена';
   };
 
-  // Если нет кейса, не рендерим
   if (!caseItem) return null;
 
   return (
@@ -173,7 +190,10 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
               className="case-rewards-track" 
               ref={caseRef}
               style={{ 
-                transform: animationStage === 'closed' ? 'translateX(0)' : undefined 
+                display: 'flex',
+                gap: '15px',
+                padding: '20px',
+                width: 'max-content'
               }}
             >
               {rewardsList.map((reward, index) => (
@@ -182,7 +202,9 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
                   className={`reward-item ${reward.isFinal ? 'final-reward' : ''}`}
                   style={{ 
                     borderColor: getRarityColor(reward.rarity),
-                    backgroundColor: reward.isFinal ? `${getRarityColor(reward.rarity)}20` : 'transparent'
+                    backgroundColor: reward.isFinal ? `${getRarityColor(reward.rarity)}20` : 'transparent',
+                    flex: '0 0 160px',
+                    height: '160px'
                   }}
                 >
                   <div className="reward-icon">
@@ -207,6 +229,13 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
             <div className="selection-indicator"></div>
           </div>
         </div>
+        
+        {isSpinning && (
+          <div className="spinning-overlay">
+            <div className="spinner"></div>
+            <span>Прокручиваем кейс...</span>
+          </div>
+        )}
         
         {animationStage === 'ready' && selectedReward && (
           <div className="selected-reward-container">
@@ -249,8 +278,8 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
             </button>
           ) : animationStage === 'spinning' ? (
             <div className="spinning-message">
-              <div className="spinner"></div>
-              <span>Прокручиваем кейс...</span>
+              <div className="spinner-small"></div>
+              <span>Идёт прокрутка...</span>
             </div>
           ) : animationStage === 'ready' ? (
             <button 
