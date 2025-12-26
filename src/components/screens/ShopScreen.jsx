@@ -6,6 +6,7 @@ import './Screens.css'
 export default function ShopScreen({ user, updateGameData }) {
   const [isCaseOpen, setIsCaseOpen] = useState(false);
   const [currentCase, setCurrentCase] = useState(null);
+  const [selectedReward, setSelectedReward] = useState(null);
 
   const buySeeds = (plant) => {
     if (!user) {
