@@ -4,7 +4,6 @@ import './ToastNotification.css';
 const ToastNotification = () => {
   const [notifications, setNotifications] = useState([]);
 
-  // Функция для добавления уведомления
   const showToast = (message, type = 'info') => {
     const id = Date.now();
     const newNotification = {
@@ -14,9 +13,8 @@ const ToastNotification = () => {
       visible: true
     };
     
-    setNotifications(prev => [...prev, newNotification]);
+    setNotifications(prev => [newNotification, ...prev]); // Новые сверху
     
-    // Автоматическое скрытие через 3 секунды
     setTimeout(() => {
       setNotifications(prev => 
         prev.map(notif => 
@@ -24,14 +22,12 @@ const ToastNotification = () => {
         )
       );
       
-      // Удаление из DOM через 300мс после скрытия
       setTimeout(() => {
         setNotifications(prev => prev.filter(notif => notif.id !== id));
-      }, 300);
+      }, 400);
     }, 3000);
   };
 
-  // Экспортируем функцию для использования в других компонентах
   useEffect(() => {
     window.showToast = showToast;
     window.showSuccess = (message) => showToast(message, 'success');
@@ -48,7 +44,6 @@ const ToastNotification = () => {
     };
   }, []);
 
-  // Закрытие уведомления по клику
   const handleClose = (id) => {
     setNotifications(prev => 
       prev.map(notif => 
@@ -58,7 +53,7 @@ const ToastNotification = () => {
     
     setTimeout(() => {
       setNotifications(prev => prev.filter(notif => notif.id !== id));
-    }, 300);
+    }, 400);
   };
 
   if (notifications.length === 0) return null;
@@ -91,6 +86,11 @@ const ToastNotification = () => {
           >
             ×
           </button>
+          
+          {/* Прогресс-бар таймера */}
+          <div className="toast-progress-container">
+            <div className="toast-progress"></div>
+          </div>
         </div>
       ))}
     </div>
