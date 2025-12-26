@@ -84,24 +84,24 @@ function App() {
           <div className="stat-item money">
             <div className="stat-icon">💰</div>
             <div className="stat-details">
-              <div className="stat-label">Деньги</div>
-              <div className="stat-value">{user.game_data?.money || 0}</div>
+              <div className="stat-label-header">Деньги</div>
+              <div className="stat-value-header">{user.game_data?.money || 0}</div>
             </div>
           </div>
           
           <div className="stat-item level">
             <div className="stat-icon">🏆</div>
             <div className="stat-details">
-              <div className="stat-value">Ур. {user.game_data?.level || 1}</div>
-              <div className="stat-label">Уровень</div>
+              <div className="stat-label-header">Уровень</div>
+              <div className="stat-value-header">Ур. {user.game_data?.level || 1}</div>
             </div>
           </div>
           
           <div className="stat-item exp">
             <div className="stat-icon">⭐</div>
             <div className="stat-details">
-              <div className="stat-value">{user.game_data?.experience || 0}</div>
-              <div className="stat-label">Опыт</div>
+              <div className="stat-label-header">Опыт</div>
+              <div className="stat-value-header">{user.game_data?.experience || 0}</div>
             </div>
           </div>
         </div>
