@@ -27,17 +27,28 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, selectedReward
 
   const generateRewardsList = () => {
     if (!caseItem?.rewards || !selectedReward) return;
+    console.log('=== ГЕНЕРАЦИЯ СПИСКА ДЛЯ ПРОКРУТКИ ===');
+    console.log('Финальная награда:', selectedReward);
     
     const list = [];
     const allRewards = [...caseItem.rewards];
     
     // Добавляем 40 случайных элементов ПЕРЕД финальной наградой
+    // Берем из ВСЕХ растений, а не только из наград кейса!
     for (let i = 0; i < 40; i++) {
-      const randomIndex = Math.floor(Math.random() * allRewards.length);
-      list.push({
-        ...allRewards[randomIndex],
+        // Случайное растение из всех доступных
+        const randomPlant = plants[Math.floor(Math.random() * plants.length)];
+        // Случайная редкость
+        const rarities = ['common', 'rare', 'epic'];
+        const randomRarity = rarities[Math.floor(Math.random() * rarities.length)];
+        
+        list.push({
+        plantId: randomPlant.id,
+        name: randomPlant.name,
+        rarity: randomRarity,
+        quantity: '1-3', // или любое другое значение
         isFinal: false
-      });
+        });
     }
     
     // Добавляем ПЕРЕДАННУЮ награду (isFinal: true)
