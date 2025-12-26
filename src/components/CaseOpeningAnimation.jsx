@@ -262,7 +262,7 @@ const handleOpenCase = () => {
                     className={`reward-item ${isFinal ? 'final-reward' : ''}`}
                     style={{ 
                       borderColor: getRarityColor(reward.rarity),
-                      backgroundColor: isFinal ? `${getRarityColor(reward.rarity)}20` : 'rgba(255, 255, 255, 0.05)',
+                      //backgroundColor: isFinal ? `${getRarityColor(reward.rarity)}20` : 'rgba(255, 255, 255, 0.05)',
                     }}
                   >
                     <div className="reward-icon">
@@ -280,20 +280,6 @@ const handleOpenCase = () => {
                     <div className="reward-quantity">
                       {reward.quantity ? `×${reward.quantity}` : '×1'}
                     </div>
-                    {isFinal && (
-                      <div style={{
-                        position: 'absolute',
-                        bottom: '5px',
-                        right: '5px',
-                        background: 'gold',
-                        color: 'black',
-                        fontSize: '10px',
-                        padding: '2px 5px',
-                        borderRadius: '3px'
-                      }}>
-                        FINAL
-                      </div>
-                    )}
                   </div>
                 );
               })}
