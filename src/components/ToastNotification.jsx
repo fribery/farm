@@ -1,3 +1,10 @@
+// window.showSuccess()
+// window.showError()
+// window.showWarning()
+// window.showInfo()
+// z index всегд 9999
+
+
 import { useState, useEffect } from 'react';
 import './ToastNotification.css';
 
