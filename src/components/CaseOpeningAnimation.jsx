@@ -81,8 +81,12 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
     
     // Анимация прокрутки
     if (caseRef.current) {
-      const totalRewards = rewardsList.length;
-      const finalPosition = -(totalRewards - 5) * 200;
+        const totalRewards = rewardsList.length;
+        // Останавливаемся на последнем элементе (финальная награда)
+        const finalRewardIndex = rewardsList.findIndex(r => r.isFinal);
+        // Вычисляем позицию так, чтобы финальная награда оказалась в центре
+        const centerOffset = 2; // Смещение от края
+        const finalPosition = -((finalRewardIndex - centerOffset) * 165); // 165 = ширина элемента + gap
       
       // Сбрасываем transform перед началом
       caseRef.current.style.transition = 'none';
@@ -204,7 +208,8 @@ const CaseOpeningAnimation = ({ onClose, onRewardTaken, caseItem, plants }) => {
                     borderColor: getRarityColor(reward.rarity),
                     backgroundColor: reward.isFinal ? `${getRarityColor(reward.rarity)}20` : 'transparent',
                     flex: '0 0 160px',
-                    height: '160px'
+                    height: '160px',
+                    opacity: reward.isFinal ? 1: 0.7
                   }}
                 >
                   <div className="reward-icon">
