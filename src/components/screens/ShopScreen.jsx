@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Добавлен useEffect
 import { GAME_CONFIG } from '../../game/config'
 import CaseOpeningAnimation from '../CaseOpeningAnimation';
 import './Screens.css'
@@ -7,6 +7,13 @@ export default function ShopScreen({ user, updateGameData }) {
   const [isCaseOpen, setIsCaseOpen] = useState(false);
   const [currentCase, setCurrentCase] = useState(null);
   const [selectedReward, setSelectedReward] = useState(null);
+
+  // Отслеживаем изменения selectedReward для логирования
+  useEffect(() => {
+    if (selectedReward) {
+      console.log('🔄 selectedReward обновлен:', selectedReward);
+    }
+  }, [selectedReward]);
 
   const buySeeds = (plant) => {
     if (!user) {
@@ -73,17 +80,6 @@ export default function ShopScreen({ user, updateGameData }) {
     return caseItem.rewards[0];
   };
 
-  // ДОБАВЛЕНО: Функция для выбора новой награды из того же кейса
-  const selectNewRewardFromSameCase = () => {
-    if (!currentCase) return null;
-    
-    console.log('=== ВЫБОР НОВОЙ НАГРАДЫ ИЗ ТОГО ЖЕ КЕЙСА ===');
-    const newReward = selectRewardFromCase(currentCase);
-    console.log('Новая награда:', newReward);
-    
-    return newReward;
-  };
-
   const handleOpenCase = (caseItem) => {
     console.log('=== ОТКРЫТИЕ КЕЙСА ===');
     
@@ -109,7 +105,7 @@ export default function ShopScreen({ user, updateGameData }) {
     setIsCaseOpen(true);
   };
 
-  // ДОБАВЛЕНО: Обработчик кнопки "Открыть еще раз"
+  // Обработчик кнопки "Открыть еще раз"
   const handleOpenAgain = () => {
     console.log('=== ОБРАБОТКА "ОТКРЫТЬ ЕЩЕ РАЗ" ===');
     
@@ -125,7 +121,7 @@ export default function ShopScreen({ user, updateGameData }) {
     }
     
     // Выбираем новую случайную награду из того же кейса
-    const newReward = selectNewRewardFromSameCase();
+    const newReward = selectRewardFromCase(currentCase);
     
     if (!newReward) {
       console.error('Не удалось выбрать новую награду');
@@ -139,10 +135,10 @@ export default function ShopScreen({ user, updateGameData }) {
     };
     updateGameData(newGameData);
     
-    // Обновляем состояние с новой наградой
+    // ОБНОВЛЯЕМ награду - это вызовет перерендер рулетки
     setSelectedReward(newReward);
     
-    console.log('Новая награда установлена, деньги списаны');
+    console.log('Новая награда установлена, деньги списаны:', newReward);
   };
 
   const handleCloseCase = () => {
@@ -154,7 +150,6 @@ export default function ShopScreen({ user, updateGameData }) {
 
   const handleRewardTaken = (reward) => {
     console.log('=== ПОЛУЧЕНИЕ НАГРАДЫ ===');
-    console.log('Пришла награда:', reward);
     
     if (reward.type === 'payment') {
       console.log('Списание денег:', reward.price);
@@ -167,12 +162,7 @@ export default function ShopScreen({ user, updateGameData }) {
     }
     
     // Выдача реальной награды
-    console.log('Выдача награды:', {
-      plantId: reward.plantId,
-      name: reward.name,
-      rarity: reward.rarity,
-      quantity: reward.quantity
-    });
+    console.log('Выдача награды:', reward);
     
     const plant = GAME_CONFIG.plants.find(p => p.id === reward.plantId);
     
@@ -296,11 +286,6 @@ export default function ShopScreen({ user, updateGameData }) {
               <div className="item-info">
                 <h4>{caseItem.name}</h4>
                 <p className="case-description">{caseItem.description}</p>
-                <div className="case-odds">
-                  <div className="odds-item common">Обычные: 75%</div>
-                  <div className="odds-item rare">Редкие: 20%</div>
-                  <div className="odds-item epic">Эпические: 5%</div>
-                </div>
               </div>
               <button
                 onClick={() => handleOpenCase(caseItem)}
@@ -351,9 +336,9 @@ export default function ShopScreen({ user, updateGameData }) {
         <CaseOpeningAnimation
           onClose={handleCloseCase}
           onRewardTaken={handleRewardTaken}
-          onOpenAgain={handleOpenAgain} // ДОБАВЛЕН ПРОПС
+          onOpenAgain={handleOpenAgain}
           caseItem={currentCase}
-          selectedReward={selectedReward}
+          selectedReward={selectedReward} // Передаем новую награду при каждом обновлении
           plants={GAME_CONFIG.plants}
         />
       )}
