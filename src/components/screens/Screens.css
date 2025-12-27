@@ -91,7 +91,7 @@
 }
 
 .shop-item-count{
-  width: 50%;
+  width: max-content;
   font-size: 0.9em;
   color: white;
   background-color: #b3b4b3;
