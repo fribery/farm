@@ -312,7 +312,7 @@ export default function FarmField({ user, updateGameData, availableSlots }) {
                       <div className="field-stats">
                         <span className="field-stat">
                           <span className="stat-icon-small">💰</span>
-                          {plant?.price || 0}
+                          {plant?.yield || 0}
                         </span>
                         <span className="field-stat">
                           <span className="stat-icon-small">⏱️</span>
