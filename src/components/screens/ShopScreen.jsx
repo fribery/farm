@@ -17,11 +17,11 @@ export default function ShopScreen({ user, updateGameData }) {
   const buySeeds = (plant) => {
     if (!user) {
       console.error('user is not defined in ShopScreen')
-      window.showError()('Ошибка загрузки данных пользователя')
+      window.showError('Ошибка загрузки данных пользователя')
       return
     }
     if (user.game_data.money < plant.price) {
-      window.showError()('Недостаточно денег!')
+      window.showError('Недостаточно денег!')
       return
     }
 
@@ -83,12 +83,12 @@ export default function ShopScreen({ user, updateGameData }) {
     console.log('=== ОТКРЫТИЕ КЕЙСА ===');
     
     if (!user) {
-      window.showError()('Ошибка загрузки данных пользователя');
+      window.showError('Ошибка загрузки данных пользователя');
       return;
     }
     
     if (user.game_data.money < caseItem.price) {
-      window.showError()('Недостаточно денег!');
+      window.showError('Недостаточно денег!');
       return;
     }
 
@@ -113,7 +113,7 @@ export default function ShopScreen({ user, updateGameData }) {
     
     // Проверяем хватает ли денег
     if (user.game_data.money < currentCase.price) {
-      window.showError()('Недостаточно денег для открытия еще раз!');
+      window.showError('Недостаточно денег для открытия еще раз!');
       
       // ЗАКРЫВАЕМ КЕЙС ПРИ НЕХВАТКЕ ДЕНЕГ
       handleCloseCase();
@@ -165,7 +165,7 @@ export default function ShopScreen({ user, updateGameData }) {
     
     if (!plant) {
       console.error('❌ Растение не найдено для plantId:', reward.plantId);
-      window.showError()('Ошибка: награда не найдена');
+      window.showError('Ошибка: награда не найдена');
       return;
     }
     
@@ -205,11 +205,11 @@ export default function ShopScreen({ user, updateGameData }) {
 
     if (!user) {
       console.error('user is not defined in ShopScreen');
-      window.showError()('Ошибка загрузки данных пользователя');
+      window.showError('Ошибка загрузки данных пользователя');
       return;
     }
     if (user.game_data.money < SLOT_PRICE) {
-      window.showError()('Недостаточно денег!');
+      window.showError('Недостаточно денег!');
       return;
     }
 
@@ -225,7 +225,7 @@ export default function ShopScreen({ user, updateGameData }) {
     };
 
     updateGameData(newGameData);
-    window.showSuccess()(`Поздравляем! Куплено +${SLOTS_TO_ADD} слота за ${SLOT_PRICE}💰. Следующий слот будет стоить ${newPrice}💰.`);
+    window.showSuccess(`Поздравляем! Куплено +${SLOTS_TO_ADD} слота за ${SLOT_PRICE}💰. Следующий слот будет стоить ${newPrice}💰.`);
   };
 
   return (
