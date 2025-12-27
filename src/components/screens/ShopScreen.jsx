@@ -254,11 +254,23 @@ export default function ShopScreen({ user, updateGameData }) {
                   </div>
                 </div>
                 
-                {user?.game_data?.inventory?.find(item => item.type === 'seed' && item.plantId === plant.id)?.count > 0 && (
-                  <div className="shop-item-count">
-                    В инвентаре: {user.game_data.inventory.find(item => item.type === 'seed' && item.plantId === plant.id).count} шт
-                  </div>
-                )}
+                {
+                (() => {
+                  // Находим ВСЕ семена пшеницы
+                  const wheatSeeds = user?.game_data?.inventory?.filter(
+                    item => item.type === 'seed' && item.plantId === plant.id
+                  ) || []
+                  
+                  // Суммируем количество из всех записей
+                  const totalCount = wheatSeeds.reduce((sum, item) => sum + (item.count || 0), 0)
+                  
+                  return totalCount > 0 ? (
+                    <div className="shop-item-count">
+                      В инвентаре: {totalCount} шт
+                    </div>
+                  ) : null
+                })()
+              }
               </div>
               
               <button
