@@ -10,7 +10,7 @@ export default function FarmField({ user, updateGameData, availableSlots }) {
   const plantSeed = (plantId, plantName) => {
     // Проверяем свободные слоты
     if (fields.filter(f => !f.harvested).length >= availableSlots) {
-      alert('Все слоты фермы заняты! Освободите место или купите дополнительные слоты.')
+      window.showInfo('Все слоты фермы заняты! Освободите место или купите дополнительные слоты.')
       return
     }
 
@@ -23,7 +23,7 @@ export default function FarmField({ user, updateGameData, availableSlots }) {
     )
 
     if (seedItemIndex === -1 || (user.game_data.inventory[seedItemIndex].count || 0) <= 0) {
-      alert('Семян не осталось!')
+      window.showInfo('Семян не осталось!')
       return
     }
 
@@ -89,7 +89,7 @@ export default function FarmField({ user, updateGameData, availableSlots }) {
       
       if (exp >= neededExp) {
         const newLevel = level + 1;
-        alert(`🎉 Уровень UP! Теперь вы ${newLevel} уровня!`);
+        window.showSuccess(`🎉 Уровень UP! Теперь вы ${newLevel} уровня!`);
         return { ...gameData, level: newLevel };
       }
       return gameData;
