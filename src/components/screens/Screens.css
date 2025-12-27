@@ -91,15 +91,15 @@
 }
 
 .shop-item-count{
-  width: 60%;
-  font-size: 0.8em;
+  width: 50%;
+  font-size: 0.9em;
   color: white;
-  background-color: #64da68;
-  border: #368139 3px;
-  border-radius: 15px;
+  background-color: #b3b4b3;
+  border: #b3b4b3 3px;
+  border-radius: 12px;
   margin-bottom: 4px;
-  padding: 6px 4px 4px 6px;
-  min-height: 14px;
+  padding: 6px 4px 10px 10px;
+  min-height: 12px;
 }
 
 .shop-item:hover {
