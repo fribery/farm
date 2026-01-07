@@ -1,424 +1,236 @@
-/* HangarScreen.css - АКТУАЛЬНЫЕ СТИЛИ ДЛЯ ВАШЕГО JSX */
-.hangar-section {
-  padding: 20px;
-  background: transparent;
-}
-
-/* === КЛАССЫ ИЗ ВАШЕГО JSX (первая секция) === */
-
-/* Контейнер доступных кораблей */
-.available-ships-container {
-  background: rgba(30, 41, 59, 0.7);
-  border-radius: 15px;
-  padding: 20px;
-  margin-bottom: 25px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-}
-
-.section-title {
-  color: #38bdf8;
-  font-size: 20px;
-  margin-bottom: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.title-icon {
-  font-size: 24px;
-}
-
-/* Сообщение о заполненных слотах */
-.slots-full-message {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 10px;
+/* HangarScreen.css - МОБИЛЬНЫЙ КОМПАКТНЫЙ ДИЗАЙН */
+.hangar-mobile {
   padding: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  color: #fca5a5;
+  margin-bottom: 100px;
 }
 
-.warning-icon {
+.hangar-header-mobile {
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hangar-title-mobile {
+  color: #fff;
   font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-/* Сетка кораблей */
-.ships-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
+.hangar-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-/* Карточка корабля для запуска */
-.ship-card-inline {
-  background: linear-gradient(135deg, #1a1a3a 0%, #2a2a5a 100%);
-  border-radius: 12px;
-  padding: 15px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  transition: all 0.3s ease;
+.ship-count {
+  color: #38bdf8;
+}
+
+.active-missions {
+  color: #10b981;
+}
+
+/* Список кораблей */
+.ships-list-mobile {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
-.ship-card-inline.disabled {
-  opacity: 0.6;
-  filter: grayscale(0.5);
-}
-
-.ship-card-inline:hover:not(.disabled) {
-  border-color: #38bdf8;
-  box-shadow: 0 5px 15px rgba(56, 189, 248, 0.2);
-  transform: translateY(-3px);
-}
-
-/* Верхняя часть карточки */
-.ship-inline-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.ship-inline-emoji {
-  font-size: 32px;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
-.ship-owned-badge {
-  background: #10b981;
-  color: white;
-  padding: 4px 8px;
+/* Карточка корабля (УЗКАЯ, КАК В МОБИЛЬНОМ ПРИЛОЖЕНИИ) */
+.ship-item-mobile {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-left-width: 3px;
   border-radius: 12px;
-  font-size: 12px;
+  padding: 14px;
+  transition: all 0.2s ease;
 }
 
-/* Информация о корабле */
-.ship-inline-info {
-  flex-grow: 1;
+.ship-item-mobile:hover {
+  background: rgba(255, 255, 255, 0.08);
 }
 
-.ship-inline-name {
-  font-weight: 600;
-  color: #f1f5f9;
-  margin-bottom: 8px;
-  font-size: 14px;
-}
-
-/* Детали корабля */
-.ship-inline-details {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.ship-detail {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.detail-icon {
-  font-size: 14px;
-}
-
-/* Кнопка запуска */
-.launch-btn-inline {
-  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-  color: white;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-}
-
-.launch-btn-inline:hover:not(.disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-}
-
-.launch-btn-inline.disabled {
-  background: #475569;
-  cursor: not-allowed;
-}
-
-/* === КЛАССЫ ИЗ ВАШЕГО JSX (вторая секция - корабли в ангаре) === */
-
-.ships-container {
-  background: rgba(30, 41, 59, 0.7);
-  border-radius: 15px;
-  padding: 20px;
-  border: 1px solid rgba(56, 189, 248, 0.2);
-}
-
-.empty-state {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.empty-icon {
-  font-size: 60px;
-  margin-bottom: 15px;
-  opacity: 0.5;
-}
-
-.empty-title {
-  color: #94a3b8;
-  font-size: 18px;
-  margin-bottom: 5px;
-}
-
-.empty-subtitle {
-  color: #64748b;
-  font-size: 14px;
-}
-
-/* Сетка активных кораблей */
-.ships-grid-compact {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
-}
-
-/* Карточка активного корабля */
-.ship-card-compact {
-  background: linear-gradient(135deg, #1a1a3a 0%, #2a2a5a 100%);
-  border-radius: 12px;
-  padding: 15px;
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  transition: all 0.3s ease;
-}
-
-.ship-card-compact.ready {
-  border-color: #10b981;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
-}
-
-.ship-card-compact.critical {
-  border-color: #ef4444;
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
-}
-
-/* Шапка карточки корабля */
-.ship-header-compact {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 15px;
-}
-
-.ship-info-compact {
-  flex-grow: 1;
-}
-
-.ship-name {
-  color: #f1f5f9;
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.ship-stats {
-  display: flex;
-  gap: 15px;
-}
-
-.ship-stat {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.stat-icon-small {
-  font-size: 14px;
-}
-
-/* Индикатор статуса */
-.ship-status-indicator {
-  font-size: 24px;
-}
-
-.ship-status-indicator.on_mission {
-  color: #38bdf8;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-/* Секция прогресса миссии */
-.mission-progress-section {
-  margin-bottom: 15px;
-}
-
-.progress-header {
+/* Первая строка: название и статус */
+.ship-row-1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.status-icon {
-  font-size: 18px;
-}
-
-.status-name {
-  color: #cbd5e1;
-  font-size: 14px;
-  flex-grow: 1;
-  margin-left: 8px;
-}
-
-.progress-percent {
-  color: #38bdf8;
-  font-weight: 600;
-  font-size: 14px;
-}
-
-/* Дисплей прочности */
-.durability-display {
-  margin-bottom: 15px;
-}
-
-.durability-label {
+.ship-name-mobile {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #94a3b8;
-  font-size: 12px;
-  margin-bottom: 8px;
 }
 
-.durability-bar {
-  height: 8px;
-  background: rgba(30, 41, 59, 0.7);
-  border-radius: 4px;
-  position: relative;
+.ship-emoji-mobile {
+  font-size: 16px;
+}
+
+.ship-name-text {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.ship-status-mobile {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* Вторая строка: показатели */
+.ship-row-2 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.ship-stat-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label-mobile {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+}
+
+.stat-value-mobile {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.income-value {
+  color: #fbbf24;
+}
+
+.durability-value {
+  color: #10b981;
+}
+
+/* Прогресс-бар прочности */
+.durability-bar-mobile {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-bottom: 12px;
   overflow: hidden;
 }
 
-.durability-fill {
+.durability-fill-mobile {
   height: 100%;
-  background: linear-gradient(90deg, #10b981 0%, #38bdf8 100%);
-  border-radius: 4px;
+  border-radius: 2px;
   transition: width 0.3s ease;
 }
 
-.critical-threshold {
-  position: absolute;
-  top: -4px;
-  width: 2px;
-  height: 16px;
-  background: #ef4444;
-}
-
-/* Прогресс-бар миссии */
-.progress-bar-simple {
-  height: 6px;
-  background: rgba(30, 41, 59, 0.7);
-  border-radius: 3px;
-  position: relative;
-  overflow: hidden;
-}
-
-.progress-fill-simple {
-  height: 100%;
-  background: linear-gradient(90deg, #38bdf8 0%, #a855f7 100%);
-  border-radius: 3px;
-  transition: width 1s linear;
-}
-
 /* Кнопки действий */
-.ship-actions {
+.actions-row-mobile {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.complete-btn-simple,
-.repair-btn-simple,
-.launch-btn-simple {
-  border: none;
-  padding: 12px;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 8px;
 }
 
-.complete-btn-simple {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-}
-
-.complete-btn-simple:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.repair-btn-simple {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-}
-
-.repair-btn-simple:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.launch-btn-simple {
-  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
-  color: white;
-}
-
-.launch-btn-simple:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
-}
-
-.critical-warning {
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+.action-btn-mobile {
+  flex: 1;
+  border: none;
+  padding: 8px 10px;
   border-radius: 8px;
-  padding: 10px;
-  text-align: center;
-  color: #fca5a5;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
   font-size: 12px;
+  text-align: center;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-  .ships-row {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+.complete-btn-mobile {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.complete-btn-mobile:hover {
+  background: rgba(16, 185, 129, 0.25);
+}
+
+.repair-btn-mobile {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.repair-btn-mobile:hover {
+  background: rgba(245, 158, 11, 0.25);
+}
+
+.launch-btn-mobile {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.launch-btn-mobile:hover {
+  background: rgba(56, 189, 248, 0.25);
+}
+
+.critical-notice-mobile {
+  font-size: 10px;
+  color: #ef4444;
+  text-align: center;
+  padding: 6px;
+  margin-top: 8px;
+  border-radius: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Пустой ангар */
+.empty-hangar-mobile {
+  text-align: center;
+  padding: 40px 20px;
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.empty-icon-mobile {
+  font-size: 36px;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-text-mobile {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+}
+
+/* Адаптивность для очень маленьких экранов */
+@media (max-width: 360px) {
+  .hangar-mobile {
+    padding: 10px;
   }
   
-  .ships-grid-compact {
-    grid-template-columns: 1fr;
+  .ship-row-2 {
+    grid-template-columns: repeat(2, 1fr);
   }
   
-  .hangar-section {
-    padding: 15px;
+  .ship-name-text {
+    font-size: 14px;
+  }
+  
+  .action-btn-mobile {
+    font-size: 11px;
+    padding: 7px 8px;
   }
 }

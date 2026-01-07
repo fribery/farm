@@ -30,7 +30,7 @@ export const GAME_CONFIG = {
   ships: [
     {
       id: 1,
-      name: '🛸 Грузовой челнок "Звездный странник"',
+      name: 'Scout',
       type: 'miner',
       emoji: '🛸',
       
@@ -63,7 +63,7 @@ export const GAME_CONFIG = {
     
     {
       id: 2,
-      name: '🚀 Добытчик "Астероидный бульдозер"',
+      name: 'Cobalt',
       type: 'miner',
       emoji: '🚀',
       basePrice: 750,
@@ -88,7 +88,7 @@ export const GAME_CONFIG = {
     
     {
       id: 3,
-      name: '👾 Исследователь "Квантовый сканер"',
+      name: 'Gelion',
       type: 'explorer',
       emoji: '👾',
       basePrice: 2000,
@@ -113,7 +113,7 @@ export const GAME_CONFIG = {
     
     {
       id: 4,
-      name: '🛰️ Дредноут "Галактический колосс"',
+      name: 'Orbitrum',
       type: 'heavy',
       emoji: '🛰️',
       basePrice: 5000,

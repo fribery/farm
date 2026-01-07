@@ -3,6 +3,7 @@
 /* Основной контейнер */
 .shipyard-screen {
   padding: 20px;
+  margin-bottom: 75px;
   background: transparent;
   min-height: calc(100vh - 160px); /* Фиксированная высота */
   max-width: 1200px;

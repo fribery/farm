@@ -204,22 +204,6 @@
   }
 }
 
-/* Звёздный фон */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: 
-    radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 20%),
-    radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 20%),
-    radial-gradient(circle at 50% 50%, rgba(10, 10, 42, 0.8) 0%, rgba(26, 26, 58, 0.9) 100%);
-  z-index: -1;
-  pointer-events: none;
-}
-
 /* Адаптивность */
 @media (max-width: 768px) {
   .header-content {
@@ -269,9 +253,37 @@ body::before {
   display: flex;
   flex-direction: column;
   height: 100%;
+  margin-bottom: 75px;
 }
 
 .shipyard-screen .shipyard-main-grid {
   flex: 1;
   min-height: 0; /* Важно для flex-потомков */
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* ← ВАЖНО */
+  position: relative;
+}
+
+.app {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden; /* ← ВАЖНО */
+  position: relative;
+}
+
+.app {
+  position: relative;
+  padding-bottom: 100px; /* Запасное место снизу */
+  min-height: 100vh;
+}
+
+.app::after {
+  content: '';
+  display: block;
+  height: 100px; /* Такой же отступ как у навигации */
+  width: 100%;
 }

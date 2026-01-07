@@ -2,8 +2,15 @@
 
 /* Базовый контейнер экрана */
 .screen {
-  min-height: 100vh;
+  min-height: calc(100vh - 140px);
   background: transparent;
+  padding-bottom: 200px; /* ← ОТСТУП ДЛЯ НАВИГАЦИИ */
+  box-sizing: border-box; /* ← ВАЖНО: чтобы padding считался в высоту */
+}
+
+.hangar-screen {
+  padding-bottom: 80px;
+  box-sizing: border-box;
 }
 
 /* Заголовки экранов */
@@ -45,6 +52,7 @@
 
 .shipyard-screen {
   padding: 20px;
+  margin-bottom: 75px;
 }
 
 .shipyard-header {
@@ -532,6 +540,7 @@
 
 .fleet-stats-screen {
   padding: 20px;
+  margin-bottom: 75px;
 }
 
 .stats-header {
