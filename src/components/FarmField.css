@@ -11,10 +11,10 @@
   align-items: center;
   gap: 12px;
   padding: 15px;
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  border: 1px solid #333333;
 }
 
 .stat-icon {
@@ -24,7 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #a2c6f0;
+  background: #444444;
   border-radius: 10px;
 }
 
@@ -34,14 +34,14 @@
 
 .stat-label-small {
   font-size: 0.7rem;
-  color: #666;
+  color: #999999;
   margin-bottom: 2px;
 }
 
 .stat-value {
   font-size: 1.3rem;
   font-weight: 700;
-  color: #000000;
+  color: #ffffff;
 }
 
 /* Заголовки секций */
@@ -49,7 +49,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #2c3e50;
+  color: #ffffff;
   font-size: 1.2rem;
   margin: 25px 0 15px 0;
 }
@@ -62,9 +62,9 @@
 .empty-state {
   text-align: center;
   padding: 40px 20px;
-  background: white;
+  background: #1a1a1a;
   border-radius: 15px;
-  border: 2px dashed #e0e0e0;
+  border: 2px dashed #333333;
 }
 
 .empty-icon {
@@ -75,12 +75,12 @@
 
 .empty-title {
   font-size: 1.1rem;
-  color: #2c3e50;
+  color: #ffffff;
   margin-bottom: 5px;
 }
 
 .empty-subtitle {
-  color: #888;
+  color: #999999;
   font-size: 0.9rem;
 }
 
@@ -93,15 +93,16 @@
   gap: 12px;
   margin-top: 15px;
   width: 100%;
+
 }
 
 /* 2. Уменьшаем карточки полей */
 .field-card-compact {
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
   padding: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
-  border: 2px solid #f0f0f0;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  border: 2px solid #333333;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -117,8 +118,9 @@
 }
 
 .field-card-compact.ready {
-  border-color: #4CAF50;
-  background: linear-gradient(135deg, #f8fff8 0%, #e8f5e9 100%);
+  border-color: #333333;
+  border-width: 2px;
+  background: #1a1a1a;
 }
 
 /* 3. Уменьшаем заголовок поля */
@@ -127,7 +129,7 @@
   align-items: center;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #333333;
   min-height: 45px;
 }
 
@@ -144,7 +146,7 @@
 .field-name {
   margin: 0;
   font-size: 0.95rem;
-  color: #2c3e50;
+  color: #ffffff;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -166,8 +168,8 @@
   align-items: center;
   gap: 3px;
   font-size: 0.7rem;
-  color: #666;
-  background: #f8f9fa;
+  color: #999999;
+  background: #2a2a2a;
   padding: 2px 6px;
   border-radius: 10px;
   white-space: nowrap;
@@ -200,7 +202,7 @@
   flex: 1;
   margin-left: 6px;
   font-weight: 500;
-  color: #333;
+  color: #ffffff;
   font-size: 0.8rem;
   white-space: nowrap;
   overflow: hidden;
@@ -209,11 +211,11 @@
 
 .progress-percent {
   font-weight: 700;
-  color: #4CAF50;
-  background: white;
+  color: #999999;
+  background: #2a2a2a;
   padding: 2px 6px;
   border-radius: 10px;
-  border: 1px solid #4CAF50;
+  border: 1px solid #444444;
   font-size: 0.75rem;
   white-space: nowrap;
 }
@@ -226,7 +228,7 @@
   gap: 5px;
   margin: 8px 0;
   padding: 6px;
-  background: #f8f9fa;
+  background: #2a2a2a;
   border-radius: 6px;
   font-size: 0.8rem;
 }
@@ -251,7 +253,7 @@
 /* 7. Простой прогресс-бар */
 .progress-bar-simple {
   height: 5px;
-  background: #e0e0e0;
+  background: #333333;
   border-radius: 3px;
   margin-top: 8px;
   position: relative;
@@ -260,7 +262,7 @@
 
 .progress-fill-simple {
   height: 100%;
-  background: linear-gradient(90deg, #4CAF50, #8BC34A);
+  background: linear-gradient(90deg, #666666, #888888);
   border-radius: 3px;
   transition: width 1s ease;
   position: relative;
@@ -301,14 +303,14 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #bdbdbd;
-  border: 2px solid white;
+  background: #666666;
+  border: 2px solid #999999;
   transition: all 0.3s ease;
 }
 
 .progress-dot-simple.active {
-  background: #4CAF50;
-  box-shadow: 0 0 4px rgba(76, 175, 80, 0.5);
+  background: #888888;
+  box-shadow: 0 0 4px rgba(136, 136, 136, 0.5);
 }
 
 /* 8. Простая кнопка сбора */
@@ -316,8 +318,8 @@
   width: 100%;
   padding: 7px 10px;
   background: transparent;
-  color: #4CAF50;
-  border: 2px solid #4CAF50;
+  color: #cccccc;
+  border: 2px solid #444444;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
@@ -332,10 +334,11 @@
 }
 
 .harvest-btn-simple:hover {
-  background: #4CAF50;
+  background: #2a2a2a;
   color: white;
+  border-color: #666666;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.2);
+  box-shadow: 0 4px 12px rgba(100, 100, 100, 0.2);
 }
 
 .harvest-icon {
@@ -345,11 +348,11 @@
 .harvested-badge {
   text-align: center;
   padding: 6px;
-  color: #666;
+  color: #999999;
   font-size: 0.75rem;
-  background: #f8f9fa;
+  background: #1a1a1a;
   border-radius: 6px;
-  border: 1px dashed #ddd;
+  border: 1px dashed #333333;
   margin-top: auto;
 }
 
@@ -365,16 +368,17 @@
   align-items: center;
   gap: 15px;
   padding: 15px;
-  background: white;
+  background: #1a1a1a;
   border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #333333;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .seed-card:hover {
-  border-color: #4CAF50;
+  border-color: #666666;
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 .seed-emoji {
@@ -384,7 +388,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: #2a2a2a;
   border-radius: 10px;
 }
 
@@ -394,7 +398,7 @@
 
 .seed-name {
   font-weight: 500;
-  color: #2c3e50;
+  color: #ffffff;
   margin-bottom: 5px;
 }
 
@@ -405,7 +409,7 @@
 }
 
 .seed-count {
-  color: #666;
+  color: #999999;
 }
 
 .seed-time {
@@ -413,15 +417,15 @@
 }
 
 .seed-profit {
-  color: #4CAF50;
+  color: #999999;
   font-weight: 600;
 }
 
 .plant-btn-simple {
   padding: 8px 16px;
-  background: #4CAF50;
-  color: white;
-  border: none;
+  background: #2a2a2a;
+  color: #cccccc;
+  border: 1px solid #444444;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 500;
@@ -430,7 +434,8 @@
 }
 
 .plant-btn-simple:hover {
-  background: #3d8b40;
+  background: #3a3a3a;
+  border-color: #666666;
   transform: scale(1.05);
 }
 
@@ -450,11 +455,11 @@
 }
 
 .seed-card-inline {
-  background: white;
+  background: #1a1a1a;
   border-radius: 8px;
   padding: 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
+  border: 1px solid #333333;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -488,7 +493,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f8f9fa;
+  background: #2a2a2a;
   border-radius: 8px;
   margin: 0 auto;
 }
@@ -514,7 +519,7 @@
 
 .seed-inline-name {
   font-weight: 600;
-  color: #2c3e50;
+  color: #ffffff;
   margin-bottom: 6px;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -535,7 +540,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: #6c757d;
+  color: #999999;
 }
 
 .detail-icon {
@@ -545,9 +550,9 @@
 .plant-btn-inline {
   width: 100%;
   padding: 8px;
-  background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
-  color: white;
-  border: none;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  color: #cccccc;
+  border: 1px solid #444444;
   border-radius: 6px;
   font-size: 0.8rem;
   font-weight: 600;
@@ -572,12 +577,12 @@
   align-items: center;
   gap: 10px;
   padding: 12px 15px;
-  background: #fff3e0;
+  background: #3a2a1a;
   border-radius: 10px;
   border-left: 4px solid #ff9800;
   margin-bottom: 20px;
   font-size: 0.9rem;
-  color: #e65100;
+  color: #ffb366;
 }
 
 .warning-icon {

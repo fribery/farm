@@ -1,0 +1,424 @@
+/* HangarScreen.css - АКТУАЛЬНЫЕ СТИЛИ ДЛЯ ВАШЕГО JSX */
+.hangar-section {
+  padding: 20px;
+  background: transparent;
+}
+
+/* === КЛАССЫ ИЗ ВАШЕГО JSX (первая секция) === */
+
+/* Контейнер доступных кораблей */
+.available-ships-container {
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.section-title {
+  color: #38bdf8;
+  font-size: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-icon {
+  font-size: 24px;
+}
+
+/* Сообщение о заполненных слотах */
+.slots-full-message {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  color: #fca5a5;
+}
+
+.warning-icon {
+  font-size: 18px;
+}
+
+/* Сетка кораблей */
+.ships-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Карточка корабля для запуска */
+.ship-card-inline {
+  background: linear-gradient(135deg, #1a1a3a 0%, #2a2a5a 100%);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ship-card-inline.disabled {
+  opacity: 0.6;
+  filter: grayscale(0.5);
+}
+
+.ship-card-inline:hover:not(.disabled) {
+  border-color: #38bdf8;
+  box-shadow: 0 5px 15px rgba(56, 189, 248, 0.2);
+  transform: translateY(-3px);
+}
+
+/* Верхняя часть карточки */
+.ship-inline-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.ship-inline-emoji {
+  font-size: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+}
+
+.ship-owned-badge {
+  background: #10b981;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+/* Информация о корабле */
+.ship-inline-info {
+  flex-grow: 1;
+}
+
+.ship-inline-name {
+  font-weight: 600;
+  color: #f1f5f9;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+/* Детали корабля */
+.ship-inline-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.ship-detail {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.detail-icon {
+  font-size: 14px;
+}
+
+/* Кнопка запуска */
+.launch-btn-inline {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.launch-btn-inline:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.launch-btn-inline.disabled {
+  background: #475569;
+  cursor: not-allowed;
+}
+
+/* === КЛАССЫ ИЗ ВАШЕГО JSX (вторая секция - корабли в ангаре) === */
+
+.ships-container {
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.empty-icon {
+  font-size: 60px;
+  margin-bottom: 15px;
+  opacity: 0.5;
+}
+
+.empty-title {
+  color: #94a3b8;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.empty-subtitle {
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Сетка активных кораблей */
+.ships-grid-compact {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+/* Карточка активного корабля */
+.ship-card-compact {
+  background: linear-gradient(135deg, #1a1a3a 0%, #2a2a5a 100%);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  transition: all 0.3s ease;
+}
+
+.ship-card-compact.ready {
+  border-color: #10b981;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+.ship-card-compact.critical {
+  border-color: #ef4444;
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.2);
+}
+
+/* Шапка карточки корабля */
+.ship-header-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.ship-info-compact {
+  flex-grow: 1;
+}
+
+.ship-name {
+  color: #f1f5f9;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ship-stats {
+  display: flex;
+  gap: 15px;
+}
+
+.ship-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.stat-icon-small {
+  font-size: 14px;
+}
+
+/* Индикатор статуса */
+.ship-status-indicator {
+  font-size: 24px;
+}
+
+.ship-status-indicator.on_mission {
+  color: #38bdf8;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Секция прогресса миссии */
+.mission-progress-section {
+  margin-bottom: 15px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.status-icon {
+  font-size: 18px;
+}
+
+.status-name {
+  color: #cbd5e1;
+  font-size: 14px;
+  flex-grow: 1;
+  margin-left: 8px;
+}
+
+.progress-percent {
+  color: #38bdf8;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Дисплей прочности */
+.durability-display {
+  margin-bottom: 15px;
+}
+
+.durability-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.durability-bar {
+  height: 8px;
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+
+.durability-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #38bdf8 100%);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.critical-threshold {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 16px;
+  background: #ef4444;
+}
+
+/* Прогресс-бар миссии */
+.progress-bar-simple {
+  height: 6px;
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill-simple {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8 0%, #a855f7 100%);
+  border-radius: 3px;
+  transition: width 1s linear;
+}
+
+/* Кнопки действий */
+.ship-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.complete-btn-simple,
+.repair-btn-simple,
+.launch-btn-simple {
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.complete-btn-simple {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+}
+
+.complete-btn-simple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.repair-btn-simple {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+}
+
+.repair-btn-simple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.launch-btn-simple {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  color: white;
+}
+
+.launch-btn-simple:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+
+.critical-warning {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  color: #fca5a5;
+  font-size: 12px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .ships-row {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+  
+  .ships-grid-compact {
+    grid-template-columns: 1fr;
+  }
+  
+  .hangar-section {
+    padding: 15px;
+  }
+}

@@ -3,76 +3,209 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: white;
-  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(180deg, #0a0a2a 0%, #1a1a3a 100%);
+  border-top: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
   z-index: 1000;
-  border-top: 1px solid #eee;
-  padding: 10px 0;
+  padding: 8px 0;
+  backdrop-filter: blur(10px);
 }
 
 .nav-container {
   display: flex;
   justify-content: space-around;
-  max-width: 500px;
+  align-items: center;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 10px;
 }
 
 .nav-item {
+  background: transparent;
+  border: none;
+  color: #8b9bb4;
+  padding: 12px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  background: none;
-  border: none;
-  padding: 10px 15px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border-radius: 15px;
+  gap: 6px;
   min-width: 70px;
+  max-height: 70px;
+  position: relative;
+  font-family: 'Segoe UI', system-ui, sans-serif;
 }
 
 .nav-item:hover {
-  background: #f5f5f5;
-  transform: translateY(-3px);
+  background: rgba(56, 189, 248, 0.1);
+  color: #a5d8ff;
+  transform: translateY(-2px);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  transform: translateY(-5px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(168, 85, 247, 0.2));
+  color: #38bdf8;
+  box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+}
+
+.nav-icon-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
 }
 
 .nav-icon {
-  font-size: 1.5rem;
+  font-size: 22px;
   transition: transform 0.3s ease;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .nav-item.active .nav-icon {
   transform: scale(1.2);
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.1);
+}
+
+.active-indicator {
+  position: absolute;
+  bottom: -8px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 8px #38bdf8;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.2);
+  }
 }
 
 .nav-label {
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-@media (max-width: 480px) {
-  .nav-container {
-    padding: 0 10px;
+.nav-item.active .nav-label {
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(56, 189, 248, 0.5);
+}
+
+/* Анимация для космической тематики */
+@keyframes cosmicGlow {
+  0%, 100% {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
   }
-  
+  50% {
+    box-shadow: 0 -4px 25px rgba(56, 189, 248, 0.2);
+  }
+}
+
+.bottom-nav {
+  animation: cosmicGlow 4s ease-in-out infinite;
+}
+
+/* Звёздный фон для навигации */
+.bottom-nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 50%, rgba(56, 189, 248, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 30%, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
   .nav-item {
-    padding: 8px 10px;
+    padding: 10px 12px;
     min-width: 60px;
   }
   
   .nav-icon {
-    font-size: 1.3rem;
+    font-size: 20px;
   }
   
   .nav-label {
-    font-size: 0.7rem;
+    font-size: 11px;
   }
+  
+  .nav-icon-container {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (min-width: 768px) {
+  .nav-item {
+    padding: 14px 20px;
+    min-width: 80px;
+  }
+  
+  .nav-icon {
+    font-size: 24px;
+  }
+  
+  .nav-label {
+    font-size: 13px;
+  }
+}
+
+/* Эффект при первом запуске */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.bottom-nav {
+  animation: 
+    slideUp 0.5s ease-out,
+    cosmicGlow 4s ease-in-out infinite 0.5s;
+}
+
+/* Индикатор уведомлений (для будущих функций) */
+.notification-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }

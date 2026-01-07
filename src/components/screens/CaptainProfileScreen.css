@@ -1,0 +1,613 @@
+/* CaptainProfileScreen.css - космическая тематика */
+
+.captain-profile-screen {
+  padding: 20px;
+  background: transparent;
+  min-height: 100vh;
+  color: #e2e8f0;
+}
+
+/* Заголовок экрана */
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.profile-title {
+  color: #38bdf8;
+  font-size: 28px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.title-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.5));
+}
+
+.captain-title-badge {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(217, 119, 6, 0.1) 100%);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 20px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.title-badge-icon {
+  font-size: 20px;
+  color: #fbbf24;
+}
+
+.title-badge-text {
+  color: #fbbf24;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Основной контент */
+.profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Карточка капитана */
+.captain-card {
+  background: linear-gradient(135deg, rgba(26, 26, 58, 0.9) 0%, rgba(42, 42, 90, 0.95) 100%);
+  border-radius: 20px;
+  padding: 30px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  box-shadow: 0 10px 40px rgba(56, 189, 248, 0.15);
+}
+
+.captain-avatar-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.captain-avatar {
+  position: relative;
+}
+
+.avatar-initial {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #38bdf8 0%, #a855f7 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  font-weight: 700;
+  color: white;
+  box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4);
+}
+
+.online-status {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 20px;
+  height: 20px;
+  background: #10b981;
+  border: 3px solid #1a1a3a;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #10b981;
+}
+
+.captain-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.rank-badge, .level-badge {
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 15px;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+.badge-icon {
+  font-size: 18px;
+  color: #38bdf8;
+}
+
+.badge-text {
+  color: #f1f5f9;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.captain-info {
+  flex-grow: 1;
+}
+
+.captain-name {
+  color: #f1f5f9;
+  font-size: 32px;
+  margin: 0 0 10px 0;
+  line-height: 1.2;
+}
+
+.captain-username {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 16px;
+  margin-bottom: 25px;
+}
+
+.username-icon {
+  color: #38bdf8;
+  font-weight: 700;
+}
+
+.captain-stats-preview {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.preview-stat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.preview-icon {
+  font-size: 20px;
+  color: #38bdf8;
+}
+
+.preview-label {
+  color: #94a3b8;
+  font-size: 14px;
+  margin-right: 5px;
+}
+
+.preview-value {
+  color: #f1f5f9;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.preview-value.high { color: #10b981; }
+.preview-value.medium { color: #fbbf24; }
+.preview-value.low { color: #ef4444; }
+
+/* Разделы */
+.section-title {
+  color: #cbd5e1;
+  font-size: 22px;
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.section-icon {
+  font-size: 24px;
+  color: #38bdf8;
+}
+
+/* Основная статистика */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.stat-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.stat-name {
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.stat-value {
+  color: #f1f5f9;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.stat-description {
+  color: #64748b;
+  font-size: 14px;
+}
+
+/* Статистика флота */
+.fleet-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.fleet-stat {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.fleet-stat:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.15);
+}
+
+.fleet-stat-icon {
+  font-size: 32px;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+
+.fleet-stat-content {
+  flex-grow: 1;
+}
+
+.fleet-stat-name {
+  color: #94a3b8;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.fleet-stat-value {
+  color: #f1f5f9;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.efficiency-bar {
+  flex-grow: 1;
+  height: 8px;
+  background: rgba(30, 41, 59, 0.8);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.efficiency-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #38bdf8 100%);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.efficiency-percent {
+  color: #38bdf8;
+  font-weight: 600;
+  min-width: 50px;
+  text-align: right;
+}
+
+/* Система сохранения */
+.save-status-card {
+  background: linear-gradient(135deg, rgba(26, 26, 58, 0.9) 0%, rgba(42, 42, 90, 0.95) 100%);
+  border-radius: 20px;
+  padding: 25px;
+  border: 1px solid;
+  transition: all 0.3s ease;
+}
+
+.save-status-card.online {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(26, 26, 58, 0.9) 100%);
+}
+
+.save-status-card.offline {
+  border-color: rgba(245, 158, 11, 0.3);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(26, 26, 58, 0.9) 100%);
+}
+
+.save-status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px currentColor;
+}
+
+.status-dot.online {
+  background: #10b981;
+  color: #10b981;
+}
+
+.status-dot.offline {
+  background: #fbbf24;
+  color: #fbbf24;
+}
+
+.status-text {
+  color: #f1f5f9;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.status-icon {
+  font-size: 28px;
+}
+
+.save-status-description {
+  color: #cbd5e1;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 25px;
+}
+
+.save-details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.save-detail {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.detail-icon {
+  font-size: 16px;
+  color: #38bdf8;
+}
+
+/* Достижения */
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.achievement {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.achievement.unlocked {
+  border-color: rgba(16, 185, 129, 0.3);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(30, 41, 59, 0.9) 100%);
+}
+
+.achievement.locked {
+  opacity: 0.7;
+  filter: grayscale(0.3);
+}
+
+.achievement:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(56, 189, 248, 0.15);
+}
+
+.achievement-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.achievement.unlocked .achievement-icon {
+  color: #10b981;
+}
+
+.achievement.locked .achievement-icon {
+  color: #64748b;
+}
+
+.achievement-content {
+  flex-grow: 1;
+}
+
+.achievement-name {
+  color: #f1f5f9;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.achievement-description {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.achievement-status {
+  font-size: 24px;
+}
+
+.achievement.unlocked .achievement-status {
+  color: #10b981;
+}
+
+.achievement.locked .achievement-status {
+  color: #64748b;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .captain-profile-screen {
+    padding: 15px;
+  }
+  
+  .profile-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+  
+  .captain-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 25px;
+  }
+  
+  .captain-stats-preview {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid,
+  .fleet-stats-grid,
+  .achievements-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .save-details {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-title {
+    font-size: 24px;
+  }
+  
+  .captain-name {
+    font-size: 24px;
+  }
+  
+  .stat-value {
+    font-size: 28px;
+  }
+  
+  .fleet-stat {
+    flex-direction: column;
+    text-align: center;
+    gap: 15px;
+  }
+  
+  .fleet-stat-value {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
+
+/* Основная статистика */
+.main-stats-section {
+  margin-bottom: 30px;
+}
+
+.main-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.main-stat-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 15px;
+  padding: 25px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.main-stat-card:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(56, 189, 248, 0.2);
+}
+
+.main-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.main-stat-icon {
+  font-size: 28px;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.main-stat-name {
+  color: #94a3b8;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.main-stat-value {
+  color: #f1f5f9;
+  font-size: 36px;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.main-stat-description {
+  color: #64748b;
+  font-size: 14px;
+}

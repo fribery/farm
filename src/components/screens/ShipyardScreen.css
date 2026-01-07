@@ -1,0 +1,600 @@
+/* ShipyardScreen.css - исправленные размеры */
+
+/* Основной контейнер */
+.shipyard-screen {
+  padding: 20px;
+  background: transparent;
+  min-height: calc(100vh - 160px); /* Фиксированная высота */
+  max-width: 1200px;
+  margin: 0 auto;
+  overflow-y: auto; /* Прокрутка если контент не помещается */
+  box-sizing: border-box;
+}
+
+/* Заголовок верфи */
+.shipyard-header {
+  text-align: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: rgba(26, 26, 58, 0.7);
+  border-radius: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.shipyard-title {
+  color: #38bdf8;
+  font-size: 24px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* Статус игрока - компактный */
+.player-status-bar {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.status-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 41, 59, 0.8);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  font-size: 12px;
+}
+
+.status-bar-icon {
+  font-size: 14px;
+}
+
+.status-bar-label {
+  color: #94a3b8;
+}
+
+.status-bar-value {
+  color: #f1f5f9;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+/* Секции верфи - фиксированные */
+.shipyard-section {
+  margin-bottom: 25px;
+  background: rgba(26, 26, 58, 0.6);
+  border-radius: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  overflow: hidden;
+  max-height: 600px; /* Ограничение высоты */
+  display: flex;
+  flex-direction: column;
+}
+
+.shipyard-section-header {
+  background: linear-gradient(90deg, rgba(56, 189, 248, 0.1) 0%, transparent 100%);
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+  flex-shrink: 0;
+}
+
+.section-title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.shipyard-section-icon {
+  font-size: 22px;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shipyard-section-title {
+  color: #f1f5f9;
+  font-size: 18px;
+  margin: 0;
+}
+
+.shipyard-section-subtitle {
+  color: #94a3b8;
+  font-size: 12px;
+  margin-top: 3px;
+}
+
+/* Основная сетка товаров - с прокруткой */
+.shipyard-main-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  padding: 15px;
+  overflow-y: auto; /* Прокрутка внутри секции */
+  flex-grow: 1;
+  max-height: 500px;
+}
+
+/* Карточка корабля - фиксированная высота */
+.shipyard-item-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-radius: 15px;
+  padding: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  height: 320px; /* Фиксированная высота */
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.shipyard-item-card:hover {
+  border-color: #38bdf8;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(56, 189, 248, 0.2);
+}
+
+/* Эмодзи корабля */
+.item-card-emoji {
+  font-size: 40px;
+  text-align: center;
+  margin: 10px 0;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Тело карточки */
+.item-card-body {
+  flex-grow: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.item-card-name {
+  color: #f1f5f9;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  line-height: 1.3;
+  min-height: 40px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-card-description {
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  flex-grow: 1;
+  min-height: 40px;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Статистика товара - компактная */
+.item-card-stats {
+  background: rgba(30, 41, 59, 0.7);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.stat-row:last-child {
+  margin-bottom: 0;
+}
+
+.stat-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #cbd5e1;
+}
+
+.stat-icon {
+  font-size: 12px;
+}
+
+.stat-value {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+/* Кнопка покупки - всегда внизу */
+.item-card-footer {
+  margin-top: auto;
+  flex-shrink: 0;
+}
+
+.shipyard-buy-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Улучшения - компактные */
+.upgrades-section {
+  background: rgba(26, 26, 58, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.upgrades-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.upgrade-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+}
+
+.upgrade-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.upgrade-emoji {
+  font-size: 28px;
+}
+
+.upgrade-title {
+  color: #f1f5f9;
+  font-size: 16px;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.upgrade-description {
+  color: #94a3b8;
+  font-size: 12px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  flex-grow: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Сервисные услуги */
+.services-section {
+  background: rgba(26, 26, 58, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.service-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  height: 120px;
+}
+
+.service-icon {
+  font-size: 32px;
+  flex-shrink: 0;
+}
+
+.service-content {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.service-title {
+  color: #f1f5f9;
+  font-size: 16px;
+  margin-bottom: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.service-stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.service-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.stat-name {
+  color: #cbd5e1;
+}
+
+.stat-value {
+  color: #f1f5f9;
+  font-weight: 600;
+}
+
+.service-action-btn {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  width: 100%;
+}
+
+/* Улучшение существующих кораблей - с прокруткой */
+.player-ships-section {
+  background: rgba(26, 26, 58, 0.6);
+  border-radius: 15px;
+  padding: 20px;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.player-ships-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.player-ship-upgrade-card {
+  background: linear-gradient(135deg, rgba(30, 41, 59, 0.9) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border-radius: 12px;
+  padding: 15px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+}
+
+.ship-upgrade-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.ship-emoji-large {
+  font-size: 32px;
+}
+
+.ship-level-tag {
+  background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.ship-upgrade-info {
+  flex-grow: 1;
+}
+
+.ship-upgrade-name {
+  color: #f1f5f9;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ship-status-container {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.ship-status-tag {
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.upgrade-details {
+  background: rgba(56, 189, 248, 0.1);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: auto;
+}
+
+.upgrade-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.comparison-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.comparison-label {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.comparison-value {
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.upgrade-action-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+/* Полоса прокрутки */
+.shipyard-main-grid::-webkit-scrollbar,
+.upgrades-section::-webkit-scrollbar,
+.services-section::-webkit-scrollbar,
+.player-ships-section::-webkit-scrollbar {
+  width: 6px;
+}
+
+.shipyard-main-grid::-webkit-scrollbar-track,
+.upgrades-section::-webkit-scrollbar-track,
+.services-section::-webkit-scrollbar-track,
+.player-ships-section::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.5);
+  border-radius: 3px;
+}
+
+.shipyard-main-grid::-webkit-scrollbar-thumb,
+.upgrades-section::-webkit-scrollbar-thumb,
+.services-section::-webkit-scrollbar-thumb,
+.player-ships-section::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.5);
+  border-radius: 3px;
+}
+
+.shipyard-main-grid::-webkit-scrollbar-thumb:hover,
+.upgrades-section::-webkit-scrollbar-thumb:hover,
+.services-section::-webkit-scrollbar-thumb:hover,
+.player-ships-section::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.7);
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .shipyard-screen {
+    padding: 15px;
+    min-height: calc(100vh - 140px);
+  }
+  
+  .shipyard-main-grid,
+  .upgrades-grid,
+  .services-grid,
+  .player-ships-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .shipyard-item-card {
+    height: auto;
+    min-height: 300px;
+  }
+  
+  .shipyard-section {
+    max-height: none;
+  }
+  
+  .service-card {
+    height: auto;
+    min-height: 100px;
+  }
+  
+  .player-ship-upgrade-card {
+    height: auto;
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 480px) {
+  .shipyard-screen {
+    padding: 10px;
+  }
+  
+  .shipyard-title {
+    font-size: 20px;
+  }
+  
+  .player-status-bar {
+    gap: 5px;
+  }
+  
+  .status-bar-item {
+    padding: 4px 8px;
+    font-size: 11px;
+  }
+  
+  .shipyard-section-header {
+    padding: 12px 15px;
+  }
+  
+  .shipyard-section-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 18px;
+  }
+  
+  .shipyard-section-title {
+    font-size: 16px;
+  }
+}

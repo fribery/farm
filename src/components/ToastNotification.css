@@ -1,6 +1,7 @@
 /* === СТИЛИ ДЛЯ УВЕДОМЛЕНИЙ В СЕРОЙ ЦВЕТОВОЙ СХЕМЕ === */
 
 .toast-container {
+  
   position: fixed;
   top: 20px;
   left: 50%;
@@ -18,16 +19,17 @@
 
 /* Основной стиль уведомления - СЕРЫЙ */
 .toast-notification {
+  color: white;
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 18px 24px;
   border-radius: 14px;
   box-shadow: 
-    0 8px 30px rgba(0, 0, 0, 0.12),
-    0 4px 12px rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+    0 8px 30px rgba(0, 0, 0, 0.8),
+    0 4px 12px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border: 1px solid #333333;
   opacity: 0;
   transform: translateY(-20px);
   transition: all 0.4s ease-out;
@@ -83,9 +85,9 @@
 .toast-error,
 .toast-warning,
 .toast-info {
-  background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  color: #424242; /* Серый текст для всех */
+  background: linear-gradient(135deg, #1a3a4a 0%, #2a4a5a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #87ceeb; /* Серый текст для всех */
 }
 
 /* Иконка уведомления - СЕРАЯ */
@@ -97,12 +99,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
+  background: #333333;
   border-radius: 12px;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  color: #616161; /* Серый цвет иконок */
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  color: #999999;
   transition: all 0.3s ease;
 }
 
@@ -117,15 +119,15 @@
   line-height: 1.5;
   font-weight: 500;
   word-break: break-word;
-  color: #424242; /* Серый текст */
+  color: #ffffff; /* Серый текст */
 }
 
 /* Кнопка закрытия */
 .toast-close {
-  background: rgba(255, 255, 255, 0.8);
+  background: #333333;
   border: none;
   font-size: 20px;
-  color: #757575;
+  color: #999999;
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -137,17 +139,17 @@
   transition: all 0.3s ease;
   flex-shrink: 0;
   box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.08),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    0 2px 6px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 .toast-close:hover {
-  background: white;
-  color: #424242;
+  background: #1a1a1a;
+  color: #cccccc;
   transform: scale(1.1);
   box-shadow: 
     0 4px 12px rgba(0, 0, 0, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 /* Прогресс-бар (таймер) - СЕРЫЙ */
@@ -185,7 +187,7 @@
   box-shadow: 
     0 12px 40px rgba(0, 0, 0, 0.15),
     0 6px 20px rgba(0, 0, 0, 0.1);
-  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
   transition: all 0.3s ease;
 }
 
@@ -237,6 +239,7 @@
   }
   
   .toast-notification {
+    color: white;
     padding: 14px 18px;
     gap: 12px;
     border-radius: 12px;

@@ -11,9 +11,9 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    headers: {
-      'Content-Type': 'application/javascript'
-    }
+    // headers: {
+    //   'Content-Type': 'application/javascript'
+    // }
   },
   build: {
     outDir: 'dist',
