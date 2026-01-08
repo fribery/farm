@@ -25,8 +25,6 @@
 }
 
 .app-logo {
-  max-width: 10px;
-  max-height: 10px;
   font-size: 10px;
   display: flex;
   align-items: center;
@@ -34,6 +32,8 @@
 }
 
 .logo-image {
+  max-width: 10px;
+  max-height: 10px;
   font: 10px;
   size: 10px;
   border: 2px solid #38bdf8;
