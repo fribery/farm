@@ -117,7 +117,7 @@ function App() {
       
       <header className="app-header">
         <div className="header-content">
-          <div className="app-logo">
+          {/* <div className="app-logo">
             <img 
               src="/logo.png" 
               alt="Space Fleet Logo" 
@@ -129,7 +129,7 @@ function App() {
               }}
             />
             <span className="app-name">Cosmic Game</span>
-          </div>
+          </div> */}
           
           <div className="stats-container">
             {/* Кредиты (бывшие деньги) */}
