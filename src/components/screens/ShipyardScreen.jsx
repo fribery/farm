@@ -292,12 +292,7 @@ export default function ShipyardScreen({ user, updateGameData }) {
       
       {/* КОРАБЛИ ДЛЯ ПОКУПКИ */}
       <section className="shipyard-section">
-        <h3>
-          <span className="section-icon">🛸</span>
-          Доступные корабли
-          <span className="section-subtitle">Ваш ранг: {getRankName(user?.game_data?.level || 1)} (уровень {user?.game_data?.level || 1})</span>
-        </h3>
-        
+          <span className="section-subtitle">Магазин корабликов</span>
         <div className="items-grid">
           {GAME_CONFIG.shipyard.map((shipOffer) => {
             const shipConfig = getShipConfig(shipOffer.shipId)
@@ -312,7 +307,7 @@ export default function ShipyardScreen({ user, updateGameData }) {
                 key={shipOffer.id} 
                 className={`ship-item ${!isAvailable ? 'locked' : ''} ${isPurchased ? 'purchased' : ''}`}
               >
-                <div className="item-emoji">{shipConfig.emoji}</div>
+
                 
                 <div className="item-info">
                   <div className="item-header">
@@ -327,24 +322,23 @@ export default function ShipyardScreen({ user, updateGameData }) {
                     )}
                   </div>
                   
-                  <div className="item-stats">
+                  <div className="item-card-stats">
                     <div className="stat">
-                      <span className="stat-icon">💰</span>
                       <span>Доход:</span>
                       <strong>{shipConfig.baseIncome}кр/рейс</strong>
                     </div>
                     <div className="stat">
-                      <span className="stat-icon">⏱️</span>
+
                       <span>Время:</span>
                       <span>{shipConfig.missionDuration}с</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-icon">🛡️</span>
+
                       <span>Прочность:</span>
                       <span>{shipConfig.durability.max} (-{shipConfig.durability.decayPerMission}/рейс)</span>
                     </div>
                     <div className="stat">
-                      <span className="stat-icon">⭐</span>
+
                       <span>Опыт:</span>
                       <span>+{shipConfig.expReward}</span>
                     </div>

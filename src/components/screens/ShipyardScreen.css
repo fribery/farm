@@ -72,6 +72,9 @@
 
 /* Секции верфи - фиксированные */
 .shipyard-section {
+  font-size: 20px;
+  font-weight: 400;
+  align-items: center;
   margin-bottom: 25px;
   background: rgba(26, 26, 58, 0.6);
   border-radius: 15px;
@@ -116,7 +119,12 @@
 .shipyard-section-subtitle {
   color: #94a3b8;
   font-size: 12px;
-  margin-top: 3px;
+}
+
+.section-subtitle {
+  font-size: 30px; 
+  font-weight: 700;
+  margin: 20px 0px 20px 0px;
 }
 
 /* Основная сетка товаров - с прокруткой */

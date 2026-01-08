@@ -134,7 +134,7 @@ function App() {
           <div className="stats-container">
             {/* Кредиты (бывшие деньги) */}
             <div className="stat-item credits">
-              <div className="stat-icon-header">💰</div>
+              {/* <div className="stat-icon-header">💰</div> */}
               <div className="stat-details">
                 <div className="stat-label-header">Кредиты</div>
                 <div className="stat-value-header">{user.game_data?.credits || 0}</div>
@@ -143,19 +143,10 @@ function App() {
             
             {/* Кристаллы (новая валюта) */}
             <div className="stat-item crystals">
-              <div className="stat-icon-header">💎</div>
+              {/* <div className="stat-icon-header">💎</div> */}
               <div className="stat-details">
                 <div className="stat-label-header">Кристаллы</div>
                 <div className="stat-value-header">{user.game_data?.crystals || 0}</div>
-              </div>
-            </div>
-            
-            {/* Уровень капитана */}
-            <div className="stat-item level">
-              <div className="stat-icon-header">🏆</div>
-              <div className="stat-details">
-                <div className="stat-label-header">Ранг</div>
-                <div className="stat-value-header">{user.game_data?.level || 1}</div>
               </div>
             </div>
           </div>
