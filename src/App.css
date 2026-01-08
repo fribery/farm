@@ -214,12 +214,7 @@
   }
   
   .stats-container {
-    justify-content: center;
-  }
-  
-  .stat-item {
-    min-width: 100px;
-    padding: 8px 12px;
+    justify-content: left;
   }
   
   .app-name {
@@ -234,7 +229,7 @@
   
   .stat-item {
     min-width: 40px;
-    max-width: 65px;
+    max-width: 75px;
     padding: 2px 2px;
   }
   
