@@ -158,26 +158,6 @@ function App() {
                 <div className="stat-value-header">{user.game_data?.level || 1}</div>
               </div>
             </div>
-            
-            {/* Состояние флота */}
-            <div className="stat-item fleet">
-              <div className="stat-icon-header">🛸</div>
-              <div className="stat-details">
-                <div className="stat-label-header">Флот</div>
-                <div className="stat-value-header">
-                  {getTotalShips()}/{getAvailableSlots()}
-                </div>
-              </div>
-            </div>
-            
-            {/* Энергия */}
-            <div className="stat-item energy">
-              <div className="stat-icon-header">⚡</div>
-              <div className="stat-details">
-                <div className="stat-label-header">Энергия</div>
-                <div className="stat-value-header">{user.game_data?.energy || 0}</div>
-              </div>
-            </div>
           </div>
         </div>
       </header>
