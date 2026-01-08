@@ -289,15 +289,6 @@ export default function ShipyardScreen({ user, updateGameData }) {
 
   return (
     <div className="shipyard-screen">
-      <div className="shipyard-header">
-        <h2>🚀 Космическая верфь</h2>
-        <div className="player-status">
-          <span className="status-item">Ранг: <strong>{getRankName(user?.game_data?.level || 1)}</strong></span>
-          <span className="status-item">Кредиты: <strong>{user?.game_data?.credits || 0}кр</strong></span>
-          <span className="status-item">Кристаллы: <strong>{user?.game_data?.crystals || 0}💎</strong></span>
-          <span className="status-item">Энергия: <strong>{user?.game_data?.energy || 0}⚡</strong></span>
-        </div>
-      </div>
       
       {/* КОРАБЛИ ДЛЯ ПОКУПКИ */}
       <section className="shipyard-section">

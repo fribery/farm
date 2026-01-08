@@ -128,7 +128,7 @@ function App() {
                 e.target.parentElement.innerHTML = '<div class="logo-emoji">🚀</div>'
               }}
             />
-            <span className="app-name">Космическая Флотилия</span>
+            <span className="app-name">Cosmic Game</span>
           </div>
           
           <div className="stats-container">
