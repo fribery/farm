@@ -32,6 +32,7 @@
 }
 
 .logo-image {
+  font-size: 10px;
   border: 2px solid #38bdf8;
   box-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
 }
