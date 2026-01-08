@@ -61,7 +61,7 @@
 
 .stat-item {
   display: flex;
-  align-items: center;
+  align-items: left;
   gap: 10px;
   padding: 10px 15px;
   background: rgba(30, 41, 59, 0.7);
@@ -82,6 +82,7 @@
   font-size: 16px;
   -webkit-filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+  margin-left: 2px;
 }
 
 .stat-details {
@@ -233,7 +234,7 @@
   
   .stat-item {
     min-width: 40px;
-    max-width: 80px;
+    max-width: 65px;
     padding: 2px 2px;
   }
   
