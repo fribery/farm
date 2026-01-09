@@ -221,23 +221,6 @@ export default function InventoryScreen({ user, updateGameData }) {
                   <button className="quick-btn" onClick={() => setSellAmount(selectedResource.amount)}>ВСЕ</button>
                 </div>
               </div>
-
-              <div className="sell-summary-modal">
-                <div className="summary-row">
-                  <span>Количество:</span>
-                  <strong>{sellAmount} шт</strong>
-                </div>
-                <div className="summary-row">
-                  <span>Цена за штуку:</span>
-                  <strong>{selectedResource.price}кр</strong>
-                </div>
-                <div className="summary-row total">
-                  <span>Общая сумма:</span>
-                  <strong className="total-price">
-                    {formatNumber(calculateSellValue(selectedResource.id, sellAmount))} кредитов
-                  </strong>
-                </div>
-              </div>
             </div>
 
             <div className="modal-footer">
