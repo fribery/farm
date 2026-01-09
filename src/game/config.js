@@ -7,7 +7,6 @@ export const GAME_CONFIG = {
     crystals: 0,            // Кристаллы
     experience: 0,          // Опыт пилота
     level: 1,               // Уровень/ранг капитана
-    energy: 100             // Энергия для выполнения действий
   },
   
   // Система уровней (рангов капитана)
@@ -164,7 +163,6 @@ export const GAME_CONFIG = {
       availableAtLevel: 1,
       requirements: {
         credits: 250,
-        energy: 10
       }
     },
     {
@@ -173,7 +171,6 @@ export const GAME_CONFIG = {
       availableAtLevel: 3,
       requirements: {
         credits: 750,
-        energy: 15
       }
     },
     {
@@ -183,7 +180,6 @@ export const GAME_CONFIG = {
       requirements: {
         credits: 2000,
         crystals: 5,
-        energy: 25
       }
     },
     {
@@ -193,7 +189,6 @@ export const GAME_CONFIG = {
       requirements: {
         credits: 5000,
         crystals: 15,
-        energy: 50
       }
     }
   ],

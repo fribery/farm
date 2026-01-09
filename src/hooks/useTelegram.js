@@ -25,7 +25,6 @@ export function useTelegram() {
     crystals: 10,
     experience: 0,
     level: 1,
-    energy: 100,
     hangar: [],
     availableShips: [1],
     hangarSlots: 3,

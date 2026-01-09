@@ -2,30 +2,41 @@ import { useState, useEffect } from 'react'
 import './Screens.css'
 
 export default function AchievementsScreen({ user, updateUserData }) {
-  const [lastHourlyBonus, setLastHourlyBonus] = useState(Date.now())
-  const [lastDailyBonus, setLastDailyBonus] = useState(Date.now())
   const [cooldowns, setCooldowns] = useState({
     hourly: 0,
     daily: 0
   })
 
-  // Расчет времени до следующего бонуса
+  // Расчет времени до следующего бонуса при загрузке
   useEffect(() => {
-    const calculateCooldowns = () => {
-      const now = Date.now()
-      const hourlyCooldown = Math.max(0, 3600000 - (now - lastHourlyBonus))
-      const dailyCooldown = Math.max(0, 86400000 - (now - lastDailyBonus))
-      
-      setCooldowns({
-        hourly: hourlyCooldown,
-        daily: dailyCooldown
-      })
-    }
-
     calculateCooldowns()
-    const interval = setInterval(calculateCooldowns, 1000)
+    
+    // Обновление таймера каждую секунду
+    const interval = setInterval(() => {
+      setCooldowns(prev => ({
+        hourly: Math.max(0, prev.hourly - 1000),
+        daily: Math.max(0, prev.daily - 1000)
+      }))
+    }, 1000)
+    
     return () => clearInterval(interval)
-  }, [lastHourlyBonus, lastDailyBonus])
+  }, [user.game_data?.lastHourlyBonus, user.game_data?.lastDailyBonus])
+
+  const calculateCooldowns = () => {
+    const now = Date.now()
+    
+    // Используем время из данных пользователя с сервера
+    const lastHourlyBonus = user.game_data?.lastHourlyBonus || 0
+    const lastDailyBonus = user.game_data?.lastDailyBonus || 0
+    
+    const hourlyCooldown = Math.max(0, 3600000 - (now - lastHourlyBonus))
+    const dailyCooldown = Math.max(0, 86400000 - (now - lastDailyBonus))
+    
+    setCooldowns({
+      hourly: hourlyCooldown,
+      daily: dailyCooldown
+    })
+  }
 
   const formatTime = (ms) => {
     const hours = Math.floor(ms / 3600000)
@@ -37,36 +48,58 @@ export default function AchievementsScreen({ user, updateUserData }) {
     return `${seconds}с`
   }
 
-  // Получение почасового бонуса
+  // Получение почасового бонуса - ФИКС
   const claimHourlyBonus = () => {
     const now = Date.now()
-    if (now - lastHourlyBonus < 3600000) return
+    const lastHourly = user.game_data?.lastHourlyBonus || 0
     
-    const newCredits = (user.game_data?.credits || 0) + 100
-    updateUserData({
-      credits: newCredits,
-      totalBonuses: (user.game_data?.totalBonuses || 0) + 1,
-      hourlyBonuses: (user.game_data?.hourlyBonuses || 0) + 1
-    })
+    if (now - lastHourly < 3600000) {
+      alert('Бонус можно получить раз в час!')
+      return
+    }
     
-    setLastHourlyBonus(now)
-    // Здесь можно добавить визуальный эффект
+    // Создаем копию текущих данных пользователя
+    const currentData = { ...user.game_data }
+    
+    // Вычисляем новые значения
+    const updatedData = {
+      ...currentData, // Сохраняем все существующие данные
+      credits: (currentData.credits || 0) + 100,
+      totalBonuses: (currentData.totalBonuses || 0) + 1,
+      hourlyBonuses: (currentData.hourlyBonuses || 0) + 1,
+      lastHourlyBonus: now // Обновляем только этот таймер
+      // НЕ трогаем lastDailyBonus!
+    }
+    
+    // Передаем обновленные данные
+    updateUserData(updatedData)
   }
 
-  // Получение ежедневного бонуса
+  // Получение ежедневного бонуса - ФИКС
   const claimDailyBonus = () => {
     const now = Date.now()
-    if (now - lastDailyBonus < 86400000) return
+    const lastDaily = user.game_data?.lastDailyBonus || 0
     
-    const newCredits = (user.game_data?.credits || 0) + 1000
-    updateUserData({
-      credits: newCredits,
-      totalBonuses: (user.game_data?.totalBonuses || 0) + 1,
-      dailyBonuses: (user.game_data?.dailyBonuses || 0) + 1
-    })
+    if (now - lastDaily < 86400000) {
+      alert('Бонус можно получить раз в день!')
+      return
+    }
     
-    setLastDailyBonus(now)
-    // Здесь можно добавить визуальный эффект
+    // Создаем копию текущих данных пользователя
+    const currentData = { ...user.game_data }
+    
+    // Вычисляем новые значения
+    const updatedData = {
+      ...currentData, // Сохраняем все существующие данные
+      credits: (currentData.credits || 0) + 1000,
+      totalBonuses: (currentData.totalBonuses || 0) + 1,
+      dailyBonuses: (currentData.dailyBonuses || 0) + 1,
+      lastDailyBonus: now // Обновляем только этот таймер
+      // НЕ трогаем lastHourlyBonus!
+    }
+    
+    // Передаем обновленные данные
+    updateUserData(updatedData)
   }
 
   // Расчет общих показателей
@@ -79,7 +112,7 @@ export default function AchievementsScreen({ user, updateUserData }) {
   const calculateFleetValue = () => {
     if (!user.game_data?.hangar?.length) return 0
     return user.game_data.hangar.reduce((total, ship) => {
-      const baseValue = 250 * Math.pow(2, ship.shipId - 1) // Примерная стоимость
+      const baseValue = 250 * Math.pow(2, ship.shipId - 1)
       return total + baseValue + (ship.level * 500)
     }, 0)
   }
@@ -91,6 +124,7 @@ export default function AchievementsScreen({ user, updateUserData }) {
       name: "⏰ Каждый час",
       description: "Заходи каждые 60 минут за бесплатными кредитами",
       reward: "+100 кредитов",
+      emoji: "⏰",
       type: "hourly",
       cooldown: cooldowns.hourly,
       claimed: cooldowns.hourly > 0,
@@ -101,6 +135,7 @@ export default function AchievementsScreen({ user, updateUserData }) {
       name: "📅 Ежедневный бонус",
       description: "Зайди завтра чтобы получить увеличенную награду",
       reward: "+1000 кредитов",
+      emoji: "📅",
       type: "daily",
       cooldown: cooldowns.daily,
       claimed: cooldowns.daily > 0,
@@ -191,16 +226,6 @@ export default function AchievementsScreen({ user, updateUserData }) {
       category: 'fleet'
     },
     {
-      id: 9,
-      name: '⚡ Энергетический титан',
-      description: 'Потратить 5000 энергии',
-      reward: '+400 кредитов',
-      emoji: '⚡',
-      completed: (user.game_data?.energySpent || 0) >= 5000,
-      condition: `${user.game_data?.energySpent || 0}/5000 энергии`,
-      category: 'activity'
-    },
-    {
       id: 10,
       name: '🔧 Мастер ремонта',
       description: 'Потратить 2000 кредитов на ремонт',
@@ -266,6 +291,7 @@ export default function AchievementsScreen({ user, updateUserData }) {
 
   return (
     <div className="screen achievements-screen">
+
       {/* БЛОК С БОНУСАМИ */}
       <section className="bonuses-section">
         <h2 className="section-title">
@@ -294,6 +320,9 @@ export default function AchievementsScreen({ user, updateUserData }) {
                     <button className="claim-button">Получить сейчас</button>
                   </div>
                 )}
+              </div>
+              <div className="bonus-badge">
+                {bonus.type === 'hourly' ? 'Каждый час' : 'Ежедневно'}
               </div>
             </div>
           ))}
@@ -353,6 +382,57 @@ export default function AchievementsScreen({ user, updateUserData }) {
             </div>
           </div>
         ))}
+      </section>
+
+      {/* СТАТИСТИКА ДОСТИЖЕНИЙ */}
+      <section className="stats-section">
+        <h2 className="section-title">
+          <span className="title-icon">📊</span>
+          Ваша статистика
+        </h2>
+        <div className="stats-grid">
+          <div className="stat-item">
+            <div className="stat-item-icon">🚀</div>
+            <div className="stat-item-content">
+              <div className="stat-item-value">{user.game_data?.missionsCompleted || 0}</div>
+              <div className="stat-item-label">Миссий завершено</div>
+            </div>
+          </div>
+          
+          <div className="stat-item">
+            <div className="stat-item-icon">💰</div>
+            <div className="stat-item-content">
+              <div className="stat-item-value">{calculateTotalEarned()}</div>
+              <div className="stat-item-label">Всего заработано</div>
+            </div>
+          </div>
+          
+          <div className="stat-item">
+            <div className="stat-item-icon">🛸</div>
+            <div className="stat-item-content">
+              <div className="stat-item-value">{user.game_data?.hangar?.length || 0}</div>
+              <div className="stat-item-label">Кораблей в ангаре</div>
+            </div>
+          </div>
+          
+          <div className="stat-item">
+            <div className="stat-item-icon">⏱️</div>
+            <div className="stat-item-content">
+              <div className="stat-item-value">
+                {(() => {
+                  const totalSeconds = (user.game_data?.totalMissionTime || 0)
+                  if (totalSeconds >= 3600) {
+                    return `${Math.floor(totalSeconds / 3600)}ч`
+                  } else if (totalSeconds >= 60) {
+                    return `${Math.floor(totalSeconds / 60)}м`
+                  }
+                  return `${totalSeconds}с`
+                })()}
+              </div>
+              <div className="stat-item-label">Время в полете</div>
+            </div>
+          </div>
+        </div>
       </section>
     </div>
   )

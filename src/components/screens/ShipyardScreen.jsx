@@ -29,7 +29,6 @@ export default function ShipyardScreen({ user, updateGameData }) {
     // Проверяем требования (кредиты, кристаллы, энергия)
     const hasEnoughCredits = (user.game_data.credits || 0) >= (ship.requirements.credits || 0)
     const hasEnoughCrystals = (user.game_data.crystals || 0) >= (ship.requirements.crystals || 0)
-    const hasEnoughEnergy = (user.game_data.energy || 0) >= (ship.requirements.energy || 0)
 
     if (!hasEnoughCredits) {
       window.showError(`Недостаточно кредитов! Нужно: ${ship.requirements.credits}`)
@@ -37,10 +36,6 @@ export default function ShipyardScreen({ user, updateGameData }) {
     }
     if (!hasEnoughCrystals) {
       window.showError(`Недостаточно кристаллов! Нужно: ${ship.requirements.crystals}`)
-      return
-    }
-    if (!hasEnoughEnergy) {
-      window.showError(`Недостаточно энергии! Нужно: ${ship.requirements.energy}`)
       return
     }
 
@@ -65,7 +60,6 @@ export default function ShipyardScreen({ user, updateGameData }) {
       ...user.game_data,
       credits: (user.game_data.credits || 0) - (ship.requirements.credits || 0),
       crystals: (user.game_data.crystals || 0) - (ship.requirements.crystals || 0),
-      energy: (user.game_data.energy || 0) - (ship.requirements.energy || 0),
       hangar: [...(user.game_data.hangar || []), shipInstance],
       availableShips: [...new Set([...(user.game_data.availableShips || []), ship.shipId])]
     }
@@ -146,30 +140,6 @@ export default function ShipyardScreen({ user, updateGameData }) {
     window.showSuccess(`🏗️ Ангар расширен! +${SLOTS_TO_ADD} слота за ${SLOT_PRICE}кр.`)
   }
 
-  // Покупка энергии
-  const purchaseEnergy = () => {
-    const ENERGY_PRICE = 50
-    const ENERGY_AMOUNT = 25
-
-    if (!user) {
-      window.showError('Ошибка загрузки данных пользователя')
-      return
-    }
-
-    if ((user.game_data.credits || 0) < ENERGY_PRICE) {
-      window.showError(`Недостаточно кредитов! Нужно: ${ENERGY_PRICE}`)
-      return
-    }
-
-    const newGameData = {
-      ...user.game_data,
-      credits: (user.game_data.credits || 0) - ENERGY_PRICE,
-      energy: Math.min(100, (user.game_data.energy || 0) + ENERGY_AMOUNT)
-    }
-
-    updateGameData(newGameData)
-    window.showSuccess(`⚡ +${ENERGY_AMOUNT} энергии за ${ENERGY_PRICE}кр!`)
-  }
 
   // Проверка, куплен ли уже корабль
   const isShipPurchased = (shipId) => {
@@ -546,35 +516,6 @@ export default function ShipyardScreen({ user, updateGameData }) {
               }`}
             >
               Отремонтировать
-            </button>
-          </div>
-          
-          {/* Покупка энергии */}
-          <div className="service-item">
-            <div className="service-icon">⚡</div>
-            <div className="service-info">
-              <h4>Энергетическая заправка</h4>
-              <div className="service-stats">
-                <div className="stat">
-                  <span>Текущая энергия:</span>
-                  <strong>{user?.game_data?.energy || 0}/100</strong>
-                </div>
-                <div className="stat">
-                  <span>Добавит:</span>
-                  <strong>+25 энергии</strong>
-                </div>
-                <div className="stat">
-                  <span>Стоимость:</span>
-                  <strong className="price">50кр</strong>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={purchaseEnergy}
-              disabled={!user || (user.game_data.credits || 0) < 50 || (user.game_data.energy || 0) >= 100}
-              className={`service-btn ${user && (user.game_data.credits || 0) >= 50 && (user.game_data.energy || 0) < 100 ? '' : 'disabled'}`}
-            >
-              Купить энергию
             </button>
           </div>
         </div>
