@@ -20,28 +20,34 @@ function App() {
     }
   }, [])
 
-  // Функция для обновления данных пользователя (адаптер для AchievementsScreen)
+  // Функция для обновления данных пользователя - УПРОЩЕННАЯ версия
   const updateUserData = (updates) => {
-    // Преобразуем формат обновления для updateGameData
-    const gameDataUpdates = { ...updates }
+    // Создаем новый объект с текущими данными
+    const currentData = user.game_data || {}
+    const updatedData = { ...currentData }
     
-    // Если обновления содержат поля, которые должны накапливаться
-    const accumulativeFields = ['credits', 'crystals', 'experience', 'level']
-    
-    Object.keys(gameDataUpdates).forEach(key => {
-      if (accumulativeFields.includes(key) && typeof gameDataUpdates[key] === 'number') {
-        gameDataUpdates[key] = user.game_data?.[key] + gameDataUpdates[key]
+    // Обновляем каждое поле
+    Object.keys(updates).forEach(key => {
+      if (key === 'lastHourlyBonus' || key === 'lastDailyBonus') {
+        // Для временных меток просто заменяем
+        updatedData[key] = updates[key]
+      } else if (typeof updates[key] === 'number') {
+        // Для числовых значений ДОБАВЛЯЕМ к текущему
+        updatedData[key] = (currentData[key] || 0) + updates[key]
+      } else {
+        // Для остальных полей заменяем
+        updatedData[key] = updates[key]
       }
     })
     
-    // Вызываем основную функцию обновления
-    updateGameData(gameDataUpdates)
+    // Сохраняем обновленные данные
+    updateGameData(updatedData)
     
-    // Показываем уведомление о получении бонуса
-    if (updates.credits > 0) {
+    // Показываем уведомления о бонусах
+    if (updates.credits && typeof updates.credits === 'number') {
       showNotification(`Получено ${updates.credits} кредитов! 🎁`)
     }
-    if (updates.crystals > 0) {
+    if (updates.crystals && typeof updates.crystals === 'number') {
       showNotification(`Получено ${updates.crystals} кристаллов! 💎`)
     }
   }
