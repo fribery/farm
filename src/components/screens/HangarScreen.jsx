@@ -37,6 +37,22 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
     }
   }
 
+  const calculateRandomIncome = (shipConfig) => {
+    // Диапазоны доходов для каждого корабля
+    const incomeRanges = {
+      1: { min: 50, max: 100 },      // Scout: 50-100
+      2: { min: 80, max: 150 },      // Cobalt: 80-150  
+      3: { min: 120, max: 220 },     // Gelion: 120-220
+      4: { min: 250, max: 450 }      // Orbitrum: 250-450
+    }
+    
+    const range = incomeRanges[shipConfig.id]
+    if (!range) return shipConfig.baseIncome
+    
+    // Генерируем случайное число в диапазоне
+    return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min
+  }
+
   const completeMission = (shipInstanceId) => {
     const shipIndex = ships.findIndex(s => s.id === shipInstanceId)
     if (shipIndex === -1 || ships[shipIndex].status !== 'mission_complete') return
@@ -46,7 +62,8 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
     if (!shipConfig) return
 
     const durabilityPercent = (shipInstance.durability.current / shipInstance.durability.max) * 100
-    const actualIncome = calculateActualIncome(shipConfig.baseIncome, durabilityPercent, shipInstance.level)
+    const baseRandomIncome = calculateRandomIncome(shipConfig)  // Случайный базовый доход
+    const actualIncome = calculateActualIncome(baseRandomIncome, durabilityPercent, shipInstance.level)
 
     const newDurability = Math.max(
       0,

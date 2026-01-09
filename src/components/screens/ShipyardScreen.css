@@ -1,10 +1,12 @@
 /* ShipyardScreen.css - исправленные размеры */
 
+
+
 /* Основной контейнер */
 .shipyard-screen {
   padding: 20px;
   margin-bottom: 75px;
-  background: transparent;
+  background:rgba(0, 0, 0, 0.8);
   min-height: calc(100vh - 160px); /* Фиксированная высота */
   max-width: 1200px;
   margin: 0 auto;
@@ -76,9 +78,9 @@
   font-weight: 400;
   align-items: center;
   margin-bottom: 25px;
-  background: rgba(26, 26, 58, 0.6);
+  background: #000000;
   border-radius: 15px;
-  border: 1px solid rgba(56, 189, 248, 0.2);
+
   overflow: hidden;
   max-height: 600px; /* Ограничение высоты */
   display: flex;
@@ -606,4 +608,185 @@
   .shipyard-section-title {
     font-size: 16px;
   }
+}
+
+/* Карточка корабля - минималистичная темная */
+.ship-item {
+  width: 360px;
+  background: rgba(15, 15, 15, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.ship-item:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(30, 41, 59, 0.9);
+}
+
+.ship-item.locked {
+  opacity: 0.6;
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.ship-item.purchased {
+  background: rgba(0, 0, 0, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Заголовок карточки */
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.item-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0;
+  flex: 1;
+}
+
+.requirement-badge {
+  font-size: 11px;
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.8);
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-left: 8px;
+  white-space: nowrap;
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.purchased-badge {
+  font-size: 11px;
+  color: #86efac;
+  background: rgba(21, 128, 61, 0.2);
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-left: 8px;
+  white-space: nowrap;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+/* Статистика корабля - компактная */
+.item-card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+
+.item-card-stats .stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.item-card-stats .stat:last-child {
+  border-bottom: none;
+}
+
+.item-card-stats .stat span:first-child {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.item-card-stats .stat strong,
+.item-card-stats .stat span:last-child {
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+/* Требования для покупки */
+.item-requirements {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 14px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid rgba(56, 189, 248, 0.1);
+}
+
+.requirement {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.requirement-icon {
+  font-size: 14px;
+  margin-right: 8px;
+  color: #38bdf8;
+}
+
+.requirement span:last-child {
+  color: #f1f5f9;
+  font-weight: 500;
+}
+
+/* Кнопка покупки */
+.buy-btn {
+  width: 100%;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.buy-btn:hover:not(.disabled) {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+}
+
+.buy-btn.disabled {
+  background: rgba(71, 85, 105, 0.5);
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .ship-item {
+    padding: 14px;
+  }
+  
+  .item-card-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  
+  .requirement-badge,
+  .purchased-badge {
+    margin-left: 0;
+    align-self: flex-start;
+  }
+}
+
+.item-logo {
+  width: 68px;
+  height: 42px;
 }

@@ -1,6 +1,6 @@
 /* Космическая тематика */
 .App {
-  background: linear-gradient(135deg, #0a0a2a 0%, #1a1a3a 100%);
+  background: black;
   min-height: 100vh;
   color: #e2e8f0;
   font-family: 'Segoe UI', system-ui, sans-serif;
@@ -8,13 +8,18 @@
 
 /* Заголовок приложения */
 .app-header {
-  background: linear-gradient(180deg, rgba(15, 15, 15, 0.95) 0%, rgba(10, 10, 10, 0.8) 100%);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
-  border-radius: 0px 40px  40px;
+  background: rgba(13, 13, 14, 0.7); /* Полупрозрачный */
+  -webkit-backdrop-filter: blur(20px); /* Усиливаем blur */
+  backdrop-filter: blur(20px);
+  border-radius: 0px 0px 40px 40px;
   border-bottom: 1px solid rgba(223, 225, 226, 0.3);
   padding: 15px 20px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
 .header-content {
@@ -136,7 +141,8 @@
 
 /* Фиксируем основной контейнер приложения */
 .app-main {
-  height: calc(100vh - 160px); /* Высота минус шапка и навигация */
+  padding-top: 60px;
+  height: calc(100vh); /* Высота минус шапка и навигация */
   overflow-y: auto;
   padding-bottom: 80px; /* Место для навигации */
   box-sizing: border-box;
@@ -293,4 +299,35 @@
   display: block;
   height: 100px; /* Такой же отступ как у навигации */
   width: 100%;
+}
+
+
+/* Убираем скроллбар во всем приложении */
+::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  display: none !important;
+}
+
+* {
+  -ms-overflow-style: none !important; /* IE и Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+
+html, body {
+  overflow: -moz-scrollbars-none; /* Старые Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+/* Для WebKit браузеров (Chrome, Safari, Edge) */
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent !important;
 }

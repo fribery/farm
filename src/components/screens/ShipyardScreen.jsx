@@ -307,9 +307,8 @@ export default function ShipyardScreen({ user, updateGameData }) {
                 key={shipOffer.id} 
                 className={`ship-item ${!isAvailable ? 'locked' : ''} ${isPurchased ? 'purchased' : ''}`}
               >
-
-                
                 <div className="item-info">
+                  <img className="item-logo" src="/scout.png" alt="item-logo" />
                   <div className="item-header">
                     <h4>{shipConfig.name}</h4>
                     {!isAvailable && (
@@ -317,20 +316,20 @@ export default function ShipyardScreen({ user, updateGameData }) {
                         Требуется: {getRankName(shipOffer.availableAtLevel)} (ур. {shipOffer.availableAtLevel})
                       </span>
                     )}
-                    {isPurchased && (
-                      <span className="purchased-badge">✅ Приобретен</span>
-                    )}
+                    
                   </div>
                   
                   <div className="item-card-stats">
                     <div className="stat">
                       <span>Доход:</span>
-                      <strong>{shipConfig.baseIncome}кр/рейс</strong>
-                    </div>
-                    <div className="stat">
-
-                      <span>Время:</span>
-                      <span>{shipConfig.missionDuration}с</span>
+                      <strong>
+                        {/* Для Scout: 50-100кр */}
+                        {shipConfig.id === 1 && "50-100"}
+                        {shipConfig.id === 2 && "80-150"} 
+                        {shipConfig.id === 3 && "120-220"}
+                        {shipConfig.id === 4 && "250-450"}
+                        кр/{shipConfig.missionDuration}сек
+                      </strong>
                     </div>
                     <div className="stat">
 
@@ -344,7 +343,7 @@ export default function ShipyardScreen({ user, updateGameData }) {
                     </div>
                   </div>
                   
-                  <div className="item-requirements">
+                  {/* <div className="item-requirements">
                     <div className="requirement">
                       <span className="requirement-icon">💰</span>
                       <span>{shipOffer.requirements.credits || 0} кредитов</span>
@@ -359,7 +358,7 @@ export default function ShipyardScreen({ user, updateGameData }) {
                       <span className="requirement-icon">⚡</span>
                       <span>{shipOffer.requirements.energy || 0} энергии</span>
                     </div>
-                  </div>
+                  </div> */}
                 </div>
                 
                 <button

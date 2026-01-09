@@ -299,3 +299,33 @@ export const calculateRepairCost = (shipConfig, currentDurability) => {
   const damage = shipConfig.durability.max - currentDurability
   return Math.ceil(damage * shipConfig.durability.repairCostPerPoint)
 }
+
+// Добавьте эту функцию в конец файла config.js
+export const calculateRandomIncome = (baseIncome, shipId) => {
+  // Диапазоны для каждого корабля
+  const incomeRanges = {
+    1: { min: 50, max: 100 },      // Scout: 50-100
+    2: { min: 80, max: 150 },      // Cobalt: 80-150  
+    3: { min: 120, max: 220 },     // Gelion: 120-220
+    4: { min: 250, max: 450 }      // Orbitrum: 250-450
+  }
+  
+  const range = incomeRanges[shipId] || { min: baseIncome, max: baseIncome }
+  return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min
+}
+
+// Или вариант с процентным отклонением (например, ±30% от baseIncome):
+export const calculateRandomIncomePercentage = (baseIncome, shipId) => {
+  const percentageVariation = {
+    1: 0.3,  // Scout: ±30%
+    2: 0.25, // Cobalt: ±25%
+    3: 0.2,  // Gelion: ±20%
+    4: 0.15  // Orbitrum: ±15%
+  }
+  
+  const variation = percentageVariation[shipId] || 0.2
+  const min = Math.floor(baseIncome * (1 - variation))
+  const max = Math.floor(baseIncome * (1 + variation))
+  
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
