@@ -20,30 +20,35 @@ function App() {
     }
   }, [])
 
-  // Функция для обновления данных пользователя - УПРОЩЕННАЯ версия
+// Функция для обновления данных пользователя - ПРАВИЛЬНАЯ версия
   const updateUserData = (updates) => {
-    // Создаем новый объект с текущими данными
-    const currentData = user.game_data || {}
+    if (!user || !user.game_data) return
+    
+    // Создаем копию текущих данных
+    const currentData = { ...user.game_data }
     const updatedData = { ...currentData }
     
-    // Обновляем каждое поле
+    // Обрабатываем каждое обновление
     Object.keys(updates).forEach(key => {
+      const updateValue = updates[key]
+      
       if (key === 'lastHourlyBonus' || key === 'lastDailyBonus') {
-        // Для временных меток просто заменяем
-        updatedData[key] = updates[key]
-      } else if (typeof updates[key] === 'number') {
-        // Для числовых значений ДОБАВЛЯЕМ к текущему
-        updatedData[key] = (currentData[key] || 0) + updates[key]
+        // Для временных меток - ЗАМЕНЯЕМ
+        updatedData[key] = updateValue
+      } else if (typeof updateValue === 'number') {
+        // Для числовых значений - ПРИБАВЛЯЕМ
+        const currentValue = currentData[key] || 0
+        updatedData[key] = currentValue + updateValue
       } else {
-        // Для остальных полей заменяем
-        updatedData[key] = updates[key]
+        // Для остальных - ЗАМЕНЯЕМ
+        updatedData[key] = updateValue
       }
     })
     
     // Сохраняем обновленные данные
     updateGameData(updatedData)
     
-    // Показываем уведомления о бонусах
+    // Показываем уведомления
     if (updates.credits && typeof updates.credits === 'number') {
       showNotification(`Получено ${updates.credits} кредитов! 🎁`)
     }

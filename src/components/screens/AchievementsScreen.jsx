@@ -48,7 +48,7 @@ export default function AchievementsScreen({ user, updateUserData }) {
     return `${seconds}с`
   }
 
-  // Получение почасового бонуса - ФИКС
+  // Получение почасового бонуса - ФИКСИРОВАННАЯ версия
   const claimHourlyBonus = () => {
     const now = Date.now()
     const lastHourly = user.game_data?.lastHourlyBonus || 0
@@ -58,24 +58,24 @@ export default function AchievementsScreen({ user, updateUserData }) {
       return
     }
     
-    // Создаем копию текущих данных пользователя
-    const currentData = { ...user.game_data }
+    // Получаем текущие значения
+    const currentCredits = user.game_data?.credits || 0
+    const currentTotalBonuses = user.game_data?.totalBonuses || 0
+    const currentHourlyBonuses = user.game_data?.hourlyBonuses || 0
     
-    // Вычисляем новые значения
-    const updatedData = {
-      ...currentData, // Сохраняем все существующие данные
-      credits: (currentData.credits || 0) + 100,
-      totalBonuses: (currentData.totalBonuses || 0) + 1,
-      hourlyBonuses: (currentData.hourlyBonuses || 0) + 1,
-      lastHourlyBonus: now // Обновляем только этот таймер
-      // НЕ трогаем lastDailyBonus!
+    // Создаем обновления для СЛОЖЕНИЯ значений
+    const updates = {
+      credits: 100, // Просто 100, чтобы ПРИБАВИТЬ
+      totalBonuses: 1, // Просто 1, чтобы ПРИБАВИТЬ
+      hourlyBonuses: 1, // Просто 1, чтобы ПРИБАВИТЬ
+      lastHourlyBonus: now
     }
     
-    // Передаем обновленные данные
-    updateUserData(updatedData)
+    // Передаем ТОЛЬКО обновления, не полный объект
+    updateUserData(updates)
   }
 
-  // Получение ежедневного бонуса - ФИКС
+  // Получение ежедневного бонуса - ФИКСИРОВАННАЯ версия
   const claimDailyBonus = () => {
     const now = Date.now()
     const lastDaily = user.game_data?.lastDailyBonus || 0
@@ -85,21 +85,14 @@ export default function AchievementsScreen({ user, updateUserData }) {
       return
     }
     
-    // Создаем копию текущих данных пользователя
-    const currentData = { ...user.game_data }
-    
-    // Вычисляем новые значения
-    const updatedData = {
-      ...currentData, // Сохраняем все существующие данные
-      credits: (currentData.credits || 0) + 1000,
-      totalBonuses: (currentData.totalBonuses || 0) + 1,
-      dailyBonuses: (currentData.dailyBonuses || 0) + 1,
-      lastDailyBonus: now // Обновляем только этот таймер
-      // НЕ трогаем lastHourlyBonus!
+    const updates = {
+      credits: 1000, // Просто 1000, чтобы ПРИБАВИТЬ
+      totalBonuses: 1, // Просто 1, чтобы ПРИБАВИТЬ
+      dailyBonuses: 1, // Просто 1, чтобы ПРИБАВИТЬ
+      lastDailyBonus: now
     }
     
-    // Передаем обновленные данные
-    updateUserData(updatedData)
+    updateUserData(updates)
   }
 
   // Расчет общих показателей
