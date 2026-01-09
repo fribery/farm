@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { GAME_CONFIG, formatTime, calculateActualIncome, calculateRepairCost } from '../../game/config'
+import { GAME_CONFIG, formatTime, calculateActualResources, calculateRepairCost, getResourceRangeText } from '../../game/config'
 import './HangarScreen.css'
 
 export default function HangarScreen({ user, updateGameData, availableSlots }) {
   const [ships, setShips] = useState(user.game_data?.hangar || [])
   const [missionTimers, setMissionTimers] = useState({})
+  const [refreshKey, setRefreshKey] = useState(0)
 
   const launchMission = (shipId, shipName) => {
     if (ships.filter(s => s.status === 'on_mission').length >= availableSlots) {
@@ -37,22 +38,6 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
     }
   }
 
-  const calculateRandomIncome = (shipConfig) => {
-    // Диапазоны доходов для каждого корабля
-    const incomeRanges = {
-      1: { min: 50, max: 100 },      // Scout: 50-100
-      2: { min: 80, max: 150 },      // Cobalt: 80-150  
-      3: { min: 120, max: 220 },     // Gelion: 120-220
-      4: { min: 250, max: 450 }      // Orbitrum: 250-450
-    }
-    
-    const range = incomeRanges[shipConfig.id]
-    if (!range) return shipConfig.baseIncome
-    
-    // Генерируем случайное число в диапазоне
-    return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min
-  }
-
   const completeMission = (shipInstanceId) => {
     const shipIndex = ships.findIndex(s => s.id === shipInstanceId)
     if (shipIndex === -1 || ships[shipIndex].status !== 'mission_complete') return
@@ -61,10 +46,13 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
     const shipConfig = GAME_CONFIG.ships.find(s => s.id === shipInstance.shipId)
     if (!shipConfig) return
 
-    const durabilityPercent = (shipInstance.durability.current / shipInstance.durability.max) * 100
-    const baseRandomIncome = calculateRandomIncome(shipConfig)  // Случайный базовый доход
-    const actualIncome = calculateActualIncome(baseRandomIncome, durabilityPercent, shipInstance.level)
-
+    const durabilityPercent = Math.min(100, Math.max(0, 
+      Math.round((shipInstance.durability.current / shipInstance.durability.max) * 100)
+    ))
+    
+    // Получаем добытые ресурсы
+    const minedResources = calculateActualResources(shipConfig, durabilityPercent, shipInstance.level)
+    
     const newDurability = Math.max(
       0,
       shipInstance.durability.current - shipConfig.durability.decayPerMission
@@ -76,19 +64,39 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
       status: 'docked',
       durability: { ...updatedShips[shipIndex].durability, current: newDurability },
       missionStartedAt: null,
-      totalMissions: (updatedShips[shipIndex].totalMissions || 0) + 1,
-      totalEarned: (updatedShips[shipIndex].totalEarned || 0) + actualIncome
+      totalMissions: (updatedShips[shipIndex].totalMissions || 0) + 1
     }
 
-    const isCritical = newDurability <= shipConfig.durability.criticalThreshold
+    const isCritical = durabilityPercent <= 20
     if (isCritical) window.showWarning('⚠️ Срочный ремонт!')
 
+    // Формируем сообщение о добыче
+    let resourceMessage = 'Добыто: '
+    const resourceEntries = []
+    
+    for (const [resource, amount] of Object.entries(minedResources)) {
+      if (amount > 0) {
+        const emoji = resource === 'stardust' ? '✨' : '💎'
+        const name = resource === 'stardust' ? 'космической пыли' : 'кристаллов'
+        resourceEntries.push(`${emoji} ${amount} ${name}`)
+      }
+    }
+    
+    if (resourceEntries.length === 0) {
+      resourceMessage = 'К сожалению, ничего не удалось добыть'
+    } else {
+      resourceMessage += resourceEntries.join(', ')
+    }
+    
+    window.showSuccess(resourceMessage)
+
+    // Обновляем данные игрока
     const newGameData = {
       ...user.game_data,
-      credits: (user.game_data.credits || 0) + actualIncome,
+      stardust: (user.game_data.stardust || 0) + (minedResources.stardust || 0),
+      crystals: (user.game_data.crystals || 0) + (minedResources.crystals || 0),
       experience: (user.game_data.experience || 0) + (shipConfig.expReward || 0),
       missionsCompleted: (user.game_data.missionsCompleted || 0) + 1,
-      totalEarned: (user.game_data.totalEarned || 0) + actualIncome,
       hangar: updatedShips
     }
 
@@ -103,6 +111,11 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
     const shipConfig = GAME_CONFIG.ships.find(s => s.id === shipInstance.shipId)
     if (!shipConfig) return
 
+    if (shipInstance.durability.current >= shipConfig.durability.max) {
+      window.showInfo('Корабль уже отремонтирован!')
+      return
+    }
+
     const repairCost = calculateRepairCost(shipConfig, shipInstance.durability.current)
     
     if ((user.game_data.credits || 0) < repairCost) {
@@ -110,11 +123,21 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
       return
     }
 
-    const updatedShips = [...ships]
-    updatedShips[shipIndex] = {
-      ...updatedShips[shipIndex],
-      durability: { ...updatedShips[shipIndex].durability, current: shipConfig.durability.max }
-    }
+    const updatedShips = ships.map((ship, index) => {
+      if (index === shipIndex) {
+        return {
+          ...ship,
+          durability: { 
+            current: shipConfig.durability.max, 
+            max: shipConfig.durability.max 
+          }
+        }
+      }
+      return { ...ship }
+    })
+
+    setShips(updatedShips)
+    setRefreshKey(prev => prev + 1)
 
     updateGameData({
       ...user.game_data,
@@ -188,7 +211,7 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
   }
 
   return (
-    <div className="hangar-mobile">
+    <div className="hangar-mobile" key={refreshKey}>
       <div className="hangar-header-mobile">
         <h2 className="hangar-title-mobile">Флот</h2>
         <div className="hangar-meta">
@@ -212,8 +235,6 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
             
             const secondsLeft = missionTimers[ship.id] || 0
             const durabilityPercent = (ship.durability.current / ship.durability.max) * 100
-            const isCritical = durabilityPercent <= shipConfig.durability.criticalThreshold
-            const actualIncome = calculateActualIncome(shipConfig.baseIncome, durabilityPercent, ship.level)
             const statusColor = getStatusColor(ship.status, durabilityPercent)
             
             return (
@@ -236,8 +257,10 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
                 {/* Вторая строка: показатели */}
                 <div className="ship-row-2">
                   <div className="ship-stat-mobile">
-                    <span className="stat-label-mobile">Доход</span>
-                    <span className="stat-value-mobile income-value">{actualIncome}кр</span>
+                    <span className="stat-label-mobile">Добыча</span>
+                    <span className="stat-value-mobile income-value">
+                      {getResourceRangeText(shipConfig)}
+                    </span>
                   </div>
                   <div className="ship-stat-mobile">
                     <span className="stat-label-mobile">Прочность</span>
@@ -266,24 +289,29 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
                 {/* Кнопки действий */}
                 <div className="actions-row-mobile">
                   {ship.status === 'mission_complete' && (
-                    <button
-                      onClick={() => completeMission(ship.id)}
-                      className="action-btn-mobile complete-btn-mobile"
-                    >
-                      +{actualIncome}кр
+                    <button onClick={() => completeMission(ship.id)} className="action-btn-mobile complete-btn-mobile">
+                      Получить добычу
                     </button>
                   )}
                   
-                  {ship.status === 'docked' && durabilityPercent < 100 && (
-                    <button
-                      onClick={() => repairShip(ship.id)}
-                      className="action-btn-mobile repair-btn-mobile"
-                    >
-                      Ремонт
-                    </button>
+                  {ship.status === 'docked' && ship.durability.current < ship.durability.max && (
+                    (() => {
+                      const repairCost = calculateRepairCost(shipConfig, ship.durability.current)
+                      const canAfford = (user.game_data?.credits || 0) >= repairCost
+                      
+                      return (
+                        <button
+                          onClick={() => repairShip(ship.id)}
+                          className={`action-btn-mobile repair-btn-mobile ${!canAfford ? 'disabled' : ''}`}
+                          disabled={!canAfford}
+                        >
+                          {canAfford ? `Ремонт: ${repairCost}кр` : `Нужно ${repairCost}кр`}
+                        </button>
+                      )
+                    })()
                   )}
                   
-                  {ship.status === 'docked' && durabilityPercent >= 80 && (
+                  {ship.status === 'docked' && durabilityPercent >= 5 && (
                     <button
                       onClick={() => launchMission(ship.shipId, shipConfig.name)}
                       className="action-btn-mobile launch-btn-mobile"
@@ -292,12 +320,6 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
                     </button>
                   )}
                 </div>
-
-                {isCritical && (
-                  <div className="critical-notice-mobile">
-                    ⚠️ Требует ремонта
-                  </div>
-                )}
               </div>
             )
           })}

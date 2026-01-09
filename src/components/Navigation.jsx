@@ -8,8 +8,8 @@ export default function Navigation({ activeScreen, setActiveScreen }) {
   const navItems = [
     { id: 'hangar', icon: '🚀', label: 'Ангар' },
     { id: 'shipyard', icon: '🛒', label: 'Верфь' },
-    { id: 'stats', icon: '📊', label: 'Статистика' },
-    { id: 'profile', icon: '👤', label: 'Профиль' }
+    { id: 'achievements', icon: '📊', label: 'Статистика' },
+    { id: 'profile', icon: '🎒', label: 'Инвентарь' }  // Изменено с 👤 Профиль на 🎒 Инвентарь
   ];
 
   // Позиционируем белый квадрат

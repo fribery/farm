@@ -308,7 +308,11 @@ export default function ShipyardScreen({ user, updateGameData }) {
                 className={`ship-item ${!isAvailable ? 'locked' : ''} ${isPurchased ? 'purchased' : ''}`}
               >
                 <div className="item-info">
-                  <img className="item-logo" src="/scout.png" alt="item-logo" />
+                  <img 
+                    className="item-logo" 
+                    src={`/${shipConfig.image}`} 
+                    alt={shipConfig.name}
+                  />
                   <div className="item-header">
                     <h4>{shipConfig.name}</h4>
                     {!isAvailable && (

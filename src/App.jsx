@@ -3,14 +3,15 @@ import { useTelegram } from './hooks/useTelegram'
 import Navigation from './components/Navigation.jsx'
 import HangarScreen from './components/screens/HangarScreen.jsx'
 import ShipyardScreen from './components/screens/ShipyardScreen.jsx'
-import FleetStatsScreen from './components/screens/FleetStatsScreen.jsx'
-import CaptainProfileScreen from './components/screens/CaptainProfileScreen.jsx'
+import AchievementsScreen from './components/screens/AchievementsScreen.jsx'
+import InventoryScreen from './components/screens/InventoryScreen.jsx'
 import ToastNotification from './components/ToastNotification'
 import './App.css'
 
 function App() {
   const { user, loading, updateGameData, usingSupabase } = useTelegram()
-  const [activeScreen, setActiveScreen] = useState('hangar') // По умолчанию Ангар вместо Фермы
+  const [activeScreen, setActiveScreen] = useState('hangar')
+  const [notifications, setNotifications] = useState([])
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {
@@ -18,6 +19,43 @@ function App() {
       window.Telegram.WebApp.enableClosingConfirmation()
     }
   }, [])
+
+  // Функция для обновления данных пользователя (адаптер для AchievementsScreen)
+  const updateUserData = (updates) => {
+    // Преобразуем формат обновления для updateGameData
+    const gameDataUpdates = { ...updates }
+    
+    // Если обновления содержат поля, которые должны накапливаться
+    const accumulativeFields = ['credits', 'crystals', 'experience', 'level']
+    
+    Object.keys(gameDataUpdates).forEach(key => {
+      if (accumulativeFields.includes(key) && typeof gameDataUpdates[key] === 'number') {
+        gameDataUpdates[key] = user.game_data?.[key] + gameDataUpdates[key]
+      }
+    })
+    
+    // Вызываем основную функцию обновления
+    updateGameData(gameDataUpdates)
+    
+    // Показываем уведомление о получении бонуса
+    if (updates.credits > 0) {
+      showNotification(`Получено ${updates.credits} кредитов! 🎁`)
+    }
+    if (updates.crystals > 0) {
+      showNotification(`Получено ${updates.crystals} кристаллов! 💎`)
+    }
+  }
+
+  // Функция для показа уведомлений
+  const showNotification = (message) => {
+    const id = Date.now()
+    setNotifications(prev => [...prev, { id, message }])
+    
+    // Автоматическое удаление через 3 секунды
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(notif => notif.id !== id))
+    }, 3000)
+  }
 
   if (loading) {
     return (
@@ -95,12 +133,17 @@ function App() {
           user={user} 
           updateGameData={updateGameData} 
         />
-      case 'stats':
-        return <FleetStatsScreen user={user} />
+      case 'achievements':
+        return (
+          <AchievementsScreen 
+            user={user} 
+            updateUserData={updateUserData} // ← Теперь функция существует!
+          />
+        )
       case 'profile':
-        return <CaptainProfileScreen 
+        return <InventoryScreen 
           user={user} 
-          usingSupabase={usingSupabase} 
+          updateGameData={updateGameData}
         />
       default:
         return <HangarScreen 
@@ -115,35 +158,29 @@ function App() {
     <div className="App">
       <ToastNotification />
       
+      {/* Кастомные уведомления для бонусов */}
+      {notifications.map(notification => (
+        <div key={notification.id} className="bonus-notification">
+          <div className="bonus-notification-content">
+            <span className="bonus-emoji">🎁</span>
+            <span className="bonus-text">{notification.message}</span>
+          </div>
+        </div>
+      ))}
+      
       <header className="app-header">
         <div className="header-content">
-          {/* <div className="app-logo">
-            <img 
-              src="/logo.png" 
-              alt="Space Fleet Logo" 
-              className="logo-image"
-              style={{ width: '60px', height: '60px', borderRadius: '50%' }}
-              onError={(e) => {
-                e.target.style.display = 'none'
-                e.target.parentElement.innerHTML = '<div class="logo-emoji">🚀</div>'
-              }}
-            />
-            <span className="app-name">Cosmic Game</span>
-          </div> */}
-          
           <div className="stats-container">
-            {/* Кредиты (бывшие деньги) */}
+            {/* Кредиты */}
             <div className="stat-item credits">
-              {/* <div className="stat-icon-header">💰</div> */}
               <div className="stat-details">
                 <div className="stat-label-header">Кредиты</div>
                 <div className="stat-value-header">{user.game_data?.credits || 0}</div>
               </div>
             </div>
             
-            {/* Кристаллы (новая валюта) */}
+            {/* Кристаллы */}
             <div className="stat-item crystals">
-              {/* <div className="stat-icon-header">💎</div> */}
               <div className="stat-details">
                 <div className="stat-label-header">Кристаллы</div>
                 <div className="stat-value-header">{user.game_data?.crystals || 0}</div>

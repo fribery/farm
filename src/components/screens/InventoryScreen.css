@@ -1,0 +1,476 @@
+.inventory-screen {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 0px;
+}
+
+.inventory-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.inventory-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.title-icon {
+  font-size: 28px;
+}
+
+.inventory-stats {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.stat-item-inv {
+  flex-direction: column;
+  padding: 3px 15px 5px 15px;
+  background-color: #0f0f0f;
+  border-radius: 7px;
+  border: 1px solid rgb(128, 128, 128);
+  width: max-content;
+  display: flex;
+  align-items: center;
+}
+
+.stat-label-inv {
+  color: #94a3b8;
+  font-size: 10px;
+}
+
+.stat-value-inv {
+  color: #f1f5f9;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* Сетка инвентаря */
+.inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.inventory-slot {
+  max-width: 110px;
+  max-height: 110px;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+}
+
+.inventory-slot.filled {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.inventory-slot.filled:hover {
+  transform: translateY(-4px);
+  border-color: #38bdf8;
+  box-shadow: 0 4px 12px rgba(56, 189, 248, 0.2);
+}
+
+.inventory-slot.empty {
+  background: rgba(15, 23, 42, 0.5);
+  border: 2px dashed rgba(148, 163, 184, 0.3);
+}
+
+.slot-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  justify-content: space-between;
+}
+
+.slot-emoji {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.slot-name {
+  color: #f1f5f9;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.slot-amount {
+  color: #38bdf8;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.slot-price {
+  color: #94a3b8;
+  font-size: 10px;
+  background: rgba(148, 163, 184, 0.1);
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.slot-label {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.slot-hover {
+  position: absolute;
+  bottom: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.inventory-slot.filled:hover .slot-hover {
+  opacity: 1;
+}
+
+/* Модальное окно */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  padding-bottom: 40px;
+}
+
+.sell-modal {
+  background: rgba(30, 41, 59, 0.95);
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-icon {
+  font-size: 24px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 28px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+
+.modal-content {
+  padding: 20px;
+}
+
+.resource-info-modal {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.resource-amount-info,
+.resource-price-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resource-amount-info span,
+.resource-price-info span {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.resource-amount-info strong,
+.resource-price-info strong {
+  color: #f1f5f9;
+  font-size: 14px;
+}
+
+/* Управление количеством в модалке */
+.amount-selector {
+  margin-bottom: 20px;
+}
+
+.amount-label {
+  color: #f1f5f9;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+
+.amount-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.amount-btn {
+  width: 48px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  font-size: 24px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.amount-btn:hover:not(:disabled) {
+  background: rgba(56, 189, 248, 0.2);
+}
+
+.amount-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.amount-display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.amount-input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: #f1f5f9;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.amount-input:focus {
+  outline: none;
+  border-color: #38bdf8;
+}
+
+.amount-total {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.quick-amount {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.quick-btn {
+  flex: 1;
+  min-width: 50px;
+  padding: 8px 12px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  color: #cbd5e1;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-btn:hover {
+  background: rgba(56, 189, 248, 0.1);
+  border-color: #38bdf8;
+  color: #38bdf8;
+}
+
+/* Сводка продажи */
+.sell-summary-modal {
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.summary-row:last-child {
+  margin-bottom: 0;
+}
+
+.summary-row.total {
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  margin-top: 8px;
+}
+
+.summary-row span {
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.summary-row strong {
+  color: #f1f5f9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.total-price {
+  color: #38bdf8 !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+}
+
+/* Футер модалки */
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 14px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.confirm-sell-btn {
+  flex: 2;
+  padding: 14px;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-sell-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.confirm-sell-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Остальные стили (история, инфо-карточка) остаются как в предыдущем CSS */
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .inventory-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  
+  .sell-modal {
+    width: 95%;
+  }
+  
+  .quick-amount {
+    gap: 6px;
+  }
+  
+  .quick-btn {
+    min-width: 40px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inventory-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .modal-footer {
+    flex-direction: column;
+  }
+}

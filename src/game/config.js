@@ -2,8 +2,9 @@
 export const GAME_CONFIG = {
   // Базовые ресурсы игрока
   resources: {
-    credits: 500,           // Основная валюта (космокредиты)
-    crystals: 10,           // Редкая валюта (для улучшений)
+    credits: 500,           // Основная валюта
+    stardust: 0,            // Космическая пыль
+    crystals: 0,            // Кристаллы
     experience: 0,          // Опыт пилота
     level: 1,               // Уровень/ранг капитана
     energy: 100             // Энергия для выполнения действий
@@ -33,11 +34,17 @@ export const GAME_CONFIG = {
       name: 'Scout',
       type: 'miner',
       emoji: '🛸',
+      image: 'scout.png',
       
       // Характеристики
       basePrice: 250,               // Базовая стоимость покупки
-      missionDuration: 1800,        // Время миссии в секундах (30 мин)
-      baseIncome: 25,               // Доход за миссию (в кредитах)
+      missionDuration: 10,          // Время миссии в секундах
+      
+      // Добываемые ресурсы (шансы и количества)
+      resources: {
+        stardust: { min: 5, max: 15, chance: 0.8 },   // 80% шанс, 5-15 пыли
+        crystals: { min: 1, max: 3, chance: 0.3 }     // 30% шанс, 1-3 кристалла
+      },
       
       // Система прочности
       durability: {
@@ -49,10 +56,10 @@ export const GAME_CONFIG = {
       
       // Улучшения (масштабируемые параметры)
       upgradeLevels: [
-        { level: 1, cost: 0, incomeMultiplier: 1.0, durabilityMultiplier: 1.0 },
-        { level: 2, cost: 500, incomeMultiplier: 1.3, durabilityMultiplier: 1.2 },
-        { level: 3, cost: 1500, incomeMultiplier: 1.7, durabilityMultiplier: 1.5 },
-        { level: 4, cost: 4000, incomeMultiplier: 2.2, durabilityMultiplier: 2.0 }
+        { level: 1, cost: 0, resourceMultiplier: 1.0, durabilityMultiplier: 1.0 },
+        { level: 2, cost: 500, resourceMultiplier: 1.3, durabilityMultiplier: 1.2 },
+        { level: 3, cost: 1500, resourceMultiplier: 1.7, durabilityMultiplier: 1.5 },
+        { level: 4, cost: 4000, resourceMultiplier: 2.2, durabilityMultiplier: 2.0 }
       ],
       
       // Визуальные настройки
@@ -66,20 +73,24 @@ export const GAME_CONFIG = {
       name: 'Cobalt',
       type: 'miner',
       emoji: '🚀',
+      image: 'cobalt.png',
       basePrice: 750,
-      missionDuration: 2700,        // 45 минут
-      baseIncome: 45,
+      missionDuration: 2,
+      resources: {
+        stardust: { min: 8, max: 20, chance: 0.7 },
+        crystals: { min: 2, max: 5, chance: 0.4 }
+      },
       durability: {
         max: 120,
         decayPerMission: 10,
-        criticalThreshold: 35,
+        criticalThreshold: 20,
         repairCostPerPoint: 2.0
       },
       upgradeLevels: [
-        { level: 1, cost: 0, incomeMultiplier: 1.0, durabilityMultiplier: 1.0 },
-        { level: 2, cost: 1000, incomeMultiplier: 1.4, durabilityMultiplier: 1.3 },
-        { level: 3, cost: 2500, incomeMultiplier: 1.9, durabilityMultiplier: 1.7 },
-        { level: 4, cost: 6000, incomeMultiplier: 2.5, durabilityMultiplier: 2.2 }
+        { level: 1, cost: 0, resourceMultiplier: 1.0, durabilityMultiplier: 1.0 },
+        { level: 2, cost: 1000, resourceMultiplier: 1.4, durabilityMultiplier: 1.3 },
+        { level: 3, cost: 2500, resourceMultiplier: 1.9, durabilityMultiplier: 1.7 },
+        { level: 4, cost: 6000, resourceMultiplier: 2.5, durabilityMultiplier: 2.2 }
       ],
       rarity: 'uncommon',
       description: 'Специализированный корабль для добычи кристаллов с астероидов.',
@@ -91,9 +102,13 @@ export const GAME_CONFIG = {
       name: 'Gelion',
       type: 'explorer',
       emoji: '👾',
+      image: 'gelion.png',
       basePrice: 2000,
-      missionDuration: 3600,        // 1 час
-      baseIncome: 80,
+      missionDuration: 10,
+      resources: {
+        stardust: { min: 15, max: 30, chance: 0.6 },
+        crystals: { min: 3, max: 8, chance: 0.5 }
+      },
       durability: {
         max: 150,
         decayPerMission: 6,
@@ -101,10 +116,10 @@ export const GAME_CONFIG = {
         repairCostPerPoint: 3.0
       },
       upgradeLevels: [
-        { level: 1, cost: 0, incomeMultiplier: 1.0, durabilityMultiplier: 1.0 },
-        { level: 2, cost: 2500, incomeMultiplier: 1.5, durabilityMultiplier: 1.4 },
-        { level: 3, cost: 6000, incomeMultiplier: 2.1, durabilityMultiplier: 1.9 },
-        { level: 4, cost: 12000, incomeMultiplier: 2.8, durabilityMultiplier: 2.5 }
+        { level: 1, cost: 0, resourceMultiplier: 1.0, durabilityMultiplier: 1.0 },
+        { level: 2, cost: 2500, resourceMultiplier: 1.5, durabilityMultiplier: 1.4 },
+        { level: 3, cost: 6000, resourceMultiplier: 2.1, durabilityMultiplier: 1.9 },
+        { level: 4, cost: 12000, resourceMultiplier: 2.8, durabilityMultiplier: 2.5 }
       ],
       rarity: 'rare',
       description: 'Передовой корабль для поиска редких ресурсов в глубоком космосе.',
@@ -116,9 +131,13 @@ export const GAME_CONFIG = {
       name: 'Orbitrum',
       type: 'heavy',
       emoji: '🛰️',
+      image: 'orbitrum.png',
       basePrice: 5000,
-      missionDuration: 7200,        // 2 часа
-      baseIncome: 200,
+      missionDuration: 10,
+      resources: {
+        stardust: { min: 25, max: 50, chance: 0.5 },
+        crystals: { min: 5, max: 12, chance: 0.6 }
+      },
       durability: {
         max: 250,
         decayPerMission: 12,
@@ -126,10 +145,10 @@ export const GAME_CONFIG = {
         repairCostPerPoint: 5.0
       },
       upgradeLevels: [
-        { level: 1, cost: 0, incomeMultiplier: 1.0, durabilityMultiplier: 1.0 },
-        { level: 2, cost: 7500, incomeMultiplier: 1.6, durabilityMultiplier: 1.5 },
-        { level: 3, cost: 18000, incomeMultiplier: 2.3, durabilityMultiplier: 2.1 },
-        { level: 4, cost: 40000, incomeMultiplier: 3.2, durabilityMultiplier: 3.0 }
+        { level: 1, cost: 0, resourceMultiplier: 1.0, durabilityMultiplier: 1.0 },
+        { level: 2, cost: 7500, resourceMultiplier: 1.6, durabilityMultiplier: 1.5 },
+        { level: 3, cost: 18000, resourceMultiplier: 2.3, durabilityMultiplier: 2.1 },
+        { level: 4, cost: 40000, resourceMultiplier: 3.2, durabilityMultiplier: 3.0 }
       ],
       rarity: 'epic',
       description: 'Мощный флагманский корабль для крупномасштабных операций.',
@@ -137,12 +156,12 @@ export const GAME_CONFIG = {
     }
   ],
   
-  // ВЕРФЬ - покупка новых кораблей (бывший магазин)
+  // ВЕРФЬ - покупка новых кораблей
   shipyard: [
     {
       id: 1,
-      shipId: 1,                    // Ссылка на корабль из массива ships
-      availableAtLevel: 1,          // Доступен с какого ранга
+      shipId: 1,
+      availableAtLevel: 1,
       requirements: {
         credits: 250,
         energy: 10
@@ -178,6 +197,33 @@ export const GAME_CONFIG = {
       }
     }
   ],
+
+  // В существующий GAME_CONFIG добавить:
+
+    // Система бонусов
+    bonuses: {
+      hourly: {
+        amount: 100,           // Кредитов за час
+        cooldown: 3600000,     // 1 час в миллисекундах
+        maxClaims: 24          // Максимально можно получить в сутки
+      },
+      daily: {
+        amount: 1000,          // Кредитов за день
+        cooldown: 86400000,    // 24 часа в миллисекундах
+      }
+    },
+
+    // Система достижений
+    achievements: {
+      categories: {
+        missions: { icon: '🚀', name: 'Миссии' },
+        money: { icon: '💰', name: 'Финансы' },
+        level: { icon: '⭐', name: 'Уровни' },
+        fleet: { icon: '🛸', name: 'Флот' },
+        resources: { icon: '💎', name: 'Ресурсы' },
+        activity: { icon: '⚡', name: 'Активность' }
+      }
+    },
   
   // МОДУЛИ И УЛУЧШЕНИЯ
   upgrades: [
@@ -188,7 +234,7 @@ export const GAME_CONFIG = {
       emoji: '⚡',
       price: 500,
       effect: {
-        missionTimeReduction: 0.15  // Сокращает время миссии на 15%
+        missionTimeReduction: 0.15
       },
       description: 'Увеличивает скорость выполнения миссий.'
     },
@@ -199,7 +245,7 @@ export const GAME_CONFIG = {
       emoji: '🛡️',
       price: 800,
       effect: {
-        decayReduction: 0.20        // Уменьшает износ на 20%
+        decayReduction: 0.20
       },
       description: 'Снижает потерю прочности во время миссий.'
     },
@@ -210,19 +256,17 @@ export const GAME_CONFIG = {
       emoji: '💰',
       price: 1200,
       effect: {
-        incomeBoost: 0.25           // Увеличивает доход на 25%
+        resourceBoost: 0.25           // Увеличивает добычу ресурсов на 25%
       },
       description: 'Позволяет собирать больше ресурсов за миссию.'
     }
   ],
   
-  // ТИПЫ РЕСУРСОВ ДЛЯ СБОРА
-  resourceTypes: [
-    { id: 1, name: 'Космическая пыль', emoji: '✨', baseValue: 1, rarity: 'common' },
-    { id: 2, name: 'Астероидные кристаллы', emoji: '💎', baseValue: 5, rarity: 'uncommon' },
-    { id: 3, name: 'Квантовые ядра', emoji: '⚛️', baseValue: 20, rarity: 'rare' },
-    { id: 4, name: 'Тёмная материя', emoji: '🌌', baseValue: 100, rarity: 'epic' }
-  ]
+  // ЦЕНЫ ПРОДАЖИ РЕСУРСОВ
+  resourcePrices: {
+    stardust: 1,      // 1 кредит за 1 единицу пыли
+    crystals: 5       // 5 кредитов за 1 кристалл
+  }
 };
 
 // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -260,7 +304,6 @@ export const calculateLevel = (exp) => {
 export const getRankName = (level) => {
   const { rankNames } = GAME_CONFIG.levels
   
-  // Ищем ближайший младший ранг
   const availableLevels = Object.keys(rankNames).map(Number).sort((a, b) => b - a)
   for (const rankLevel of availableLevels) {
     if (level >= rankLevel) {
@@ -271,61 +314,86 @@ export const getRankName = (level) => {
   return 'Кадет'
 }
 
-// Расчет фактического дохода с учетом прочности
-export const calculateActualIncome = (baseIncome, durabilityPercent, shipLevel = 1) => {
+// Расчет фактической добычи с учетом прочности
+export const calculateActualResources = (shipConfig, durabilityPercent, shipLevel = 1) => {
+  const clampedDurability = Math.max(0, Math.min(durabilityPercent, 100))
+  
   let multiplier = 1.0
   
   // Штраф за низкую прочность
-  if (durabilityPercent < 30) {
-    multiplier *= 0.5  // -50% дохода
-  } else if (durabilityPercent < 50) {
-    multiplier *= 0.75 // -25% дохода
-  } else if (durabilityPercent < 70) {
-    multiplier *= 0.9  // -10% дохода
+  if (clampedDurability < 30) {
+    multiplier *= 0.5
+  } else if (clampedDurability < 50) {
+    multiplier *= 0.75
+  } else if (clampedDurability < 70) {
+    multiplier *= 0.9
   }
   
   // Бонус за уровень корабля
   const ship = GAME_CONFIG.ships.find(s => s.upgradeLevels.some(l => l.level === shipLevel))
   if (ship) {
     const upgrade = ship.upgradeLevels.find(l => l.level === shipLevel)
-    multiplier *= upgrade.incomeMultiplier
+    multiplier *= upgrade.resourceMultiplier
   }
   
-  return Math.floor(baseIncome * multiplier)
+  const result = {}
+  for (const [resource, config] of Object.entries(shipConfig.resources)) {
+    if (Math.random() < config.chance) {
+      const amount = Math.floor(Math.random() * (config.max - config.min + 1)) + config.min
+      result[resource] = Math.floor(amount * multiplier)
+    }
+  }
+  
+  return result
 }
 
 // Расчет стоимости полного ремонта
 export const calculateRepairCost = (shipConfig, currentDurability) => {
-  const damage = shipConfig.durability.max - currentDurability
-  return Math.ceil(damage * shipConfig.durability.repairCostPerPoint)
-}
-
-// Добавьте эту функцию в конец файла config.js
-export const calculateRandomIncome = (baseIncome, shipId) => {
-  // Диапазоны для каждого корабля
-  const incomeRanges = {
-    1: { min: 50, max: 100 },      // Scout: 50-100
-    2: { min: 80, max: 150 },      // Cobalt: 80-150  
-    3: { min: 120, max: 220 },     // Gelion: 120-220
-    4: { min: 250, max: 450 }      // Orbitrum: 250-450
+  const clampedCurrent = Math.max(0, Math.min(currentDurability, shipConfig.durability.max))
+  const damage = shipConfig.durability.max - clampedCurrent
+  
+  if (damage <= 0.1) {
+    return 0
   }
   
-  const range = incomeRanges[shipId] || { min: baseIncome, max: baseIncome }
-  return Math.floor(Math.random() * (range.max - range.min + 1)) + range.min
+  const cost = damage * shipConfig.durability.repairCostPerPoint
+  return Math.max(1, Math.ceil(cost))
 }
 
-// Или вариант с процентным отклонением (например, ±30% от baseIncome):
-export const calculateRandomIncomePercentage = (baseIncome, shipId) => {
-  const percentageVariation = {
-    1: 0.3,  // Scout: ±30%
-    2: 0.25, // Cobalt: ±25%
-    3: 0.2,  // Gelion: ±20%
-    4: 0.15  // Orbitrum: ±15%
+// Расчет стоимости продажи ресурсов
+export const calculateSellValue = (resourceType, amount) => {
+  const price = GAME_CONFIG.resourcePrices[resourceType] || 0
+  return price * amount
+}
+
+// Получение имени ресурса для отображения
+export const getResourceName = (resourceType) => {
+  const names = {
+    stardust: ' ',
+    crystals: ' '
+  }
+  return names[resourceType] || resourceType
+}
+
+// Получение эмодзи ресурса
+export const getResourceEmoji = (resourceType) => {
+  const emojis = {
+    stardust: '✨',
+    crystals: '💎'
+  }
+  return emojis[resourceType] || '📦'
+}
+
+// Получение информации о добыче для отображения
+export const getResourceRangeText = (shipConfig) => {
+  const resources = []
+  
+  for (const [resource, config] of Object.entries(shipConfig.resources)) {
+    const name = getResourceName(resource)
+    const emoji = getResourceEmoji(resource)
+    resources.push(`${emoji}${name}${config.min}-${config.max}`)
   }
   
-  const variation = percentageVariation[shipId] || 0.2
-  const min = Math.floor(baseIncome * (1 - variation))
-  const max = Math.floor(baseIncome * (1 + variation))
-  
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return resources.join(', ')
 }
+
