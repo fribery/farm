@@ -376,57 +376,6 @@ export default function AchievementsScreen({ user, updateUserData }) {
           </div>
         ))}
       </section>
-
-      {/* СТАТИСТИКА ДОСТИЖЕНИЙ */}
-      <section className="stats-section">
-        <h2 className="section-title">
-          <span className="title-icon">📊</span>
-          Ваша статистика
-        </h2>
-        <div className="stats-grid">
-          <div className="stat-item">
-            <div className="stat-item-icon">🚀</div>
-            <div className="stat-item-content">
-              <div className="stat-item-value">{user.game_data?.missionsCompleted || 0}</div>
-              <div className="stat-item-label">Миссий завершено</div>
-            </div>
-          </div>
-          
-          <div className="stat-item">
-            <div className="stat-item-icon">💰</div>
-            <div className="stat-item-content">
-              <div className="stat-item-value">{calculateTotalEarned()}</div>
-              <div className="stat-item-label">Всего заработано</div>
-            </div>
-          </div>
-          
-          <div className="stat-item">
-            <div className="stat-item-icon">🛸</div>
-            <div className="stat-item-content">
-              <div className="stat-item-value">{user.game_data?.hangar?.length || 0}</div>
-              <div className="stat-item-label">Кораблей в ангаре</div>
-            </div>
-          </div>
-          
-          <div className="stat-item">
-            <div className="stat-item-icon">⏱️</div>
-            <div className="stat-item-content">
-              <div className="stat-item-value">
-                {(() => {
-                  const totalSeconds = (user.game_data?.totalMissionTime || 0)
-                  if (totalSeconds >= 3600) {
-                    return `${Math.floor(totalSeconds / 3600)}ч`
-                  } else if (totalSeconds >= 60) {
-                    return `${Math.floor(totalSeconds / 60)}м`
-                  }
-                  return `${totalSeconds}с`
-                })()}
-              </div>
-              <div className="stat-item-label">Время в полете</div>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   )
 }
