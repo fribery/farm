@@ -237,6 +237,11 @@
 }
 
 @media (max-width: 480px) {
+  .header-content {
+    flex-direction: column;
+    gap: 15px;
+  }
+
   .stats-container {
     gap: 0px;
   }
