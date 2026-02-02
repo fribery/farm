@@ -40,25 +40,6 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     [bets]
   )
 
-  const credits = useMemo(() => user?.game_data?.credits ?? 0, [user])
-
-    const myTotalBet = useMemo(() => {
-    if (!telegramId) return 0
-    return bets
-        .filter(b => String(b.telegram_id) === String(telegramId))
-        .reduce((s, b) => s + (b.amount || 0), 0)
-    }, [bets, telegramId])
-
-    const odds = useMemo(() => {
-    if (totalPot <= 0) return {}
-    const map = {}
-    for (const p of groupedPlayers) {
-        map[String(p.telegram_id)] = (p.amount / totalPot) * 100
-    }
-    return map
-    }, [groupedPlayers, totalPot])
-
-
     const groupedPlayers = useMemo(() => {
     const map = new Map()
 
@@ -89,6 +70,23 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     return Array.from(map.values()).sort((a, b) => (b.amount || 0) - (a.amount || 0))
     }, [bets])
 
+  const credits = useMemo(() => user?.game_data?.credits ?? 0, [user])
+
+    const myTotalBet = useMemo(() => {
+    if (!telegramId) return 0
+    return bets
+        .filter(b => String(b.telegram_id) === String(telegramId))
+        .reduce((s, b) => s + (b.amount || 0), 0)
+    }, [bets, telegramId])
+
+    const odds = useMemo(() => {
+    if (totalPot <= 0) return {}
+    const map = {}
+    for (const p of groupedPlayers) {
+        map[String(p.telegram_id)] = (p.amount / totalPot) * 100
+    }
+    return map
+    }, [groupedPlayers, totalPot])
 
     const canBet = useMemo(() => {
     if (!round) return false
@@ -370,7 +368,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
             {myTotalBet > 0 && (
             <div className="jackpot-mybet">
-                Твои ставки в этом раунде: <b>{myTotalBet}</b> (шанс: <b>{(odds[Number(telegramId)] || 0).toFixed(1)}%</b>)
+                Твои ставки в этом раунде: <b>{myTotalBet}</b> (шанс: <b>{(odds[String(telegramId)] || 0).toFixed(1)}%</b>)
             </div>
             )}
             </div>
