@@ -29,6 +29,11 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
   const [winnerId, setWinnerId] = useState(null)
   const [err, setErr] = useState('')
 
+  const [rouletteItems, setRouletteItems] = useState([])
+  const [rouletteX, setRouletteX] = useState(0)
+  const rouletteAnimRef = useRef(null)
+  const rouletteShownRef = useRef(false)
+
   const [selectedBet, setSelectedBet] = useState(10)
 
   const pollRef = useRef(null)
@@ -161,6 +166,35 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
                 // любой клиент может попытаться завершить
                 await tryFinishRound(next.id)
               }, JACKPOT_CONFIG.SPIN_SECONDS * 1000)
+
+
+              // запускаем рулетку только когда статус стал spinning
+            ;(async () => {
+            // подстрахуемся: возьмём свежие ставки, чтобы лента точно включала победителя
+            const freshBets = await getBets(next.id)
+            setBets(freshBets)
+            // groupedPlayers пересчитается, но нам нужно собрать players тут:
+            const map = new Map()
+            for (const b of freshBets) {
+                const k = String(b.telegram_id)
+                const prev = map.get(k)
+                if (!prev) {
+                map.set(k, {
+                    telegram_id: b.telegram_id,
+                    first_name: b.first_name,
+                    username: b.username,
+                    photo_url: b.photo_url,
+                    amount: b.amount || 0
+                })
+                } else {
+                prev.amount += (b.amount || 0)
+                if (!prev.photo_url && b.photo_url) prev.photo_url = b.photo_url
+                }
+            }
+            const players = Array.from(map.values()).sort((a, b) => (b.amount || 0) - (a.amount || 0))
+            animateRoulette(players, next.winner_telegram_id)
+            })()
+
             }
 
             // finished -> подождём чуть-чуть и перейдём на новый open раунд
@@ -212,6 +246,9 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
                 setBets(newBets)
                 setWinnerId(null)
                 setSpinning(false)
+                rouletteShownRef.current = false
+                setRouletteItems([])
+                setRouletteX(0)
             }, 1200)
             }
 
@@ -343,6 +380,69 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     return groupedPlayers.find(p => String(p.telegram_id) === String(winnerId)) || null
     }, [winnerId, groupedPlayers])
 
+    function buildRouletteStrip(players, winnerTelegramId) {
+    const base = players.length ? players : []
+    const repeated = []
+
+    // делаем длинную ленту
+    for (let i = 0; i < 18; i++) {
+        for (const p of base) repeated.push(p)
+    }
+
+    // гарантируем победителя в конце
+    const w = base.find(p => String(p.telegram_id) === String(winnerTelegramId))
+    if (w) repeated.push(w, w, w, w)
+
+    return repeated
+    }
+
+    function animateRoulette(players, winnerTelegramId) {
+    if (!players?.length || !winnerTelegramId) return
+
+    // если уже запускали на этом spinning — не запускаем снова
+    if (rouletteShownRef.current) return
+    rouletteShownRef.current = true
+
+    const strip = buildRouletteStrip(players, winnerTelegramId)
+    setRouletteItems(strip)
+
+    // Геометрия элемента: width=62, margin=7+7 => шаг 76
+    const STEP = 62 + 14
+
+    // берём победителя ближе к концу (последнее вхождение)
+    let winnerIndex = -1
+    for (let i = 0; i < strip.length; i++) {
+        if (String(strip[i].telegram_id) === String(winnerTelegramId)) winnerIndex = i
+    }
+    if (winnerIndex < 0) return
+
+    // хотим чтобы победитель оказался под центральным указателем.
+    // точный центр можно не высчитывать — главное визуально “докрутить”.
+    const targetX = -(winnerIndex * STEP)
+
+    // старт
+    setRouletteX(0)
+    if (rouletteAnimRef.current) cancelAnimationFrame(rouletteAnimRef.current)
+
+    const start = performance.now()
+    const duration = JACKPOT_CONFIG.SPIN_SECONDS * 1000
+    const from = 0
+    const to = targetX
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
+
+    const frame = (ts) => {
+        const t = Math.min(1, (ts - start) / duration)
+        const eased = easeOutCubic(t)
+        setRouletteX(from + (to - from) * eased)
+
+        if (t < 1) rouletteAnimRef.current = requestAnimationFrame(frame)
+    }
+
+    rouletteAnimRef.current = requestAnimationFrame(frame)
+    }
+
+
   return (
     <div className="screen jackpot-screen">
       <div className="jackpot-topbar">
@@ -414,45 +514,41 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
             </div>
           </div>
 
-          <div className="jackpot-card">
-            <div className="jackpot-section-title">Игроки</div>
+            {round?.status !== 'open' && (
+            <div className="jackpot-card jackpot-roulette">
+                <div className="jackpot-section-title">Рулетка</div>
 
-            {bets.length === 0 && (
-              <div className="jackpot-muted">Пока нет ставок. Сделай первую 🙂</div>
+                <div className="jroulette">
+                <div className="jroulette-pointer" />
+
+                <div className="jroulette-viewport">
+                    <div
+                    className="jroulette-strip"
+                    style={{ transform: `translateX(${rouletteX}px)` }}
+                    >
+                    {rouletteItems.map((p, idx) => (
+                        <div key={`${idx}-${p.telegram_id}`} className="jroulette-item">
+                        {p.photo_url ? (
+                            <img src={p.photo_url} alt="" />
+                        ) : (
+                            <div className="jroulette-fallback">👤</div>
+                        )}
+                        </div>
+                    ))}
+                    </div>
+                </div>
+                </div>
+
+                <div className="jroulette-label">
+                {round?.status === 'spinning' && 'Крутится…'}
+                {round?.status === 'finished' && winner && (
+                    <>Победитель: <b>{winner.first_name || (winner.username ? `@${winner.username}` : `ID ${winner.telegram_id}`)}</b></>
+                )}
+                {round?.status === 'finished' && !winner && 'Нет победителя'}
+                </div>
+            </div>
             )}
 
-            <div className="jackpot-players">
-            {groupedPlayers.map(p => {
-                const pct = (odds[String(p.telegram_id)] || 0).toFixed(1)
-                const isWin = winner && String(winner.telegram_id) === String(p.telegram_id)
-
-                return (
-                <div key={p._firstBetId} className={`jackpot-player ${isWin ? 'winner' : ''}`}>
-                    <div className="jp-avatar">
-                    {p.photo_url ? (
-                        <img src={p.photo_url} alt="" />
-                    ) : (
-                        <div className="jp-avatar-fallback">👤</div>
-                    )}
-                    </div>
-
-                    <div className="jp-info">
-                    <div className="jp-name">
-                        {p.first_name || (p.username ? `@${p.username}` : `ID ${p.telegram_id}`)}
-                    </div>
-                    <div className="jp-meta">
-                        ставка <b>{p.amount}</b> • шанс <b>{pct}%</b>
-                    </div>
-                    </div>
-
-                    {round?.status === 'spinning' && <div className="jp-spin">🎯</div>}
-                    {round?.status !== 'spinning' && isWin && <div className="jp-win">🏆</div>}
-                </div>
-                )
-            })}
-            </div>
-
-          </div>
 
           <div className="jackpot-card jackpot-roulette">
             <div className="jackpot-section-title">Рулетка</div>
