@@ -164,7 +164,6 @@ function App() {
         return <HangarScreen 
           user={user} 
           updateGameData={updateGameData} 
-          availableSlots={getAvailableSlots()}
           setActiveScreen={setActiveScreen}
         />
     }
