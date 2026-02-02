@@ -397,55 +397,75 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     return repeated
     }
 
-        function animateRoulette(players, winnerTelegramId) {
-        if (!players?.length || !winnerTelegramId) return
-        if (rouletteShownRef.current) return
-        rouletteShownRef.current = true
+    function animateRoulette(players, winnerTelegramId) {
+    if (!players?.length || !winnerTelegramId) return
+    if (rouletteShownRef.current) return
+    rouletteShownRef.current = true
 
-        const strip = buildRouletteStrip(players, winnerTelegramId)
-        setRouletteItems(strip)
+    const strip = buildRouletteStrip(players, winnerTelegramId)
+    setRouletteItems(strip)
 
-        const ITEM_W = 62
-        const GAP = 14 // margin 7+7
-        const STEP = ITEM_W + GAP
+    const ITEM_W = 62
+    const GAP = 14 // margin 7+7
+    const STEP = ITEM_W + GAP
 
-        // ширина видимого окна рулетки
-        const boxW = rouletteBoxRef.current?.clientWidth || 320
-        const centerOffset = (boxW / 2) - (ITEM_W / 2)
+    const boxW = rouletteBoxRef.current?.clientWidth || 320
+    const centerOffset = (boxW / 2) - (ITEM_W / 2)
 
-        // берём последнее вхождение победителя в конце ленты
-        let winnerIndex = -1
-        for (let i = 0; i < strip.length; i++) {
-            if (String(strip[i].telegram_id) === String(winnerTelegramId)) winnerIndex = i
-        }
-        if (winnerIndex < 0) return
+    // найдём победителя ближе к концу (последнее вхождение)
+    let winnerIndex = -1
+    for (let i = 0; i < strip.length; i++) {
+        if (String(strip[i].telegram_id) === String(winnerTelegramId)) winnerIndex = i
+    }
+    if (winnerIndex < 0) return
 
-        // Целевой сдвиг так, чтобы winner оказался по центру (под указателем)
-        const targetX = -(winnerIndex * STEP) + centerOffset
+    // желаемая позиция (победитель по центру)
+    let targetX = -(winnerIndex * STEP) + centerOffset
 
-        // стартуем чуть левее (чтобы было ощущение разгона)
-        const startX = 20
-        setRouletteX(startX)
+    // --- КЛАМП: чтобы не появлялась пустота справа/слева ---
+    // ширина всей ленты
+    const stripW = strip.length * STEP
 
-        if (rouletteAnimRef.current) cancelAnimationFrame(rouletteAnimRef.current)
+    // maxX: нельзя уехать вправо больше нуля (иначе слева пустота)
+    const maxX = 0
 
-        const start = performance.now()
-        const duration = JACKPOT_CONFIG.SPIN_SECONDS * 1000
-        const from = startX
-        const to = targetX
+    // minX: правый край ленты должен закрывать правый край окна
+    // т.е. translateX >= boxW - stripW
+    const minX = boxW - stripW
 
-        const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
+    // если лента короче окна — просто центрируем без анимации
+    if (stripW <= boxW) {
+        setRouletteX((boxW - stripW) / 2)
+        return
+    }
 
-        const frame = (ts) => {
-            const t = Math.min(1, (ts - start) / duration)
-            const eased = easeOutCubic(t)
-            setRouletteX(from + (to - from) * eased)
+    // зажимаем targetX
+    if (targetX > maxX) targetX = maxX
+    if (targetX < minX) targetX = minX
 
-            if (t < 1) rouletteAnimRef.current = requestAnimationFrame(frame)
-        }
+    // стартуем чуть правее, чтобы был разгон
+    const startX = 20
+    setRouletteX(startX)
 
-        rouletteAnimRef.current = requestAnimationFrame(frame)
-        }
+    if (rouletteAnimRef.current) cancelAnimationFrame(rouletteAnimRef.current)
+
+    const start = performance.now()
+    const duration = JACKPOT_CONFIG.SPIN_SECONDS * 1000
+    const from = startX
+    const to = targetX
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
+
+    const frame = (ts) => {
+        const t = Math.min(1, (ts - start) / duration)
+        const eased = easeOutCubic(t)
+        setRouletteX(from + (to - from) * eased)
+        if (t < 1) rouletteAnimRef.current = requestAnimationFrame(frame)
+    }
+
+    rouletteAnimRef.current = requestAnimationFrame(frame)
+    }
+
 
 
 
