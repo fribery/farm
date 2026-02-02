@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './Screens.css'
 import './JackpotScreen.css'
+import './jackpotService.jsx'
 
 import {
   ensureOpenRound,
