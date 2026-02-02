@@ -153,3 +153,14 @@ export const JACKPOT_CONFIG = {
   ROUND_SECONDS,
   SPIN_SECONDS
 }
+
+export async function claimPayout(roundId, telegramId) {
+  const { data, error } = await supabase.rpc('jackpot_claim_payout', {
+    p_round_id: roundId,
+    p_telegram_id: telegramId
+  })
+
+  if (error) throw error
+  // data = сколько начислили (0 если уже было)
+  return data
+}

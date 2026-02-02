@@ -10,6 +10,7 @@ import {
   secondsLeft,
   tryCloseRoundAndPickWinner,
   tryFinishRound,
+  claimPayout,
   JACKPOT_CONFIG
 } from '../../game/jackpot/jackpotService'
 
@@ -108,16 +109,40 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
               }
 
               // когда finished — через секунду создадим следующий open раунд
-              if (next?.status === 'finished') {
+                if (next?.status === 'finished') {
+
+                // если это мой выигрыш — забираем выплату (идемпотентно)
+                if (next?.winner_telegram_id && telegramId &&
+                    String(next.winner_telegram_id) === String(telegramId)
+                ) {
+                    (async () => {
+                    try {
+                        const added = await claimPayout(next.id, telegramId)
+
+                        if (added > 0) {
+                        const creditsNow = user?.game_data?.credits ?? 0
+                        updateGameData({
+                            ...user.game_data,
+                            credits: creditsNow + added
+                        })
+                        }
+                    } catch (e) {
+                        // если уже забрано или ошибка — просто игнор
+                        console.error('claimPayout error:', e)
+                    }
+                    })()
+                }
+
+                // переход к следующему раунду
                 setTimeout(async () => {
-                  const newOpen = await ensureOpenRound(telegramId)
-                  setRound(newOpen)
-                  const newBets = await getBets(newOpen.id)
-                  setBets(newBets)
-                  setWinnerId(null)
-                  setSpinning(false)
+                    const newOpen = await ensureOpenRound(telegramId)
+                    setRound(newOpen)
+                    const newBets = await getBets(newOpen.id)
+                    setBets(newBets)
+                    setWinnerId(null)
+                    setSpinning(false)
                 }, 1200)
-              }
+                }
             }
           )
           .subscribe()
@@ -168,31 +193,34 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     }
   }, [telegramId])
 
-  const onPlaceBet = async () => {
+    const onPlaceBet = async () => {
     try {
-      setErr('')
-      if (!round || !telegramId) return
+        setErr('')
+        if (!round || !telegramId) return
 
-      // списываем кредиты локально (экономика пока на клиенте, как ты и хочешь)
-      const credits = user?.game_data?.credits ?? 0
-      if (credits < selectedBet) return
+        const credits = user?.game_data?.credits ?? 0
+        if (credits < selectedBet) {
+        setErr('Недостаточно кредитов')
+        return
+        }
 
-      await placeBet({
+        // 1) сначала делаем ставку в БД (если уже ставил — упадёт по unique index)
+        await placeBet({
         roundId: round.id,
         telegramId,
         firstName,
         username,
         photoUrl,
         amount: selectedBet
-      })
+        })
 
-      // обновим баланс игрока (локально + supabase profiles через useTelegram)
-      updateGameData({ ...user.game_data, credits: credits - selectedBet })
+        // 2) только если ставка реально прошла — списываем кредиты
+        updateGameData({ ...user.game_data, credits: credits - selectedBet })
     } catch (e) {
-      console.error(e)
-      setErr('Ставка не прошла. Возможно, ты уже сделал ставку в этом раунде.')
+        console.error(e)
+        setErr('Ставка не прошла. Возможно, ты уже сделал ставку в этом раунде.')
     }
-  }
+    }
 
   const left = round?.ends_at ? secondsLeft(round.ends_at) : 0
 
