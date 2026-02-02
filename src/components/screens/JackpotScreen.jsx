@@ -10,7 +10,6 @@ import {
   secondsLeft,
   tryCloseRoundAndPickWinner,
   tryFinishRound,
-  claimPayout,
   JACKPOT_CONFIG
 } from '../../game/jackpot/jackpotService'
 
@@ -31,13 +30,17 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
   const [selectedBet, setSelectedBet] = useState(10)
 
-  const timerRef = useRef(null)
+  const pollRef = useRef(null)
   const spinTimerRef = useRef(null)
+
+  const roundId = round?.id || null
 
   const totalPot = useMemo(
     () => bets.reduce((s, b) => s + (b.amount || 0), 0),
     [bets]
   )
+
+  const credits = useMemo(() => user?.game_data?.credits ?? 0, [user])
 
   const myBet = useMemo(() => {
     if (!telegramId) return null
@@ -47,9 +50,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
   const odds = useMemo(() => {
     if (totalPot <= 0) return {}
     const map = {}
-    for (const b of bets) {
-      map[b.telegram_id] = (b.amount / totalPot) * 100
-    }
+    for (const b of bets) map[b.telegram_id] = (b.amount / totalPot) * 100
     return map
   }, [bets, totalPot])
 
@@ -58,14 +59,11 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     if (round.status !== 'open') return false
     if (!telegramId) return false
     if (myBet) return false
-    const credits = user?.game_data?.credits ?? 0
     return credits >= selectedBet
-  }, [round, telegramId, myBet, user, selectedBet])
+  }, [round, telegramId, myBet, credits, selectedBet])
 
-  // --- realtime подписки на раунд и ставки
+  // 1) при входе: получить/создать текущий open/spinning раунд + ставки
   useEffect(() => {
-    let betsChannel = null
-    let roundChannel = null
     let cancelled = false
 
     const boot = async () => {
@@ -73,110 +71,18 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         setErr('')
         setLoading(true)
 
-        // берём или создаём open раунд
         const open = await ensureOpenRound(telegramId)
         if (cancelled) return
-        setRound(open)
 
-        // загрузим ставки
+        setRound(open)
+        setWinnerId(open?.winner_telegram_id ?? null)
+
         const list = await getBets(open.id)
         if (cancelled) return
         setBets(list)
-
-        // подписка на обновления раунда
-        roundChannel = supabase
-          .channel(`jackpot_round_${open.id}`)
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'jackpot_rounds', filter: `id=eq.${open.id}` },
-            payload => {
-              const next = payload.new
-              setRound(next)
-
-              if (next?.winner_telegram_id) {
-                setWinnerId(next.winner_telegram_id)
-              }
-
-              // старт визуального спина, когда статус стал spinning
-              if (next?.status === 'spinning') {
-                setSpinning(true)
-                if (spinTimerRef.current) clearTimeout(spinTimerRef.current)
-                spinTimerRef.current = setTimeout(async () => {
-                  setSpinning(false)
-                  // лидер попробует финишнуть; остальные просто увидят
-                  await tryFinishRound(next.id)
-                }, JACKPOT_CONFIG.SPIN_SECONDS * 1000)
-              }
-
-              // когда finished — через секунду создадим следующий open раунд
-                if (next?.status === 'finished') {
-
-                // если это мой выигрыш — забираем выплату (идемпотентно)
-                if (next?.winner_telegram_id && telegramId &&
-                    String(next.winner_telegram_id) === String(telegramId)
-                ) {
-                    (async () => {
-                    try {
-                        const added = await claimPayout(next.id, telegramId)
-
-                        if (added > 0) {
-                        const creditsNow = user?.game_data?.credits ?? 0
-                        updateGameData({
-                            ...user.game_data,
-                            credits: creditsNow + added
-                        })
-                        }
-                    } catch (e) {
-                        // если уже забрано или ошибка — просто игнор
-                        console.error('claimPayout error:', e)
-                    }
-                    })()
-                }
-
-                // переход к следующему раунду
-                setTimeout(async () => {
-                    const newOpen = await ensureOpenRound(telegramId)
-                    setRound(newOpen)
-                    const newBets = await getBets(newOpen.id)
-                    setBets(newBets)
-                    setWinnerId(null)
-                    setSpinning(false)
-                }, 1200)
-                }
-            }
-          )
-          .subscribe()
-
-        // подписка на ставки
-        betsChannel = supabase
-          .channel(`jackpot_bets_${open.id}`)
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'jackpot_bets', filter: `round_id=eq.${open.id}` },
-            async () => {
-              const fresh = await getBets(open.id)
-              setBets(fresh)
-            }
-          )
-          .subscribe()
-
-        // локальный таймер для попытки закрытия (любая вкладка может попытаться)
-        if (timerRef.current) clearInterval(timerRef.current)
-        timerRef.current = setInterval(async () => {
-          const r = await getCurrentRound()
-          if (!r) return
-          if (r.status !== 'open') return
-
-          const left = secondsLeft(r.ends_at)
-          if (left <= 0) {
-            const listNow = await getBets(r.id)
-            // попытка закрыть/выбрать победителя — победит один клиент
-            await tryCloseRoundAndPickWinner({ round: r, bets: listNow })
-          }
-        }, 1000)
       } catch (e) {
         console.error(e)
-        setErr('Не удалось загрузить джекпот. Проверь Supabase и таблицы.')
+        setErr('Не удалось загрузить джекпот. Проверь Supabase/таблицы.')
       } finally {
         setLoading(false)
       }
@@ -186,41 +92,176 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
     return () => {
       cancelled = true
-      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [telegramId])
+
+  // 2) realtime подписки — пересоздаём при смене roundId
+  useEffect(() => {
+    if (!roundId) return
+
+    let betsChannel = null
+    let roundChannel = null
+    let alive = true
+
+    const subscribe = async () => {
+      // round updates
+      roundChannel = supabase
+        .channel(`jackpot_round_${roundId}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'jackpot_rounds', filter: `id=eq.${roundId}` },
+          payload => {
+            const next = payload.new
+            if (!alive) return
+
+            setRound(next)
+            setWinnerId(next?.winner_telegram_id ?? null)
+
+            // если стали spinning — запускаем локальную анимацию и таймер finish
+            if (next?.status === 'spinning') {
+              setSpinning(true)
+              if (spinTimerRef.current) clearTimeout(spinTimerRef.current)
+
+              spinTimerRef.current = setTimeout(async () => {
+                setSpinning(false)
+                // любой клиент может попытаться завершить
+                await tryFinishRound(next.id)
+              }, JACKPOT_CONFIG.SPIN_SECONDS * 1000)
+            }
+
+            // finished -> подождём чуть-чуть и перейдём на новый open раунд
+            if (next?.status === 'finished') {
+              setSpinning(false)
+              setTimeout(async () => {
+                const newOpen = await ensureOpenRound(telegramId)
+                if (!alive) return
+                setRound(newOpen)
+                setWinnerId(newOpen?.winner_telegram_id ?? null)
+                const newBets = await getBets(newOpen.id)
+                if (!alive) return
+                setBets(newBets)
+              }, 1200)
+            }
+          }
+        )
+        .subscribe()
+
+      // bets updates
+      betsChannel = supabase
+        .channel(`jackpot_bets_${roundId}`)
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'jackpot_bets', filter: `round_id=eq.${roundId}` },
+          async () => {
+            if (!alive) return
+            const fresh = await getBets(roundId)
+            if (!alive) return
+            setBets(fresh)
+          }
+        )
+        .subscribe()
+    }
+
+    subscribe()
+
+    return () => {
+      alive = false
       if (spinTimerRef.current) clearTimeout(spinTimerRef.current)
       if (betsChannel) supabase.removeChannel(betsChannel)
       if (roundChannel) supabase.removeChannel(roundChannel)
     }
-  }, [telegramId])
+  }, [roundId, telegramId])
 
-    const onPlaceBet = async () => {
-    try {
-        setErr('')
-        if (!round || !telegramId) return
+  // 3) polling-fallback (чтобы не зависеть 100% от realtime)
+  useEffect(() => {
+    if (pollRef.current) clearInterval(pollRef.current)
 
-        const credits = user?.game_data?.credits ?? 0
-        if (credits < selectedBet) {
-        setErr('Недостаточно кредитов')
-        return
+    pollRef.current = setInterval(async () => {
+      try {
+        const r = await getCurrentRound()
+        if (!r) return
+
+        // если round сменился (например, другой клиент создал новый)
+        if (!roundId || r.id !== roundId) {
+          setRound(r)
+          setWinnerId(r?.winner_telegram_id ?? null)
+          const list = await getBets(r.id)
+          setBets(list)
+          return
         }
 
-        // 1) сначала делаем ставку в БД (если уже ставил — упадёт по unique index)
-        await placeBet({
+        // подхватить победителя/статус, если realtime не прилетел
+        if (round && (r.status !== round.status || r.winner_telegram_id !== round.winner_telegram_id)) {
+          setRound(r)
+          setWinnerId(r?.winner_telegram_id ?? null)
+        }
+
+        // если open и время вышло — пытаемся закрыть и выбрать победителя
+        if (r.status === 'open') {
+          const left = secondsLeft(r.ends_at)
+          if (left <= 0) {
+            const listNow = await getBets(r.id)
+            await tryCloseRoundAndPickWinner({ round: r, bets: listNow })
+          }
+        }
+
+        // если spinning “застрял” — пробуем finish (на всякий случай)
+        if (r.status === 'spinning') {
+          // если прошло больше SPIN_SECONDS+2, пытаемся завершить
+          const updatedMs = new Date(r.updated_at || r.created_at).getTime()
+          const stuckFor = Date.now() - updatedMs
+          if (stuckFor > (JACKPOT_CONFIG.SPIN_SECONDS + 2) * 1000) {
+            await tryFinishRound(r.id)
+          }
+        }
+
+        // периодически обновляем ставки (чтобы сразу видеть без realtime)
+        // (раз в ~2 секунды)
+        if (Date.now() % 2000 < 1100) {
+          const fresh = await getBets(r.id)
+          setBets(fresh)
+        }
+      } catch (e) {
+        // молча — fallback не должен ломать UX
+      }
+    }, 1000)
+
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current)
+    }
+  }, [roundId, round])
+
+  const onPlaceBet = async () => {
+    try {
+      setErr('')
+      if (!round || !telegramId) return
+
+      if (credits < selectedBet) {
+        setErr('Недостаточно кредитов')
+        return
+      }
+
+      // 1) делаем ставку в БД
+      await placeBet({
         roundId: round.id,
         telegramId,
         firstName,
         username,
         photoUrl,
         amount: selectedBet
-        })
+      })
 
-        // 2) только если ставка реально прошла — списываем кредиты
-        updateGameData({ ...user.game_data, credits: credits - selectedBet })
+      // 2) сразу обновляем UI (не ждём realtime)
+      const fresh = await getBets(round.id)
+      setBets(fresh)
+
+      // 3) списываем кредиты локально
+      updateGameData({ ...user.game_data, credits: credits - selectedBet })
     } catch (e) {
-        console.error(e)
-        setErr('Ставка не прошла. Возможно, ты уже сделал ставку в этом раунде.')
+      console.error(e)
+      setErr('Ставка не прошла. Возможно, ты уже сделал ставку в этом раунде.')
     }
-    }
+  }
 
   const left = round?.ends_at ? secondsLeft(round.ends_at) : 0
 
@@ -268,7 +309,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
           <div className="jackpot-card">
             <div className="jackpot-controls">
               <div className="jackpot-credits">
-                Мои кредиты: <b>{user?.game_data?.credits ?? 0}</b>
+                Мои кредиты: <b>{credits}</b>
               </div>
 
               <div className="jackpot-betrow">
@@ -294,7 +335,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
               {myBet && (
                 <div className="jackpot-mybet">
-                  Твоя ставка: <b>{myBet.amount}</b> (шанс: <b>{(odds[myBet.telegram_id] || 0).toFixed(1)}%</b>)
+                  Твоя ставка: <b>{myBet.amount}</b> (шанс: <b>{(odds[myBet.telegram_id] || 0).toFixed(1)}% </b>)
                 </div>
               )}
             </div>
@@ -331,8 +372,8 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
                       </div>
                     </div>
 
-                    {spinning && <div className="jp-spin">🎯</div>}
-                    {!spinning && isWin && <div className="jp-win">🏆</div>}
+                    {round?.status === 'spinning' && <div className="jp-spin">🎯</div>}
+                    {round?.status !== 'spinning' && isWin && <div className="jp-win">🏆</div>}
                   </div>
                 )
               })}
