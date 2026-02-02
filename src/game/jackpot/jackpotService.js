@@ -2,6 +2,7 @@ import { supabase } from '../../lib/supabase'
 
 const ROUND_SECONDS = 30
 const SPIN_SECONDS = 7
+const PENDING_DAYS = 365 // “ожидание игроков”: ends_at далеко в будущем
 
 function nowMs() {
   return Date.now()
@@ -66,7 +67,7 @@ export async function ensureOpenRound(ownerTelegramId) {
   if (cur && cur.status === 'open') return cur
   if (cur && cur.status === 'spinning') return cur
 
-  const endsAt = new Date(nowMs() + ROUND_SECONDS * 1000).toISOString()
+  const endsAt = new Date(nowMs() + PENDING_DAYS * 24 * 60 * 60 * 1000).toISOString()
   const { data, error } = await supabase
     .from('jackpot_rounds')
     .insert([
@@ -109,6 +110,9 @@ export async function placeBet({ roundId, telegramId, firstName, username, photo
 export async function tryCloseRoundAndPickWinner({ round, bets }) {
   if (!round || round.status !== 'open') return null
   if (!bets || bets.length < 2) return null
+
+  const uniq = new Set(bets.map(b => String(b.telegram_id)))
+  if (uniq.size < 2) return null
 
   const winner = pickWinnerDeterministic(bets, round.seed, round.id)
   if (!winner) return null
@@ -160,5 +164,29 @@ export async function claimPayout(roundId, telegramId) {
     p_telegram_id: telegramId
   })
   if (error) throw error
+  return data
+}
+
+
+export function isPendingEndsAt(endsAtIso) {
+  // если ends_at слишком далеко, считаем что таймер ещё не стартовал
+  // (порог = в 2 раза больше длины раунда)
+  return secondsLeft(endsAtIso) > JACKPOT_CONFIG.ROUND_SECONDS * 2
+}
+
+export async function tryStartCountdown(roundId) {
+  const newEnds = new Date(Date.now() + JACKPOT_CONFIG.ROUND_SECONDS * 1000).toISOString()
+
+  // “лидерская” попытка: стартуем только если status=open (и не трогаем если уже стартовало)
+  const { data, error } = await supabase
+    .from('jackpot_rounds')
+    .update({ ends_at: newEnds, updated_at: new Date().toISOString() })
+    .eq('id', roundId)
+    .eq('status', 'open')
+    .select('*')
+    .single()
+
+  // если не мы обновили (race) — норм, просто вернём null
+  if (error) return null
   return data
 }

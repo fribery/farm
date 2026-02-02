@@ -11,6 +11,8 @@ import {
   tryCloseRoundAndPickWinner,
   tryFinishRound,
   JACKPOT_CONFIG,
+  isPendingEndsAt,
+  tryStartCountdown,
   claimPayout
 } from '../../game/jackpot/jackpotService'
 
@@ -26,6 +28,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
   const [bets, setBets] = useState([])
   const [loading, setLoading] = useState(true)
   const [spinning, setSpinning] = useState(false)
+  const [rouletteDone, setRouletteDone] = useState(false)
   const [winnerId, setWinnerId] = useState(null)
   const [err, setErr] = useState('')
 
@@ -250,6 +253,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
                 rouletteShownRef.current = false
                 setRouletteItems([])
                 setRouletteX(0)
+                setRouletteDone(false)
             }, 1200)
             }
 
@@ -309,12 +313,25 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
         // если open и время вышло — пытаемся закрыть и выбрать победителя
         if (r.status === 'open') {
-          const left = secondsLeft(r.ends_at)
-          if (left <= 0) {
-            const listNow = await getBets(r.id)
-            await tryCloseRoundAndPickWinner({ round: r, bets: listNow })
-          }
+        const listNow = await getBets(r.id)
+        const uniq = new Set(listNow.map(b => String(b.telegram_id)))
+
+        // если 2+ игрока и таймер ещё не стартовал — стартуем
+        if (uniq.size >= 2 && isPendingEndsAt(r.ends_at)) {
+            await tryStartCountdown(r.id)
+            return
         }
+
+        // если таймер стартовал — проверяем окончание
+        if (!isPendingEndsAt(r.ends_at)) {
+            const left = secondsLeft(r.ends_at)
+            if (left <= 0) {
+            await tryCloseRoundAndPickWinner({ round: r, bets: listNow })
+            }
+        }
+        }
+
+
 
         // если spinning “застрял” — пробуем finish (на всякий случай)
         if (r.status === 'spinning') {
@@ -341,6 +358,22 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
       if (pollRef.current) clearInterval(pollRef.current)
     }
   }, [roundId, round])
+
+  useEffect(() => {
+  if (!round || !roundId) return
+  if (round.status !== 'open') return
+  if (!round.ends_at) return
+
+  // если уже стартовало — выходим
+  if (!isPendingEndsAt(round.ends_at)) return
+
+  // стартуем только когда 2+ уникальных игрока
+  if (groupedPlayers.length < 2) return
+
+  ;(async () => {
+    await tryStartCountdown(roundId)
+  })()
+    }, [round, roundId, groupedPlayers])
 
   const onPlaceBet = async () => {
     try {
@@ -460,7 +493,11 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         const t = Math.min(1, (ts - start) / duration)
         const eased = easeOutCubic(t)
         setRouletteX(from + (to - from) * eased)
-        if (t < 1) rouletteAnimRef.current = requestAnimationFrame(frame)
+        if (t < 1) {
+        rouletteAnimRef.current = requestAnimationFrame(frame)
+        } else {
+        setRouletteDone(true)
+        }
     }
 
     rouletteAnimRef.current = requestAnimationFrame(frame)
@@ -479,7 +516,11 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         <div className="jackpot-titlewrap">
           <div className="jackpot-title">Джекпот</div>
           <div className="jackpot-sub">
-            {round?.status === 'open' && `До конца раунда: ${left}s`}
+            {round?.status === 'open' && (
+            groupedPlayers.length < 2 || (round?.ends_at && isPendingEndsAt(round.ends_at))
+                ? 'Ожидаем минимум 2 игроков…'
+                : `До конца раунда: ${left}s`
+            )}
             {round?.status === 'spinning' && 'Крутим рулетку…'}
             {round?.status === 'finished' && 'Раунд завершён'}
           </div>
@@ -550,7 +591,10 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
             <div className="jackpot-players">
             {groupedPlayers.map(p => {
                 const pct = (odds[String(p.telegram_id)] || 0).toFixed(1)
-                const isWin = winner && String(winner.telegram_id) === String(p.telegram_id)
+                const isWin =
+                    (round?.status === 'finished' || rouletteDone) &&
+                    winner &&
+                    String(winner.telegram_id) === String(p.telegram_id)
 
                 return (
                 <div key={p._firstBetId} className={`jackpot-player ${isWin ? 'winner' : ''}`}>
