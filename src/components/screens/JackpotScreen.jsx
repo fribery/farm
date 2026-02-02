@@ -12,7 +12,7 @@ import {
   tryCloseRoundAndPickWinner,
   tryFinishRound,
   JACKPOT_CONFIG
-} from '../../game/jackpot/jackpotService'
+} from '../../game/jackpot/jackpotService.js'
 
 import { supabase } from '../../lib/supabase'
 
