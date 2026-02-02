@@ -234,3 +234,24 @@
     padding: 7px 8px;
   }
 }
+
+/* Мини-кнопка "Джекпот" на первом экране (Ангар) */
+.jackpot-btn-mini {
+  margin-left: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.95);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+
+.jackpot-btn-mini:active {
+  transform: scale(0.98);
+}
+
+.jackpot-btn-mini:hover {
+  background: rgba(255, 255, 255, 0.12);
+}

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { GAME_CONFIG, formatTime, calculateActualResources, calculateRepairCost, getResourceRangeText } from '../../game/config'
 import './HangarScreen.css'
 
-export default function HangarScreen({ user, updateGameData, availableSlots }) {
+export default function HangarScreen({ user, updateGameData, availableSlots, setActiveScreen}) {
   const [ships, setShips] = useState(user.game_data?.hangar || [])
   const [missionTimers, setMissionTimers] = useState({})
   const [refreshKey, setRefreshKey] = useState(0)
@@ -214,6 +214,12 @@ export default function HangarScreen({ user, updateGameData, availableSlots }) {
     <div className="hangar-mobile" key={refreshKey}>
       <div className="hangar-header-mobile">
         <h2 className="hangar-title-mobile">Флот</h2>
+        <button
+          className="jackpot-btn-mini"
+          onClick={() => setActiveScreen && setActiveScreen('jackpot')}
+        >
+          Джекпот
+        </button>
         <div className="hangar-meta">
           <span className="ship-count">{ships.length}/{availableSlots}</span>
           <span className="active-missions">

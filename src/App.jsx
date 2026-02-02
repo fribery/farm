@@ -6,6 +6,7 @@ import ShipyardScreen from './components/screens/ShipyardScreen.jsx'
 import AchievementsScreen from './components/screens/AchievementsScreen.jsx'
 import InventoryScreen from './components/screens/InventoryScreen.jsx'
 import ToastNotification from './components/ToastNotification'
+import JackpotScreen from './components/screens/JackpotScreen.jsx'
 import './App.css'
 
 function App() {
@@ -138,6 +139,7 @@ function App() {
           user={user} 
           updateGameData={updateGameData} 
           availableSlots={getAvailableSlots()} 
+          setActiveScreen={setActiveScreen}
         />
       case 'shipyard':
         return <ShipyardScreen 
@@ -156,11 +158,14 @@ function App() {
           user={user} 
           updateGameData={updateGameData}
         />
+      case 'jackpot':
+        return <JackpotScreen setActiveScreen={setActiveScreen} />
       default:
         return <HangarScreen 
           user={user} 
           updateGameData={updateGameData} 
-          availableSlots={getAvailableSlots()} 
+          availableSlots={getAvailableSlots()}
+          setActiveScreen={setActiveScreen}
         />
     }
   }
