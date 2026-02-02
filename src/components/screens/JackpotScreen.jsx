@@ -10,7 +10,8 @@ import {
   secondsLeft,
   tryCloseRoundAndPickWinner,
   tryFinishRound,
-  JACKPOT_CONFIG
+  JACKPOT_CONFIG,
+  claimPayout
 } from '../../game/jackpot/jackpotService'
 
 import { supabase } from '../../lib/supabase'
@@ -70,6 +71,15 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     return Array.from(map.values()).sort((a, b) => (b.amount || 0) - (a.amount || 0))
     }, [bets])
 
+        const odds = useMemo(() => {
+    if (totalPot <= 0) return {}
+    const map = {}
+    for (const p of groupedPlayers) {
+        map[String(p.telegram_id)] = (p.amount / totalPot) * 100
+    }
+    return map
+    }, [groupedPlayers, totalPot])
+
   const credits = useMemo(() => user?.game_data?.credits ?? 0, [user])
 
     const myTotalBet = useMemo(() => {
@@ -78,15 +88,6 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         .filter(b => String(b.telegram_id) === String(telegramId))
         .reduce((s, b) => s + (b.amount || 0), 0)
     }, [bets, telegramId])
-
-    const odds = useMemo(() => {
-    if (totalPot <= 0) return {}
-    const map = {}
-    for (const p of groupedPlayers) {
-        map[String(p.telegram_id)] = (p.amount / totalPot) * 100
-    }
-    return map
-    }, [groupedPlayers, totalPot])
 
     const canBet = useMemo(() => {
     if (!round) return false
@@ -164,17 +165,56 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
             // finished -> подождём чуть-чуть и перейдём на новый open раунд
             if (next?.status === 'finished') {
-              setSpinning(false)
-              setTimeout(async () => {
-                const newOpen = await ensureOpenRound(telegramId)
-                if (!alive) return
-                setRound(newOpen)
-                setWinnerId(newOpen?.winner_telegram_id ?? null)
-                const newBets = await getBets(newOpen.id)
-                if (!alive) return
-                setBets(newBets)
-              }, 1200)
+            if (
+                next?.winner_telegram_id &&
+                telegramId &&
+                String(next.winner_telegram_id) === String(telegramId)
+            ) {
+                (async () => {
+                try {
+                    console.log('[JACKPOT] I am winner, claiming payout...', {
+                    roundId: next.id,
+                    telegramId,
+                    winner: next.winner_telegram_id
+                    })
+
+                    const added = await claimPayout(next.id, telegramId)
+
+                    console.log('[JACKPOT] claimPayout result:', added)
+
+                    // ВАЖНО: после RPC лучше перечитать профиль из profiles,
+                    // потому что local creditsNow может быть устаревшим.
+                    const { data: prof, error: profErr } = await supabase
+                    .from('profiles')
+                    .select('game_data')
+                    .eq('telegram_id', telegramId)
+                    .single()
+
+                    if (profErr) throw profErr
+
+                    console.log('[JACKPOT] profile after payout:', prof?.game_data)
+
+                    if (prof?.game_data) {
+                    updateGameData(prof.game_data)
+                    }
+
+                } catch (e) {
+                    console.error('[JACKPOT] payout FAILED:', e)
+                    setErr(`Выплата не прошла: ${e?.message || 'unknown error'}`)
+                }
+                })()
             }
+
+            setTimeout(async () => {
+                const newOpen = await ensureOpenRound(telegramId)
+                setRound(newOpen)
+                const newBets = await getBets(newOpen.id)
+                setBets(newBets)
+                setWinnerId(null)
+                setSpinning(false)
+            }, 1200)
+            }
+
           }
         )
         .subscribe()

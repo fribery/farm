@@ -159,8 +159,6 @@ export async function claimPayout(roundId, telegramId) {
     p_round_id: roundId,
     p_telegram_id: telegramId
   })
-
   if (error) throw error
-  // data = сколько начислили (0 если уже было)
   return data
 }
