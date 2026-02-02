@@ -420,35 +420,63 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     }
   }
 
-  const left = round?.ends_at ? secondsLeft(round.ends_at) : 0
+    const left = round?.ends_at ? secondsLeft(round.ends_at) : 0
 
     const winner = useMemo(() => {
     if (!winnerId) return null
     return groupedPlayers.find(p => String(p.telegram_id) === String(winnerId)) || null
     }, [winnerId, groupedPlayers])
 
-    function buildRouletteStrip(players, winnerTelegramId) {
-    const base = players.length ? players : []
-    const repeated = []
+function hashToUint32(str) {
+  let h = 2166136261
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i)
+    h = Math.imul(h, 16777619)
+  }
+  return h >>> 0
+}
 
-    // Длинная лента (больше, чем раньше)
-    for (let i = 0; i < 35; i++) {
-        for (const p of base) repeated.push(p)
-    }
+function mulberry32(seed) {
+  return function () {
+    let t = (seed += 0x6D2B79F5)
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
 
-    // В конце добавим победителя несколько раз, чтобы точно был “под указателем” близко к концу
-    const w = base.find(p => String(p.telegram_id) === String(winnerTelegramId))
-    if (w) repeated.push(w, w, w, w, w, w)
+function shuffleDeterministic(arr, seedStr) {
+  const a = arr.slice()
+  const rand = mulberry32(hashToUint32(seedStr))
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
-    return repeated
-    }
+function buildRouletteStrip(players, seedStr) {
+  // делаем длинную ленту из игроков, но без "победитель победитель победитель"
+  const base = players.length ? players : []
+  const repeated = []
+
+  // делаем много "пачек", каждую пачку перетасовываем детерминированно
+  for (let k = 0; k < 22; k++) {
+    const batch = shuffleDeterministic(base, `${seedStr}:batch:${k}`)
+    repeated.push(...batch)
+  }
+
+  return repeated
+}
 
     function animateRoulette(players, winnerTelegramId) {
     if (!players?.length || !winnerTelegramId) return
     if (rouletteShownRef.current) return
     rouletteShownRef.current = true
 
-    const strip = buildRouletteStrip(players, winnerTelegramId)
+    const seedStr = `${roundId}:${winnerTelegramId}`
+
+    const strip = buildRouletteStrip(players, seedStr)
     setRouletteItems(strip)
 
     const ITEM_W = 62
