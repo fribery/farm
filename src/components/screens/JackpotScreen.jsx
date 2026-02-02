@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import './Screens.css'
 import './JackpotScreen.css'
-import './jackpotService.jsx'
 
 import {
   ensureOpenRound,
@@ -12,7 +11,7 @@ import {
   tryCloseRoundAndPickWinner,
   tryFinishRound,
   JACKPOT_CONFIG
-} from '../../game/jackpot/jackpotService.js'
+} from '../../game/jackpot/jackpotService'
 
 import { supabase } from '../../lib/supabase'
 
