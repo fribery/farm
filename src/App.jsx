@@ -159,7 +159,13 @@ function App() {
           updateGameData={updateGameData}
         />
       case 'jackpot':
-        return <JackpotScreen setActiveScreen={setActiveScreen} />
+        return (
+          <JackpotScreen
+            setActiveScreen={setActiveScreen}
+            user={user}
+            updateGameData={updateGameData}
+          />
+        )
       default:
         return <HangarScreen 
           user={user} 
