@@ -42,25 +42,60 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
   const credits = useMemo(() => user?.game_data?.credits ?? 0, [user])
 
-  const myBet = useMemo(() => {
-    if (!telegramId) return null
-    return bets.find(b => String(b.telegram_id) === String(telegramId)) || null
-  }, [bets, telegramId])
+    const myTotalBet = useMemo(() => {
+    if (!telegramId) return 0
+    return bets
+        .filter(b => String(b.telegram_id) === String(telegramId))
+        .reduce((s, b) => s + (b.amount || 0), 0)
+    }, [bets, telegramId])
 
-  const odds = useMemo(() => {
+    const odds = useMemo(() => {
     if (totalPot <= 0) return {}
     const map = {}
-    for (const b of bets) map[b.telegram_id] = (b.amount / totalPot) * 100
+    for (const p of groupedPlayers) {
+        map[String(p.telegram_id)] = (p.amount / totalPot) * 100
+    }
     return map
-  }, [bets, totalPot])
+    }, [groupedPlayers, totalPot])
 
-  const canBet = useMemo(() => {
+
+    const groupedPlayers = useMemo(() => {
+    const map = new Map()
+
+    for (const b of bets) {
+        const key = String(b.telegram_id)
+        const prev = map.get(key)
+
+        if (!prev) {
+        map.set(key, {
+            telegram_id: b.telegram_id,
+            first_name: b.first_name,
+            username: b.username,
+            photo_url: b.photo_url,
+            amount: b.amount || 0,
+            // для стабильного key в React
+            _firstBetId: b.id
+        })
+        } else {
+        prev.amount += (b.amount || 0)
+        // если вдруг у одной ставки нет фото/имени — пытаемся подхватить
+        if (!prev.photo_url && b.photo_url) prev.photo_url = b.photo_url
+        if (!prev.first_name && b.first_name) prev.first_name = b.first_name
+        if (!prev.username && b.username) prev.username = b.username
+        }
+    }
+
+    // превращаем в массив и сортируем по сумме ставки (по убыванию)
+    return Array.from(map.values()).sort((a, b) => (b.amount || 0) - (a.amount || 0))
+    }, [bets])
+
+
+    const canBet = useMemo(() => {
     if (!round) return false
     if (round.status !== 'open') return false
     if (!telegramId) return false
-    if (myBet) return false
     return credits >= selectedBet
-  }, [round, telegramId, myBet, credits, selectedBet])
+    }, [round, telegramId, credits, selectedBet])
 
   // 1) при входе: получить/создать текущий open/spinning раунд + ставки
   useEffect(() => {
@@ -265,10 +300,10 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
   const left = round?.ends_at ? secondsLeft(round.ends_at) : 0
 
-  const winner = useMemo(() => {
+    const winner = useMemo(() => {
     if (!winnerId) return null
-    return bets.find(b => String(b.telegram_id) === String(winnerId)) || null
-  }, [winnerId, bets])
+    return groupedPlayers.find(p => String(p.telegram_id) === String(winnerId)) || null
+    }, [winnerId, groupedPlayers])
 
   return (
     <div className="screen jackpot-screen">
@@ -321,7 +356,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
                       key={v}
                       className={`jackpot-chip ${selectedBet === v ? 'active' : ''}`}
                       onClick={() => setSelectedBet(v)}
-                      disabled={round?.status !== 'open' || !!myBet}
+                      disabled={round?.status !== 'open'}
                     >
                       {v}
                     </button>
@@ -329,15 +364,15 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
                 </div>
 
                 <button className="jackpot-play" onClick={onPlaceBet} disabled={!canBet}>
-                  {myBet ? 'Ставка сделана' : 'Поставить'}
+                  Поставить
                 </button>
               </div>
 
-              {myBet && (
-                <div className="jackpot-mybet">
-                  Твоя ставка: <b>{myBet.amount}</b> (шанс: <b>{(odds[myBet.telegram_id] || 0).toFixed(1)}% </b>)
-                </div>
-              )}
+            {myTotalBet > 0 && (
+            <div className="jackpot-mybet">
+                Твои ставки в этом раунде: <b>{myTotalBet}</b> (шанс: <b>{(odds[Number(telegramId)] || 0).toFixed(1)}%</b>)
+            </div>
+            )}
             </div>
           </div>
 
@@ -349,35 +384,36 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
             )}
 
             <div className="jackpot-players">
-              {bets.map(b => {
-                const pct = (odds[b.telegram_id] || 0).toFixed(1)
-                const isWin = winner && String(winner.telegram_id) === String(b.telegram_id)
+            {groupedPlayers.map(p => {
+                const pct = (odds[String(p.telegram_id)] || 0).toFixed(1)
+                const isWin = winner && String(winner.telegram_id) === String(p.telegram_id)
 
                 return (
-                  <div key={b.id} className={`jackpot-player ${isWin ? 'winner' : ''}`}>
+                <div key={p._firstBetId} className={`jackpot-player ${isWin ? 'winner' : ''}`}>
                     <div className="jp-avatar">
-                      {b.photo_url ? (
-                        <img src={b.photo_url} alt="" />
-                      ) : (
+                    {p.photo_url ? (
+                        <img src={p.photo_url} alt="" />
+                    ) : (
                         <div className="jp-avatar-fallback">👤</div>
-                      )}
+                    )}
                     </div>
 
                     <div className="jp-info">
-                      <div className="jp-name">
-                        {b.first_name || (b.username ? `@${b.username}` : `ID ${b.telegram_id}`)}
-                      </div>
-                      <div className="jp-meta">
-                        ставка <b>{b.amount}</b> • шанс <b>{pct}%</b>
-                      </div>
+                    <div className="jp-name">
+                        {p.first_name || (p.username ? `@${p.username}` : `ID ${p.telegram_id}`)}
+                    </div>
+                    <div className="jp-meta">
+                        ставка <b>{p.amount}</b> • шанс <b>{pct}%</b>
+                    </div>
                     </div>
 
                     {round?.status === 'spinning' && <div className="jp-spin">🎯</div>}
                     {round?.status !== 'spinning' && isWin && <div className="jp-win">🏆</div>}
-                  </div>
+                </div>
                 )
-              })}
+            })}
             </div>
+
           </div>
 
           <div className="jackpot-card jackpot-roulette">
