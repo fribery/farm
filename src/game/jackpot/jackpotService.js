@@ -190,3 +190,18 @@ export async function tryStartCountdown(roundId) {
   if (error) return null
   return data
 }
+
+export async function trySetPendingCountdown(roundId) {
+  const pendingEnds = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString()
+
+  const { data, error } = await supabase
+    .from('jackpot_rounds')
+    .update({ ends_at: pendingEnds, updated_at: new Date().toISOString() })
+    .eq('id', roundId)
+    .eq('status', 'open')
+    .select('*')
+    .single()
+
+  if (error) return null
+  return data
+}

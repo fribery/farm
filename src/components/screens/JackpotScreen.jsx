@@ -13,6 +13,7 @@ import {
   JACKPOT_CONFIG,
   isPendingEndsAt,
   tryStartCountdown,
+  trySetPendingCountdown,
   claimPayout
 } from '../../game/jackpot/jackpotService'
 
@@ -316,20 +317,32 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         const listNow = await getBets(r.id)
         const uniq = new Set(listNow.map(b => String(b.telegram_id)))
 
-        // если 2+ игрока и таймер ещё не стартовал — стартуем
-        if (uniq.size >= 2 && isPendingEndsAt(r.ends_at)) {
-            await tryStartCountdown(r.id)
+        // 1) если игроков меньше 2 — принудительно держим раунд в pending
+        if (uniq.size < 2) {
+            if (!isPendingEndsAt(r.ends_at)) {
+            await trySetPendingCountdown(r.id)
+            // обновим round локально, чтобы UI синхронизировался
+            const rr = await getCurrentRound()
+            if (rr) setRound(rr)
+            }
             return
         }
 
-        // если таймер стартовал — проверяем окончание
-        if (!isPendingEndsAt(r.ends_at)) {
-            const left = secondsLeft(r.ends_at)
-            if (left <= 0) {
+        // 2) если игроков уже 2+ и таймер ещё pending — стартуем обратный отсчёт
+        if (isPendingEndsAt(r.ends_at)) {
+            await tryStartCountdown(r.id)
+            const rr = await getCurrentRound()
+            if (rr) setRound(rr)
+            return
+        }
+
+        // 3) если таймер уже идёт — проверяем завершение
+        const left = secondsLeft(r.ends_at)
+        if (left <= 0) {
             await tryCloseRoundAndPickWinner({ round: r, bets: listNow })
-            }
         }
         }
+
 
 
 
