@@ -557,18 +557,79 @@ function buildRouletteStrip(players, seedStr) {
     const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3)
 
     const frame = (ts) => {
-        const t = Math.min(1, (ts - start) / duration)
-        const eased = easeOutCubic(t)
-        setRouletteX(from + (to - from) * eased)
-        if (t < 1) {
-        rouletteAnimRef.current = requestAnimationFrame(frame)
-        } else {
-        setRouletteDone(true)
-        }
+    const t = Math.min(1, (ts - start) / duration)
+    const eased = easeOutCubic(t)
+    const x = from + (to - from) * eased
+
+    setRouletteX(x)
+
+    // 👇 вот это добавь
+    tickIfNeeded(x, STEP, centerOffset)
+
+    if (t < 1) {
+      rouletteAnimRef.current = requestAnimationFrame(frame)
+    } else {
+      setRouletteDone(true)
+
+      // финальный "более сильный" хаптик, чтобы чувствовалась остановка
+      try {
+        const hf = window?.Telegram?.WebApp?.HapticFeedback
+        hf?.impactOccurred?.('medium')
+      } catch {}
     }
+  }
+
 
     rouletteAnimRef.current = requestAnimationFrame(frame)
     }
+
+    const lastTickRef = useRef({
+  index: null,
+  ts: 0
+})
+
+function hapticTick() {
+  // Telegram haptics (лучший вариант)
+  try {
+    const hf = window?.Telegram?.WebApp?.HapticFeedback
+    if (hf?.selectionChanged) {
+      hf.selectionChanged()
+      return
+    }
+    if (hf?.impactOccurred) {
+      hf.impactOccurred('light')
+      return
+    }
+  } catch {}
+
+  // fallback для Android/Chrome
+  try {
+    if (navigator?.vibrate) navigator.vibrate(8)
+  } catch {}
+}
+
+function tickIfNeeded(x, step, centerOffset) {
+  // x = текущий translateX ленты
+  // step = ширина одного элемента с отступами (STEP)
+  // centerOffset = куда приходится указатель относительно начала ленты
+
+  // позиция указателя в координатах ленты
+  const pointerPos = -x + centerOffset
+
+  // индекс элемента под указателем
+  const idx = Math.floor(pointerPos / step)
+
+  // антиспам: не чаще ~1 тика каждые 25мс
+  const now = performance.now()
+  if (lastTickRef.current.index !== idx) {
+    if (now - lastTickRef.current.ts > 25) {
+      lastTickRef.current.index = idx
+      lastTickRef.current.ts = now
+      hapticTick()
+    }
+  }
+}
+
 
 
 
