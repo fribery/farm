@@ -474,48 +474,60 @@ function buildRouletteStrip(players, seedStr) {
     if (rouletteShownRef.current) return
     rouletteShownRef.current = true
 
-    const seedStr = `${roundId}:${winnerTelegramId}`
+  const seedStr = `${roundId}:${winnerTelegramId}`
+  const strip = buildRouletteStrip(players, seedStr)
+  setRouletteItems(strip)
 
-    const strip = buildRouletteStrip(players, seedStr)
-    setRouletteItems(strip)
+  const ITEM_W = 62
+  const GAP = 14
+  const STEP = ITEM_W + GAP
 
-    const ITEM_W = 62
-    const GAP = 14 // margin 7+7
-    const STEP = ITEM_W + GAP
+  const boxW = rouletteBoxRef.current?.clientWidth || 320
+  const centerOffset = (boxW / 2) - (ITEM_W / 2)
 
-    const boxW = rouletteBoxRef.current?.clientWidth || 320
-    const centerOffset = (boxW / 2) - (ITEM_W / 2)
+  const stripW = strip.length * STEP
+  const maxX = 0
+  const minX = boxW - stripW
 
-    // найдём победителя ближе к концу (последнее вхождение)
-    let winnerIndex = -1
-    for (let i = 0; i < strip.length; i++) {
-        if (String(strip[i].telegram_id) === String(winnerTelegramId)) winnerIndex = i
+  // если лента вдруг короче окна — просто центрируем
+  if (stripW <= boxW) {
+    setRouletteX((boxW - stripW) / 2)
+    return
+  }
+
+  // ---- ВАЖНО: вычисляем диапазон индексов, при котором targetX НЕ будет clamped ----
+  // minX <= -(idx*STEP) + centerOffset <= maxX
+  const idxMin = Math.ceil((centerOffset - maxX) / STEP)          // targetX <= maxX
+  const idxMax = Math.floor((centerOffset - minX) / STEP)         // targetX >= minX
+
+  // предпочтительный диапазон (чтобы остановка была ближе к концу и выглядела честно)
+  const prefFrom = Math.max(idxMin, Math.floor(strip.length * 0.70))
+  const prefTo = Math.min(idxMax, Math.floor(strip.length * 0.85))
+
+  const winKey = String(winnerTelegramId)
+
+  // собираем кандидатов победителя в пересечении диапазонов
+  let candidates = []
+  for (let i = prefFrom; i <= prefTo; i++) {
+    if (String(strip[i]?.telegram_id) === winKey) candidates.push(i)
+  }
+
+  // если вдруг в предпочтительном диапазоне нет — ищем в любом разрешённом диапазоне
+  if (candidates.length === 0) {
+    for (let i = idxMin; i <= idxMax; i++) {
+      if (String(strip[i]?.telegram_id) === winKey) candidates.push(i)
     }
-    if (winnerIndex < 0) return
+  }
 
-    // желаемая позиция (победитель по центру)
-    let targetX = -(winnerIndex * STEP) + centerOffset
+  // если вообще нет — выходим (на практике не должно случаться, strip повторяет игроков много раз)
+  if (candidates.length === 0) return
 
-    // --- КЛАМП: чтобы не появлялась пустота справа/слева ---
-    // ширина всей ленты
-    const stripW = strip.length * STEP
+  // берём последний, чтобы остановка была “позже” и зрелищнее
+  const winnerIndex = candidates[candidates.length - 1]
 
-    // maxX: нельзя уехать вправо больше нуля (иначе слева пустота)
-    const maxX = 0
+  // targetX теперь гарантированно в диапазоне, clamp не нужен
+  let targetX = -(winnerIndex * STEP) + centerOffset
 
-    // minX: правый край ленты должен закрывать правый край окна
-    // т.е. translateX >= boxW - stripW
-    const minX = boxW - stripW
-
-    // если лента короче окна — просто центрируем без анимации
-    if (stripW <= boxW) {
-        setRouletteX((boxW - stripW) / 2)
-        return
-    }
-
-    // зажимаем targetX
-    if (targetX > maxX) targetX = maxX
-    if (targetX < minX) targetX = minX
 
     // стартуем чуть правее, чтобы был разгон
     const startX = 20
