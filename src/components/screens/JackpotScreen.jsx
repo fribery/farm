@@ -35,6 +35,7 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
 
   const [rouletteItems, setRouletteItems] = useState([])
   const [rouletteX, setRouletteX] = useState(0)
+  const [isPlacingBet, setIsPlacingBet] = useState(false)
   const rouletteBoxRef = useRef(null)
   const rouletteAnimRef = useRef(null)
   const rouletteShownRef = useRef(false)
@@ -99,12 +100,13 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         .reduce((s, b) => s + (b.amount || 0), 0)
     }, [bets, telegramId])
 
-    const canBet = useMemo(() => {
+  const canBet = useMemo(() => {
     if (!round) return false
     if (round.status !== 'open') return false
     if (!telegramId) return false
+    if (isPlacingBet) return false
     return credits >= selectedBet
-    }, [round, telegramId, credits, selectedBet])
+  }, [round, telegramId, credits, selectedBet, isPlacingBet])
 
   // 1) при входе: получить/создать текущий open/spinning раунд + ставки
   useEffect(() => {
@@ -389,16 +391,22 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
     }, [round, roundId, groupedPlayers])
 
   const onPlaceBet = async () => {
+    // защита от спама кликов
+    if (isPlacingBet) return
+
     try {
       setErr('')
       if (!round || !telegramId) return
 
-      if (credits < selectedBet) {
+      const creditsNow = user?.game_data?.credits ?? 0
+      if (creditsNow < selectedBet) {
         setErr('Недостаточно кредитов')
         return
       }
 
-      // 1) делаем ставку в БД
+      setIsPlacingBet(true)
+
+      // 1) пишем ставку
       await placeBet({
         roundId: round.id,
         telegramId,
@@ -408,17 +416,23 @@ export default function JackpotScreen({ setActiveScreen, user, updateGameData })
         amount: selectedBet
       })
 
-      // 2) сразу обновляем UI (не ждём realtime)
+      // 2) сразу подтянем ставки, чтобы UI обновился мгновенно
       const fresh = await getBets(round.id)
       setBets(fresh)
 
-      // 3) списываем кредиты локально
-      updateGameData({ ...user.game_data, credits: credits - selectedBet })
+      // 3) списываем кредиты — важно: от текущего user.game_data, а не от "credits" из useMemo
+      updateGameData({
+        ...user.game_data,
+        credits: creditsNow - selectedBet
+      })
     } catch (e) {
       console.error(e)
-      setErr('Ставка не прошла. Возможно, ты уже сделал ставку в этом раунде.')
+      setErr('Ставка не прошла. Попробуй ещё раз.')
+    } finally {
+      setIsPlacingBet(false)
     }
   }
+
 
     const left = round?.ends_at ? secondsLeft(round.ends_at) : 0
 
@@ -622,7 +636,7 @@ function buildRouletteStrip(players, seedStr) {
                 </div>
 
                 <button className="jackpot-play" onClick={onPlaceBet} disabled={!canBet}>
-                  Поставить
+                  {isPlacingBet ? '...' : 'Поставить'}
                 </button>
               </div>
 
