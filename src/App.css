@@ -1,7 +1,6 @@
-/* --- Shell --- */
 .App.app-shell {
   min-height: 100vh;
-  color: #e2e8f0;
+  color: #fff;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
   background:
     radial-gradient(1200px 800px at 30% 10%, rgba(168, 85, 247, 0.45), transparent 60%),
@@ -9,137 +8,90 @@
     linear-gradient(180deg, #120018 0%, #0b0010 40%, #06000a 100%);
 }
 
-/* Контентная область */
 .app-main {
-  padding-top: 64px; /* для не-home экранов */
-  padding-bottom: 92px; /* под Navigation */
+  padding-bottom: 92px;
   height: 100vh;
   overflow-y: auto;
-  box-sizing: border-box;
 }
 
-/* Home: у нас большой header как на скрине */
 .app-main--home {
   padding-top: 460px;
 }
 
-/* --- Playzone Header --- */
+/* HOME HEADER */
 .pz-header {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  inset: 0 0 auto 0;
+  padding: 18px;
   z-index: 1000;
-  padding: 18px 18px 14px;
-  box-sizing: border-box;
-  background: transparent;
 }
 
 .pz-toprow {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 14px;
 }
 
 .pz-brand {
   display: flex;
-  align-items: center;
   gap: 10px;
-  color: rgba(255, 255, 255, 0.92);
-}
-
-.pz-brand-icon {
-  font-size: 18px;
-  opacity: 0.95;
-}
-
-.pz-brand-name {
+  font-weight: 800;
   font-size: 20px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
 }
 
 .pz-profile-btn {
   width: 38px;
   height: 38px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.08);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  color: rgba(255, 255, 255, 0.9);
-  display: grid;
-  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: white;
 }
 
-.pz-profile-ic {
-  font-size: 18px;
-}
-
-/* Balance card */
+/* BALANCE */
 .pz-balance-card {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 12px;
-
-  padding: 18px 16px;
+  align-items: center;
+  padding: 18px;
   border-radius: 22px;
-
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  -webkit-backdrop-filter: blur(22px);
-  backdrop-filter: blur(22px);
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
-
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
   margin-bottom: 16px;
-}
-
-.pz-balance-left {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
 .pz-balance-value {
   font-size: 44px;
-  line-height: 1;
   font-weight: 800;
-  letter-spacing: 0.4px;
-  color: rgba(255, 255, 255, 0.95);
 }
 
 .pz-balance-label {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  opacity: 0.7;
 }
 
 .pz-balance-sub {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
+  opacity: 0.5;
 }
 
 .pz-add-btn {
-  padding: 10px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.12);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  color: rgba(255, 255, 255, 0.92);
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.15);
+  color: white;
   font-weight: 700;
 }
 
-/* Section title */
+/* GAMES */
 .pz-section-title {
-  margin: 6px 4px 10px;
   font-size: 18px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.88);
+  margin-bottom: 10px;
 }
 
-/* Games list */
 .pz-games {
   display: flex;
   flex-direction: column;
@@ -147,27 +99,19 @@
 }
 
 .pz-game {
-  width: 100%;
-  text-align: left;
-  padding: 14px 14px;
-  border-radius: 20px;
-
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: rgba(255, 255, 255, 0.08);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
 }
 
 .pz-game-left {
   display: flex;
-  align-items: center;
   gap: 12px;
-  min-width: 0;
+  align-items: center;
 }
 
 .pz-game-ic {
@@ -176,156 +120,62 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-
-  background: rgba(255, 255, 255, 0.10);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.9);
-
-  font-size: 18px;
-  flex: 0 0 auto;
-}
-
-.pz-game-text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
+  background: rgba(255,255,255,0.12);
 }
 
 .pz-game-name {
-  font-size: 16px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.92);
 }
 
 .pz-game-desc {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.62);
-}
-
-.pz-game-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex: 0 0 auto;
-}
-
-.pz-game-meta {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  white-space: nowrap;
+  opacity: 0.6;
 }
 
 .pz-game-arrow {
   font-size: 22px;
-  color: rgba(255, 255, 255, 0.65);
+  opacity: 0.6;
 }
 
-/* --- Loading/auth from твоего файла (оставил) --- */
+/* LOADING / ERROR */
 .loading-container {
+  height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 70vh;
-  gap: 20px;
 }
 
 .loading-spinner.cosmic {
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(56, 189, 248, 0.2);
-  border-top-color: rgba(255, 255, 255, 0.85);
+  border: 4px solid rgba(255,255,255,0.2);
+  border-top-color: white;
   border-radius: 50%;
-  animation: cosmic-spin 1.5s linear infinite;
+  animation: spin 1.4s linear infinite;
 }
 
-@keyframes cosmic-spin {
+@keyframes spin {
   to { transform: rotate(360deg); }
 }
 
 .auth-error {
-  text-align: center;
-  padding: 40px 20px;
-  background: rgba(239, 68, 68, 0.10);
+  margin: 80px 20px;
+  padding: 30px;
   border-radius: 20px;
-  border: 1px solid rgba(239, 68, 68, 0.30);
-  margin: 80px 18px 0;
-}
-
-.error-icon {
-  font-size: 60px;
-  margin-bottom: 20px;
-  animation: pulse 2s infinite;
+  background: rgba(255,0,0,0.1);
+  text-align: center;
 }
 
 .retry-btn {
-  background: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  padding: 12px 30px;
-  border-radius: 999px;
-  font-weight: 700;
-  cursor: pointer;
   margin-top: 20px;
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.1); }
-}
-
-/* Нотификации (оставляем как есть, если у тебя уже есть стили в другом месте — не конфликтуют) */
-.bonus-notification {
-  position: fixed;
-  top: 84px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  z-index: 2000;
-  pointer-events: none;
-}
-
-.bonus-notification-content {
-  background: rgba(0,0,0,0.45);
-  border: 1px solid rgba(255,255,255,0.14);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
-  color: rgba(255,255,255,0.92);
-  padding: 10px 12px;
-  border-radius: 14px;
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-/* --- scrollbars off (как у тебя) --- */
-#root {
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-  position: relative;
-}
-
-::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none !important;
-}
-
-* {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-}
-
-html, body {
-  overflow: -moz-scrollbars-none;
-  -ms-overflow-style: none;
-}
-
-::-webkit-scrollbar-track { background: transparent !important; }
-::-webkit-scrollbar-thumb { background: transparent !important; }
-::-webkit-scrollbar-corner { background: transparent !important; }
+/* SCROLL OFF */
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
