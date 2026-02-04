@@ -1,28 +1,78 @@
+/* ===== Reset (важно для iOS/Telegram WebView) ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: rgba(255,255,255,0.92);
+  background: #06000a;
+}
+
+/* Убираем дефолтные стили кнопок/ссылок (иначе синий текст и странные паддинги) */
+button, input, textarea, select {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+}
+
+a, a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* ===== App shell ===== */
 .App.app-shell {
   min-height: 100vh;
-  color: #fff;
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: rgba(255,255,255,0.92);
   background:
     radial-gradient(1200px 800px at 30% 10%, rgba(168, 85, 247, 0.45), transparent 60%),
     radial-gradient(900px 700px at 80% 30%, rgba(56, 189, 248, 0.28), transparent 55%),
     linear-gradient(180deg, #120018 0%, #0b0010 40%, #06000a 100%);
 }
 
+/* Контентная область */
 .app-main {
-  padding-bottom: 92px;
   height: 100vh;
   overflow-y: auto;
+  padding-top: 64px;     /* чтобы обычные экраны не залипали под верх */
+  padding-bottom: 92px;  /* место под нижнюю навигацию */
 }
 
+/* Home: большой header по макету */
 .app-main--home {
   padding-top: 460px;
 }
 
-/* HOME HEADER */
+/* ===== Home header ===== */
 .pz-header {
   position: fixed;
   inset: 0 0 auto 0;
-  padding: 18px;
+  padding: 18px 18px 14px;
   z-index: 1000;
 }
 
@@ -36,60 +86,78 @@
 .pz-brand {
   display: flex;
   gap: 10px;
+  align-items: center;
   font-weight: 800;
   font-size: 20px;
+  letter-spacing: 0.2px;
 }
 
 .pz-profile-btn {
   width: 38px;
   height: 38px;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.1);
-  color: white;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.20);
+  background: rgba(255,255,255,0.10);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
 }
 
-/* BALANCE */
+/* Баланс */
 .pz-balance-card {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px;
+  gap: 12px;
+
+  padding: 18px 16px;
   border-radius: 22px;
-  background: rgba(255,255,255,0.1);
+
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.16);
+  -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
+
+  box-shadow: 0 18px 55px rgba(0,0,0,0.35);
   margin-bottom: 16px;
 }
 
 .pz-balance-value {
   font-size: 44px;
   font-weight: 800;
+  line-height: 1;
+  color: rgba(255,255,255,0.95);
 }
 
 .pz-balance-label {
   font-size: 13px;
-  opacity: 0.7;
+  opacity: 0.72;
 }
 
 .pz-balance-sub {
   font-size: 12px;
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .pz-add-btn {
   border-radius: 999px;
   padding: 10px 14px;
-  border: 1px solid rgba(255,255,255,0.2);
-  background: rgba(255,255,255,0.15);
-  color: white;
+  border: 1px solid rgba(255,255,255,0.20);
+  background: rgba(255,255,255,0.14);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
   font-weight: 700;
+  cursor: pointer;
 }
 
-/* GAMES */
+/* Список игр */
 .pz-section-title {
   font-size: 18px;
   font-weight: 700;
-  margin-bottom: 10px;
+  margin: 6px 4px 10px;
+  color: rgba(255,255,255,0.88);
 }
 
 .pz-games {
@@ -99,19 +167,31 @@
 }
 
 .pz-game {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+
   padding: 14px;
   border-radius: 20px;
+
   background: rgba(255,255,255,0.08);
   border: 1px solid rgba(255,255,255,0.14);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+
+  color: rgba(255,255,255,0.92);
 }
 
 .pz-game-left {
   display: flex;
   gap: 12px;
   align-items: center;
+  min-width: 0;
 }
 
 .pz-game-ic {
@@ -121,15 +201,18 @@
   display: grid;
   place-items: center;
   background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.14);
+  flex: 0 0 auto;
 }
 
 .pz-game-name {
   font-weight: 800;
+  color: rgba(255,255,255,0.92);
 }
 
 .pz-game-desc {
   font-size: 12px;
-  opacity: 0.6;
+  opacity: 0.62;
 }
 
 .pz-game-arrow {
@@ -137,33 +220,33 @@
   opacity: 0.6;
 }
 
-/* LOADING / ERROR */
+/* Loading / Error */
 .loading-container {
   height: 70vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 14px;
 }
 
 .loading-spinner.cosmic {
   width: 60px;
   height: 60px;
-  border: 4px solid rgba(255,255,255,0.2);
-  border-top-color: white;
+  border: 4px solid rgba(255,255,255,0.20);
+  border-top-color: rgba(255,255,255,0.90);
   border-radius: 50%;
   animation: spin 1.4s linear infinite;
 }
 
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .auth-error {
   margin: 80px 20px;
   padding: 30px;
   border-radius: 20px;
-  background: rgba(255,0,0,0.1);
+  background: rgba(255,0,0,0.10);
+  border: 1px solid rgba(255,0,0,0.22);
   text-align: center;
 }
 
@@ -171,11 +254,37 @@
   margin-top: 20px;
   padding: 12px 24px;
   border-radius: 999px;
-  background: rgba(255,255,255,0.2);
-  color: white;
-  border: none;
+  background: rgba(255,255,255,0.16);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: rgba(255,255,255,0.92);
+  cursor: pointer;
 }
 
-/* SCROLL OFF */
-::-webkit-scrollbar { display: none; }
-* { scrollbar-width: none; }
+/* Нотификация */
+.bonus-notification {
+  position: fixed;
+  top: 84px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+.bonus-notification-content {
+  background: rgba(0,0,0,0.45);
+  border: 1px solid rgba(255,255,255,0.14);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+  color: rgba(255,255,255,0.92);
+  padding: 10px 12px;
+  border-radius: 14px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Убираем скроллбар */
+::-webkit-scrollbar { width: 0 !important; height: 0 !important; }
+* { scrollbar-width: none !important; }
